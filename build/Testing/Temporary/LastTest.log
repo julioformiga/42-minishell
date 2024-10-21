@@ -1,0 +1,43 @@
+Start testing: Sep 11 03:00 CEST
+----------------------------------------------------------
+1/1 Testing: TestMinishell
+1/1 Test: TestMinishell
+Command: "/home/julio/dev/42/cursus/minishell/build/test_minishell"
+Directory: /home/julio/dev/42/cursus/minishell/build
+"TestMinishell" start time: Sep 11 03:00 CEST
+Output:
+----------------------------------------------------------
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from minishell
+[ RUN      ] minishell.dumb_test
+Test 1
+[       OK ] minishell.dumb_test (0 ms)
+[ RUN      ] minishell.exit_without_mleaks
+valgrind: bin/minishell: No such file or directory
+/home/julio/dev/42/cursus/minishell/test/test_minishell.cpp:16: Failure
+Expected equality of these values:
+  result
+    Which is: 32512
+  0
+Memory leak detected or error occurred
+
+[  FAILED  ] minishell.exit_without_mleaks (7 ms)
+[----------] 2 tests from minishell (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] minishell.exit_without_mleaks
+
+ 1 FAILED TEST
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Failed.
+"TestMinishell" end time: Sep 11 03:00 CEST
+"TestMinishell" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 11 03:00 CEST

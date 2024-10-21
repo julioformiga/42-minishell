@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_minishell.dir/test/test_minishell.cpp.o -o test_minishell  lib/libgtest.a lib/libgtest_main.a lib/libgtest.a

@@ -1,0 +1,7 @@
+MiniShell 0 0
+test_minishell 4 0
+TestMinishell 61 0
+ValgrindTests 0 0
+ValgrindTestRun 0 0
+---
+TestMinishell
