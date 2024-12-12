@@ -40,20 +40,31 @@ char	*prompt(t_env *env)
 	return (rl);
 }
 
-void	input_process(char *rl, t_env *env)
+static void	exec_process(t_cmd *cmd, t_env *env)
 {
 	char	*input;
 
-	if (rl)
+	if (cmd->cmd->exec)
 	{
-		input = ft_strtrim(rl, " \t\n\r");
+		input = ft_strtrim(cmd->cmd->exec, " \t\n\r");
 		if (input)
 		{
-			add_history(input);
-			cmd_exec(input, env);
+			add_history(cmd->cmd_line);
+			cmd_exec(cmd, env);
 			free(input);
 		}
 	}
+}
+
+static int	ft_check_only_spaces(char *str)
+{
+	while (*str)
+	{
+		if (!isspace(*str))
+			return (1);
+		str++;
+	}
+	return (0);
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -70,13 +81,16 @@ int	main(int argc, char **argv, char **envp)
 	{
 		cmd = malloc(sizeof(t_cmd));
 		rl = prompt(env);
-		if (!builtin_exit(rl) || !rl)
+		if (!ft_check_only_spaces(rl))
+			continue ;
+		if (!rl)
 			break ;
-		cmd_init(cmd, rl);
-		cmd_print(cmd);
-		input_process(rl, env);
-		free(cmd);
+		cmd_parser(rl, cmd);
+		cmd_init(rl, cmd);
 		free(rl);
+		cmd_print(cmd);
+		exec_process(cmd, env);
+		free(cmd);
 	}
 	env_free(env);
 	return (g_signal);

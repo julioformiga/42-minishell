@@ -36,7 +36,7 @@ typedef struct s_env
 /* ================================= CMD =====================================*/
 typedef struct s_cmdblock
 {
-	char				*cmd;
+	char				*exec;
 	char				**args;
 	char				*sep;
 	struct s_cmdblock	*next;
@@ -44,10 +44,20 @@ typedef struct s_cmdblock
 
 typedef struct s_cmd
 {
-	char		*cmd_line;
-	t_cmdblock	*cmd;
+	t_cmdblock		*cmd;
+	char			*cmd_line;
+	int				pipe[2];
+	struct s_cmd	*next;
+	struct s_cmd	*prev;
 }	t_cmd;
 
+typedef int	(*t_builtin_fn)(t_cmd *cmd, t_env *env);
+
+typedef struct sbuiltin
+{
+	char			*name;
+	t_builtin_fn	fn;
+}	t_builtin;
 /* =============================== FUNCTIONS =================================*/
 char	*ft_strndup(const char *s1, size_t n);
 
@@ -59,16 +69,21 @@ int		env_set(t_env *env, char *key, char *value);
 void	env_print(t_env *env);
 void	env_free(t_env *env);
 
-char	*cmd_check(char *path, char *cmd);
-int		cmd_exec(char *command, t_env *env);
-int		cmd_setup(char *command, t_env *env, char ***args,
+char	*cmd_check(t_cmd *cmd, t_env *env);
+void	cmd_parser(char *readline, t_cmd *command);
+int		cmd_count_args(char *cmd);
+char	**cmd_get_args(char *cmd);
+int		cmd_exec(t_cmd *cmd, t_env *env);
+int		cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 			char **full_path);
-void	cmd_init(t_cmd *command, char *readline);
+void	cmd_init(char *readline, t_cmd *command);
 void	cmd_exec_inline(int argc, char **argv, t_env **env, t_cmd *cmd);
-void	cmd_print(t_cmd *command);
+void	cmd_print(t_cmd *cmd);
 void	cmd_free(t_cmd *cmd);
 
-int		builtin_cd(t_env *env, char *str);
-int		builtin_exit(char *str);
+int		builtin_echo(t_cmd *cmd, t_env *env);
+int		builtin_cd(t_cmd *cmd, t_env *env);
+int		builtin_exit(t_cmd *cmd, t_env *env);
+int		builtin_env(t_cmd *cmd, t_env *env);
 
 #endif

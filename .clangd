@@ -1,0 +1,11 @@
+CompileFlags:
+  Add:
+    [
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I../include",
+      "-I../../include",
+      "-I../build/_deps/googletest-src/googletest/include",
+      "-lreadline",
+    ]
