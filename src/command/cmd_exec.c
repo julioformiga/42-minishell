@@ -21,6 +21,38 @@ static t_builtin	g_builtins[] = {
 {NULL, NULL}
 };
 
+static char **env_to_array(t_env *env)
+{
+	int		count;
+	char	**env_array;
+	t_env	*current;
+	char	*tmp;
+	int		i;
+
+	count = 0;
+	current = env;
+	while (current)
+	{
+		count++;
+		current = current->next;
+	}
+	env_array = malloc(sizeof(char *) * (count + 1));
+	if (!env_array)
+		return (NULL);
+	current = env;
+	i = 0;
+	while (current)
+	{
+		tmp = ft_strjoin(current->key, "=");
+		env_array[i] = ft_strjoin(tmp, current->value);
+		free(tmp);
+		current = current->next;
+		i++;
+	}
+	env_array[i] = NULL;
+	return (env_array);
+}
+
 t_builtin_fn	get_builtin(char *cmd_name)
 {
 	int	i;
@@ -46,9 +78,19 @@ static int	cmd_create_pipe(int pipefd[2])
 	return (0);
 }
 
-static int	cmd_fork(char *full_path, char **args, int pipefd[2])
+static int	is_interactive_program(void)
+{
+	struct termios	term;
+	int				ret;
+
+	ret = tcgetattr(STDIN_FILENO, &term);
+	return (ret == 0 && isatty(STDIN_FILENO));
+}
+
+static int	cmd_fork(char *full_path, char **args, int pipefd[2], t_env *env)
 {
 	pid_t	pid;
+	char	**env_array;
 
 	pid = fork();
 	if (pid == -1)
@@ -58,10 +100,14 @@ static int	cmd_fork(char *full_path, char **args, int pipefd[2])
 	}
 	else if (pid == 0)
 	{
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-		execve(full_path, args, NULL);
+		env_array = env_to_array(env);
+		if (!is_interactive_program() && cmd_create_pipe(pipefd) != 0)
+		{
+			close(pipefd[1]);
+			dup2(pipefd[0], STDIN_FILENO);
+			close(pipefd[0]);
+		}
+		execve(full_path, args, env_array);
 		perror("execve");
 		exit(1);
 	}
@@ -125,7 +171,7 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		free(full_path);
 		return (1);
 	}
-	pid = cmd_fork(full_path, args, pipefd);
+	pid = cmd_fork(full_path, args, pipefd, env);
 	if (pid > 0)
 	{
 		cmd_parent_process(pipefd);
