@@ -23,11 +23,10 @@ int	builtin_exit(t_cmd *cmd, t_env *t_env)
 			exit_code = ft_atoi(cmd->cmd->args[0]);
 		else
 		{
-			printf("exit: %s: numeric argument required\n", cmd->cmd->args[0]);
-			return (1);
+			printf("exit\nexit: %s: numeric argument required\n", cmd->cmd->args[0]);
+			exit_code = 2;
 		}
 	}
-	free(cmd);
 	env_free(t_env);
 	exit(exit_code);
 }
