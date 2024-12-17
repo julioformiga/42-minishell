@@ -18,6 +18,8 @@ static t_builtin	g_builtins[] = {
 {"exit", builtin_exit},
 {"e", builtin_exit},
 {"env", builtin_env},
+{"export", builtin_export},
+{"unset", builtin_unset},
 {NULL, NULL}
 };
 
@@ -114,18 +116,39 @@ static int	cmd_fork(char *full_path, char **args, int pipefd[2], t_env *env)
 	return (pid);
 }
 
-static void	cmd_parent_process(int pipefd[2])
+static void	cmd_parent_process(int pipefd[2], pid_t child_pid)
 {
 	char	buffer[4096];
 	ssize_t	bytes_read;
+	fd_set	read_fds;
+	struct timeval timeout;
+	int		select_result;
+	int		child_status;
 
 	close(pipefd[1]);
-	bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1);
-	while (bytes_read > 0)
+	while (1)
 	{
+		FD_ZERO(&read_fds);
+		FD_SET(pipefd[0], &read_fds);
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
+		select_result = select(pipefd[0] + 1, &read_fds, NULL, NULL, &timeout);
+		if (select_result == -1)
+		{
+			perror("select");
+			break;
+		}
+		else if (select_result == 0)
+		{
+			if (waitpid(child_pid, &child_status, WNOHANG) != 0)
+				break;
+			continue;
+		}
+		bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1);
+		if (bytes_read <= 0)
+			break;
 		buffer[bytes_read] = '\0';
 		printf("%s", buffer);
-		bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1);
 	}
 	close(pipefd[0]);
 }
@@ -173,7 +196,7 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 	pid = cmd_fork(full_path, args, pipefd, env);
 	if (pid > 0)
 	{
-		cmd_parent_process(pipefd);
+		cmd_parent_process(pipefd, pid);
 		waitpid(pid, &status, 0);
 	}
 	free(full_path);
