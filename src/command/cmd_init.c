@@ -70,13 +70,13 @@ t_cmdblock	*create_cmdblock(char *cmd_part)
 	args = ft_split(cmd_part, ' ');
 	new_block->exec = ft_strdup(args[0]);
 	new_block->args = malloc(sizeof(char *) * (cmd_count_args(cmd_part) + 1));
-	i = -1;
+	i = 0;
 	while (i++, args[i])
 		new_block->args[i - 1] = ft_strdup(args[i]);
 	new_block->args[i - 1] = NULL;
+	free_array(args);
 	new_block->sep = NULL;
 	new_block->next = NULL;
-	free_array(args);
 	return (new_block);
 }
 

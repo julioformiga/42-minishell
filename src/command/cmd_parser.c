@@ -14,5 +14,9 @@
 
 void	cmd_parser(char *readline, t_cmd *command)
 {
-	command->cmd_line = ft_strdup(readline);
+	char	*cmd_line;
+
+	cmd_line = ft_strdup(readline);
+	command->cmd_line = cmd_line;
+	free(cmd_line);
 }

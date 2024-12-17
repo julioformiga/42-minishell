@@ -21,7 +21,7 @@ static t_builtin	g_builtins[] = {
 {NULL, NULL}
 };
 
-static char **env_to_array(t_env *env)
+static char	**env_to_array(t_env *env)
 {
 	int		count;
 	char	**env_array;
@@ -140,7 +140,6 @@ void	cmd_exec_inline(int argc, char **argv, t_env **env, t_cmd *cmd)
 		g_signal = cmd_exec(cmd, *env);
 		free(cmd);
 		env_free(*env);
-		free(*env);
 		exit(g_signal);
 	}
 	else if (argc > 1)

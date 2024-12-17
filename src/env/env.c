@@ -86,4 +86,5 @@ void	env_free(t_env *env)
 		free(tmp->value);
 		free(tmp);
 	}
+	free(env);
 }

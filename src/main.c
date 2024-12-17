@@ -44,14 +44,15 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 {
 	char	*input;
 
+	input = NULL;
 	if (cmd->cmd->exec)
 	{
 		input = ft_strtrim(cmd->cmd->exec, " \t\n\r");
 		if (input)
 		{
+			free(input);
 			add_history(cmd->cmd_line);
 			cmd_exec(cmd, env);
-			free(input);
 		}
 	}
 }
