@@ -21,6 +21,32 @@ static char	*ft_strjoin_free(char *s1, char *s2)
 	return (result);
 }
 
+int	env_unset(t_env **env, char *key)
+{
+	t_env	*current;
+	t_env	*prev;
+
+	current = *env;
+	prev = NULL;
+	while (current)
+	{
+		if (ft_strncmp(current->key, key, ft_strlen(current->key)) == 0)
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				*env = current->next;
+			free(current->key);
+			free(current->value);
+			free(current);
+			return (1);
+		}
+		prev = current;
+		current = current->next;
+	}
+	return (0);
+}
+
 int	builtin_env(t_cmd *cmd, t_env *env)
 {
 	t_env	*current;

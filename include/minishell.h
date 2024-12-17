@@ -66,6 +66,7 @@ void	free_array(char **array);
 t_env	*env_init(char **envp);
 char	*env_get(t_env *env, char *key);
 int		env_set(t_env *env, char *key, char *value);
+int		env_unset(t_env **env, char *key);
 void	env_print(t_env *env);
 void	env_free(t_env *env);
 
@@ -83,7 +84,9 @@ void	cmd_free(t_cmd *cmd);
 
 int		builtin_echo(t_cmd *cmd, t_env *env);
 int		builtin_cd(t_cmd *cmd, t_env *env);
-int		builtin_exit(t_cmd *cmd, t_env *env);
+int		builtin_export(t_cmd *cmd, t_env *env);
+int		builtin_unset(t_cmd *cmd, t_env *env);
 int		builtin_env(t_cmd *cmd, t_env *env);
+int		builtin_exit(t_cmd *cmd, t_env *env);
 
 #endif

@@ -89,7 +89,7 @@ int	main(int argc, char **argv, char **envp)
 		cmd_parser(rl, cmd);
 		cmd_init(rl, cmd);
 		free(rl);
-		cmd_print(cmd);
+		// cmd_print(cmd);
 		exec_process(cmd, env);
 		free(cmd);
 	}

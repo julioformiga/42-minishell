@@ -17,13 +17,19 @@ int	builtin_exit(t_cmd *cmd, t_env *t_env)
 	int		exit_code;
 
 	exit_code = 0;
+	if (cmd->cmd->args[1])
+	{
+		printf("minishell\nexit: too many arguments\n");
+		return (1);
+	}
 	if (cmd->cmd->args[0])
 	{
 		if (ft_isdigit(cmd->cmd->args[0][0]) || cmd->cmd->args[0][0] == '-')
 			exit_code = ft_atoi(cmd->cmd->args[0]);
 		else
 		{
-			printf("exit\nexit: %s: numeric argument required\n", cmd->cmd->args[0]);
+			printf("minishell\nexit: %s: numeric argument required\n",
+				cmd->cmd->args[0]);
 			exit_code = 2;
 		}
 	}
