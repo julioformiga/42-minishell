@@ -17,7 +17,7 @@ int	builtin_exit(t_cmd *cmd, t_env *t_env)
 	int		exit_code;
 
 	exit_code = 0;
-	if (cmd->cmd->args[1])
+	if (cmd->cmd->args[1] != NULL)
 	{
 		printf("minishell\nexit: too many arguments\n");
 		return (1);
