@@ -77,6 +77,7 @@ int	main(int argc, char **argv, char **envp)
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
+	add_history("less Doxygen");
 	cmd_exec_inline(argc, argv, &env, cmd);
 	while (g_signal != 2)
 	{
@@ -89,9 +90,9 @@ int	main(int argc, char **argv, char **envp)
 		cmd_parser(rl, cmd);
 		cmd_init(rl, cmd);
 		free(rl);
-		// cmd_print(cmd);
+		cmd_print(cmd);
 		exec_process(cmd, env);
-		free(cmd);
+		cmd_free(cmd);
 	}
 	env_free(env);
 	return (g_signal);

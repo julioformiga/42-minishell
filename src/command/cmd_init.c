@@ -159,9 +159,9 @@ void	cmd_print(t_cmd *command)
 		printf("\tCommand: %s\n", block->exec);
 		i = -1;
 		while (i++, block->args[i] != NULL)
-			printf("\tArg[%d]: %s\n", i, block->args[i]);
+			printf("\t\tArg[%d]: %s\n", i, block->args[i]);
 		if (block->sep)
-			printf("\tSeparator: %s\n", block->sep);
+			printf("\t\tSeparator: %s\n", block->sep);
 		block = block->next;
 	}
 }

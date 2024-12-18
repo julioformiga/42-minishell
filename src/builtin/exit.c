@@ -22,7 +22,7 @@ int	builtin_exit(t_cmd *cmd, t_env *t_env)
 		printf("minishell\nexit: too many arguments\n");
 		return (1);
 	}
-	if (cmd->cmd->args[0])
+	if (cmd->cmd->args[0] != NULL)
 	{
 		if (ft_isdigit(cmd->cmd->args[0][0]) || cmd->cmd->args[0][0] == '-')
 			exit_code = ft_atoi(cmd->cmd->args[0]);
@@ -34,5 +34,6 @@ int	builtin_exit(t_cmd *cmd, t_env *t_env)
 		}
 	}
 	env_free(t_env);
+	cmd_free(cmd);
 	exit(exit_code);
 }

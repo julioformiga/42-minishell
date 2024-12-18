@@ -16,20 +16,41 @@ void	free_array(char **array)
 {
 	int	i;
 
+	if (!array)
+		return ;
 	i = -1;
-	if (array)
-	{
-		while (array[++i])
-			free(array[i]);
-		free(array);
-	}
+	while (array[++i])
+		free(array[i]);
+	free(array);
+	array = NULL;
 }
 
 void	cmd_free(t_cmd *cmd)
 {
-	if (cmd->cmd)
-		free(cmd->cmd);
-	free(cmd);
+	t_cmd	*current;
+	t_cmd	*next;
+
+	if (!cmd)
+		return ;
+	current = cmd;
+	while (current)
+	{
+		next = current->next;
+		if (current->cmd_line)
+			free(current->cmd_line);
+		if (current->cmd)
+		{
+			if (current->cmd->args)
+				free_array(current->cmd->args);
+			if (current->cmd->exec)
+				free(current->cmd->exec);
+			if (current->cmd->sep)
+				free(current->cmd->sep);
+			free(current->cmd);
+		}
+		free(current);
+		current = next;
+	}
 }
 
 char	*ft_strndup(const char *s1, size_t n)

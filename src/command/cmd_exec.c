@@ -104,49 +104,28 @@ static int	cmd_fork(char *full_path, char **args, int pipefd[2], t_env *env)
 	{
 		env_array = env_to_array(env);
 		if (!is_interactive_program() && cmd_create_pipe(pipefd) != 0)
+		// if (!is_interactive_program())
 		{
-			close(pipefd[1]);
-			dup2(pipefd[0], STDIN_FILENO);
 			close(pipefd[0]);
+			dup2(pipefd[1], STDOUT_FILENO);
+			close(pipefd[1]);
 		}
 		execve(full_path, args, env_array);
+		free_array(env_array);
 		perror("execve");
 		exit(1);
 	}
 	return (pid);
 }
 
-static void	cmd_parent_process(int pipefd[2], pid_t child_pid)
+static void	cmd_parent_process(int pipefd[2])
 {
 	char	buffer[4096];
 	ssize_t	bytes_read;
-	fd_set	read_fds;
-	struct timeval timeout;
-	int		select_result;
-	int		child_status;
 
 	close(pipefd[1]);
-	while (1)
+	while ((bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
 	{
-		FD_ZERO(&read_fds);
-		FD_SET(pipefd[0], &read_fds);
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 0;
-		select_result = select(pipefd[0] + 1, &read_fds, NULL, NULL, &timeout);
-		if (select_result == -1)
-		{
-			perror("select");
-			break;
-		}
-		else if (select_result == 0)
-		{
-			if (waitpid(child_pid, &child_status, WNOHANG) != 0)
-				break;
-			continue;
-		}
-		bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1);
-		if (bytes_read <= 0)
-			break;
 		buffer[bytes_read] = '\0';
 		printf("%s", buffer);
 	}
@@ -196,7 +175,8 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 	pid = cmd_fork(full_path, args, pipefd, env);
 	if (pid > 0)
 	{
-		cmd_parent_process(pipefd, pid);
+		if (!is_interactive_program())
+			cmd_parent_process(pipefd);
 		waitpid(pid, &status, 0);
 	}
 	free(full_path);
