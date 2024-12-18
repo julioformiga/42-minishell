@@ -38,7 +38,7 @@ typedef struct s_cmdblock
 {
 	char				*exec;
 	char				**args;
-	char				*sep;
+	char				*separator;
 	struct s_cmdblock	*next;
 }	t_cmdblock;
 
@@ -46,9 +46,6 @@ typedef struct s_cmd
 {
 	t_cmdblock		*cmd;
 	char			*cmd_line;
-	int				pipe[2];
-	struct s_cmd	*next;
-	struct s_cmd	*prev;
 }	t_cmd;
 
 typedef int	(*t_builtin_fn)(t_cmd *cmd, t_env *env);
@@ -61,6 +58,7 @@ typedef struct sbuiltin
 /* =============================== FUNCTIONS =================================*/
 char	*ft_strndup(const char *s1, size_t n);
 
+int		ft_array_len(char **array);
 void	free_array(char **array);
 
 t_env	*env_init(char **envp);
@@ -78,7 +76,7 @@ int		cmd_exec(t_cmd *cmd, t_env *env);
 int		cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 			char **full_path);
 void	cmd_init(char *readline, t_cmd *command);
-void	cmd_exec_inline(int argc, char **argv, t_env **env, t_cmd *cmd);
+void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
 void	cmd_print(t_cmd *cmd);
 void	cmd_free(t_cmd *cmd);
 

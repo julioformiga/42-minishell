@@ -12,6 +12,16 @@
 
 #include "minishell.h"
 
+int	ft_array_len(char **array)
+{
+	int	i;
+
+	i = 0;
+	while (array[i])
+		i++;
+	return (i);
+}
+
 void	free_array(char **array)
 {
 	int	i;
@@ -27,30 +37,20 @@ void	free_array(char **array)
 
 void	cmd_free(t_cmd *cmd)
 {
-	t_cmd	*current;
-	t_cmd	*next;
+	t_cmdblock	*block;
+	t_cmdblock	*tmp;
 
-	if (!cmd)
-		return ;
-	current = cmd;
-	while (current)
+	block = cmd->cmd;
+	while (block)
 	{
-		next = current->next;
-		if (current->cmd_line)
-			free(current->cmd_line);
-		if (current->cmd)
-		{
-			if (current->cmd->args)
-				free_array(current->cmd->args);
-			if (current->cmd->exec)
-				free(current->cmd->exec);
-			if (current->cmd->sep)
-				free(current->cmd->sep);
-			free(current->cmd);
-		}
-		free(current);
-		current = next;
+		tmp = block;
+		block = block->next;
+		free(tmp->exec);
+		free_array(tmp->args);
+		free(tmp);
 	}
+	free(cmd->cmd_line);
+	free(cmd);
 }
 
 char	*ft_strndup(const char *s1, size_t n)

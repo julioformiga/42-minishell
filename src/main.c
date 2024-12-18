@@ -77,8 +77,10 @@ int	main(int argc, char **argv, char **envp)
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
+	add_history("cat Readme.md");
 	add_history("less Doxygen");
-	cmd_exec_inline(argc, argv, &env, cmd);
+	cmd_exec_inline(argc, argv, env, cmd);
+	free(cmd);
 	while (g_signal != 2)
 	{
 		cmd = malloc(sizeof(t_cmd));
@@ -90,7 +92,6 @@ int	main(int argc, char **argv, char **envp)
 		cmd_parser(rl, cmd);
 		cmd_init(rl, cmd);
 		free(rl);
-		cmd_print(cmd);
 		exec_process(cmd, env);
 		cmd_free(cmd);
 	}

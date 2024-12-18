@@ -12,12 +12,12 @@
 
 #include "minishell.h"
 
-int	builtin_exit(t_cmd *cmd, t_env *t_env)
+int	builtin_exit(t_cmd *cmd, t_env *env)
 {
 	int		exit_code;
 
 	exit_code = 0;
-	if (cmd->cmd->args[1] != NULL)
+	if (ft_array_len(cmd->cmd->args) > 1)
 	{
 		printf("minishell\nexit: too many arguments\n");
 		return (1);
@@ -33,7 +33,7 @@ int	builtin_exit(t_cmd *cmd, t_env *t_env)
 			exit_code = 2;
 		}
 	}
-	env_free(t_env);
+	env_free(env);
 	cmd_free(cmd);
 	exit(exit_code);
 }

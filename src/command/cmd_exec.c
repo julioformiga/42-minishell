@@ -132,16 +132,16 @@ static void	cmd_parent_process(int pipefd[2])
 	close(pipefd[0]);
 }
 
-void	cmd_exec_inline(int argc, char **argv, t_env **env, t_cmd *cmd)
+void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 {
 	extern int	g_signal;
 
 	if (argc == 3 && argv[1] && ft_strncmp(argv[1], "-c", 3) == 0)
 	{
 		cmd_init(argv[2], cmd);
-		g_signal = cmd_exec(cmd, *env);
+		g_signal = cmd_exec(cmd, env);
 		free(cmd);
-		env_free(*env);
+		env_free(env);
 		exit(g_signal);
 	}
 	else if (argc > 1)
