@@ -62,10 +62,39 @@ char	*cmd_check(t_cmd *cmd, t_env *env)
 
 int	cmd_setup(t_cmd *cmd, t_env *env, char ***args, char **full_path)
 {
+	int	i;
+
 	*full_path = cmd_check(cmd, env);
 	if (!*full_path)
 		return (1);
-	*args = cmd->cmd->args;
+
+	if (!cmd->cmd || !cmd->cmd->args)
+		return (1);
+
+	i = 0;
+	while (cmd->cmd->args[i])
+		i++;
+
+	*args = malloc(sizeof(char *) * (i + 2));
+	if (!*args)
+		return (1);
+
+	(*args)[0] = ft_strdup(*full_path);
+	i = 0;
+	while (cmd->cmd->args[i])
+	{
+		(*args)[i + 1] = ft_strdup(cmd->cmd->args[i]);
+		if (!(*args)[i + 1])
+		{
+			while (i >= 0)
+				free((*args)[i--]);
+			free(*args);
+			return (1);
+		}
+		i++;
+	}
+	(*args)[i + 1] = NULL;
+
 	return (0);
 }
 

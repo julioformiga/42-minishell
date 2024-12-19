@@ -104,7 +104,6 @@ static int	cmd_fork(char *full_path, char **args, int pipefd[2], t_env *env)
 	{
 		env_array = env_to_array(env);
 		if (!is_interactive_program() && cmd_create_pipe(pipefd) != 0)
-		// if (!is_interactive_program())
 		{
 			close(pipefd[0]);
 			dup2(pipefd[1], STDOUT_FILENO);
@@ -180,6 +179,7 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		waitpid(pid, &status, 0);
 	}
 	free(full_path);
+	free_array(args);
 	if (pid == -1)
 		return (1);
 	return (WEXITSTATUS(status));
