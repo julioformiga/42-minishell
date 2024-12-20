@@ -55,6 +55,8 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 			cmd_exec(cmd, env);
 		}
 	}
+	if (DEBUG == 1)
+		cmd_print(cmd);
 }
 
 static int	ft_check_only_spaces(char *str)
@@ -74,21 +76,29 @@ int	main(int argc, char **argv, char **envp)
 	t_cmd	*cmd;
 	char	*rl;
 
+	setup_signals();
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
-	add_history("cat Readme.md");
-	add_history("less Doxygen");
+	add_history("less external.supp");
+	add_history("cat external.supp | grep fun");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
 	{
 		cmd = malloc(sizeof(t_cmd));
 		rl = prompt(env);
-		if (!ft_check_only_spaces(rl))
-			continue ;
 		if (!rl)
+		{
+			free(cmd);
 			break ;
+		}
+		if (!ft_check_only_spaces(rl))
+		{
+			free(cmd);
+			free(rl);
+			continue ;
+		}
 		cmd_parser(rl, cmd);
 		cmd_init(rl, cmd);
 		free(rl);

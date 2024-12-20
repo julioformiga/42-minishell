@@ -140,15 +140,17 @@ void	cmd_print(t_cmd *command)
 	int			i;
 
 	block = command->cmd;
-	printf("Full command: %s\n", command->cmd_line);
+	printf("\n+---------------------------------------------------+\n");
+	printf("| Full command: %s\n", command->cmd_line);
 	while (block)
 	{
-		printf("\tCommand: %s\n", block->exec);
+		printf("|\tCommand: %s\n", block->exec);
 		i = -1;
 		while (i++, block->args[i] != NULL)
-			printf("\t\tArg[%d]: %s\n", i, block->args[i]);
+			printf("|\t\tArg[%d]: %s\n", i, block->args[i]);
 		if (block->separator)
-			printf("\t\tSeparator: %s\n", block->separator);
+			printf("|\t\tSeparator: %s\n", block->separator);
 		block = block->next;
 	}
+	printf("+---------------------------------------------------+\n\n");
 }

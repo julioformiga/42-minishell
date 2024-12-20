@@ -15,6 +15,7 @@
 # include "libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <signal.h>
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <stdbool.h>
@@ -22,6 +23,8 @@
 # include <termios.h>
 # include <curses.h>
 # include <dirent.h>
+
+# define DEBUG 1
 
 extern int	g_signal;
 
@@ -56,6 +59,9 @@ typedef struct sbuiltin
 	t_builtin_fn	fn;
 }	t_builtin;
 /* =============================== FUNCTIONS =================================*/
+void	signal_handler(int signum);
+void	setup_signals(void);
+
 char	*ft_strndup(const char *s1, size_t n);
 
 int		ft_array_len(char **array);
