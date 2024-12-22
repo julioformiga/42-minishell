@@ -46,7 +46,9 @@ void	cmd_free(t_cmd *cmd)
 		tmp = block;
 		block = block->next;
 		free(tmp->exec);
-		free_array(tmp->args);
+		if (tmp->args)
+			free_array(tmp->args);
+		free(tmp->separator);
 		free(tmp);
 	}
 	free(cmd->cmd_line);

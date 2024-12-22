@@ -12,123 +12,32 @@
 
 #include "minishell.h"
 
-static t_builtin	g_builtins[] = {
-{"echo", builtin_echo},
-{"cd", builtin_cd},
-{"exit", builtin_exit},
-{"e", builtin_exit},
-{"env", builtin_env},
-{"export", builtin_export},
-{"unset", builtin_unset},
-{NULL, NULL}
-};
-
-static char	**env_to_array(t_env *env)
+static void	execute_piped_command(t_cmd *cmd, t_env *env,
+									int input_fd, int output_fd)
 {
-	int		count;
-	char	**env_array;
-	t_env	*current;
-	char	*tmp;
-	int		i;
+	char			*full_path;
+	char			**args;
+	char			**env_array;
 
-	count = 0;
-	current = env;
-	while (current)
-	{
-		count++;
-		current = current->next;
-	}
-	env_array = malloc(sizeof(char *) * (count + 1));
-	if (!env_array)
-		return (NULL);
-	current = env;
-	i = 0;
-	while (current)
-	{
-		tmp = ft_strjoin(current->key, "=");
-		env_array[i] = ft_strjoin(tmp, current->value);
-		free(tmp);
-		current = current->next;
-		i++;
-	}
-	env_array[i] = NULL;
-	return (env_array);
-}
-
-t_builtin_fn	get_builtin(char *cmd_name)
-{
-	int	i;
-
-	i = 0;
-	while (g_builtins[i].name)
-	{
-		if (ft_strncmp(cmd_name, g_builtins[i].name,
-				ft_strlen(g_builtins[i].name) + 1) == 0)
-			return (g_builtins[i].fn);
-		i++;
-	}
-	return (NULL);
-}
-
-static int	cmd_create_pipe(int pipefd[2])
-{
-	if (pipe(pipefd) == -1)
-	{
-		perror("pipe");
-		return (1);
-	}
-	return (0);
-}
-
-static int	is_interactive_program(void)
-{
-	struct termios	term;
-	int				ret;
-
-	ret = tcgetattr(STDIN_FILENO, &term);
-	return (ret == 0 && isatty(STDIN_FILENO));
-}
-
-static int	cmd_fork(char *full_path, char **args, int pipefd[2], t_env *env)
-{
-	pid_t	pid;
-	char	**env_array;
-
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		return (-1);
-	}
-	else if (pid == 0)
-	{
-		env_array = env_to_array(env);
-		if (!is_interactive_program() && cmd_create_pipe(pipefd) != 0)
-		{
-			close(pipefd[0]);
-			dup2(pipefd[1], STDOUT_FILENO);
-			close(pipefd[1]);
-		}
-		execve(full_path, args, env_array);
-		free_array(env_array);
-		perror("execve");
+	if (cmd_setup(cmd, env, &args, &full_path) != 0)
 		exit(1);
-	}
-	return (pid);
-}
-
-static void	cmd_parent_process(int pipefd[2])
-{
-	char	buffer[4096];
-	ssize_t	bytes_read;
-
-	close(pipefd[1]);
-	while ((bytes_read = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
+	if (input_fd != STDIN_FILENO)
 	{
-		buffer[bytes_read] = '\0';
-		printf("%s", buffer);
+		dup2(input_fd, STDIN_FILENO);
+		close(input_fd);
 	}
-	close(pipefd[0]);
+	if (output_fd != STDOUT_FILENO)
+	{
+		dup2(output_fd, STDOUT_FILENO);
+		close(output_fd);
+	}
+	env_array = env_to_array(env);
+	execve(full_path, args, env_array);
+	free_array(env_array);
+	free_array(args);
+	free(full_path);
+	perror("execve");
+	exit(1);
 }
 
 void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
@@ -139,48 +48,76 @@ void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 	{
 		cmd_init(argv[2], cmd);
 		g_signal = cmd_exec(cmd, env);
-		free(cmd);
+		cmd_free(cmd);
 		env_free(env);
 		exit(g_signal);
 	}
 	else if (argc > 1)
 	{
 		printf("Usage:\n./minishell\nOR\n./minishell -c \"command\"\n");
-		free(cmd);
+		cmd_free(cmd);
 		g_signal = 2;
 	}
 }
 
 int	cmd_exec(t_cmd *cmd, t_env *env)
 {
-	char			*full_path;
-	char			**args;
-	int				status;
-	int				pipefd[2];
-	pid_t			pid;
-	t_builtin_fn	builtin;
+	int		pipefd[2];
+	int		prev_pipe;
+	pid_t	pid;
+	int		status;
+	t_cmd	*current;
 
-	builtin = get_builtin(cmd->cmd->exec);
-	if (builtin)
-		return (builtin(cmd, env));
-	if (cmd_setup(cmd, env, &args, &full_path) != 0)
-		return (1);
-	if (cmd_create_pipe(pipefd) != 0)
+	prev_pipe = STDIN_FILENO;
+	current = cmd;
+	while (current->cmd)
 	{
-		free_array(args);
-		free(full_path);
-		return (1);
+		if (current->cmd->next && pipe(pipefd) == -1)
+		{
+			perror("pipe");
+			return (1);
+		}
+		if (get_builtin(current->cmd->exec))
+		{
+			if (current->cmd->next)
+			{
+				status = execute_builtin(current, env, prev_pipe, pipefd[1]);
+				close(pipefd[1]);
+			}
+			else
+				status = execute_builtin(current, env, prev_pipe,
+						STDOUT_FILENO);
+		}
+		else
+		{
+			pid = fork();
+			if (pid == -1)
+			{
+				perror("fork");
+				return (1);
+			}
+			else if (pid == 0)
+			{
+				if (current->cmd->next)
+				{
+					execute_piped_command(current, env, prev_pipe, pipefd[1]);
+					close(pipefd[0]);
+				}
+				else
+					execute_piped_command(current, env, prev_pipe,
+						STDOUT_FILENO);
+			}
+		}
+		if (prev_pipe != STDIN_FILENO)
+			close(prev_pipe);
+		if (current->cmd->next)
+		{
+			close(pipefd[1]);
+			prev_pipe = pipefd[0];
+		}
+		current->cmd = current->cmd->next;
 	}
-	pid = cmd_fork(full_path, args, pipefd, env);
-	if (pid > 0)
-	{
-		if (!is_interactive_program())
-			cmd_parent_process(pipefd);
-		waitpid(pid, &status, 0);
-	}
-	free(full_path);
-	free_array(args);
-	if (pid == -1)
-		return (1);
+	while (wait(&status) > 0)
+		;
 	return (WEXITSTATUS(status));
 }

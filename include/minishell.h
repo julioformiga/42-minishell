@@ -24,7 +24,7 @@
 # include <curses.h>
 # include <dirent.h>
 
-# define DEBUG 1
+# define DEBUG 0
 
 extern int	g_signal;
 
@@ -59,38 +59,43 @@ typedef struct sbuiltin
 	t_builtin_fn	fn;
 }	t_builtin;
 /* =============================== FUNCTIONS =================================*/
-void	signal_handler(int signum);
-void	setup_signals(void);
+void			signal_handler(int signum);
+void			setup_signals(void);
 
-char	*ft_strndup(const char *s1, size_t n);
+char			*ft_strndup(const char *s1, size_t n);
 
-int		ft_array_len(char **array);
-void	free_array(char **array);
+char			**env_to_array(t_env *env);
+int				ft_array_len(char **array);
+void			free_array(char **array);
 
-t_env	*env_init(char **envp);
-char	*env_get(t_env *env, char *key);
-int		env_set(t_env *env, char *key, char *value);
-int		env_unset(t_env **env, char *key);
-void	env_print(t_env *env);
-void	env_free(t_env *env);
+t_builtin_fn	get_builtin(char *cmd_name);
+int				execute_builtin(t_cmd *cmd, t_env *env,
+					int input_fd, int output_fd);
 
-char	*cmd_check(t_cmd *cmd, t_env *env);
-void	cmd_parser(char *readline, t_cmd *command);
-int		cmd_count_args(char *cmd);
-char	**cmd_get_args(char *cmd);
-int		cmd_exec(t_cmd *cmd, t_env *env);
-int		cmd_setup(t_cmd *cmd, t_env *env, char ***args,
-			char **full_path);
-void	cmd_init(char *readline, t_cmd *command);
-void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
-void	cmd_print(t_cmd *cmd);
-void	cmd_free(t_cmd *cmd);
+t_env			*env_init(char **envp);
+char			*env_get(t_env *env, char *key);
+int				env_set(t_env *env, char *key, char *value);
+int				env_unset(t_env **env, char *key);
+void			env_print(t_env *env);
+void			env_free(t_env *env);
 
-int		builtin_echo(t_cmd *cmd, t_env *env);
-int		builtin_cd(t_cmd *cmd, t_env *env);
-int		builtin_export(t_cmd *cmd, t_env *env);
-int		builtin_unset(t_cmd *cmd, t_env *env);
-int		builtin_env(t_cmd *cmd, t_env *env);
-int		builtin_exit(t_cmd *cmd, t_env *env);
+char			*cmd_check(t_cmd *cmd, t_env *env);
+void			cmd_parser(char *readline, t_cmd *command);
+int				cmd_count_args(char *cmd);
+char			**cmd_get_args(char *cmd);
+int				cmd_exec(t_cmd *cmd, t_env *env);
+int				cmd_setup(t_cmd *cmd, t_env *env, char ***args,
+					char **full_path);
+void			cmd_init(char *readline, t_cmd *command);
+void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
+void			cmd_print(t_cmd *cmd);
+void			cmd_free(t_cmd *cmd);
+
+int				builtin_echo(t_cmd *cmd, t_env *env);
+int				builtin_cd(t_cmd *cmd, t_env *env);
+int				builtin_export(t_cmd *cmd, t_env *env);
+int				builtin_unset(t_cmd *cmd, t_env *env);
+int				builtin_env(t_cmd *cmd, t_env *env);
+int				builtin_exit(t_cmd *cmd, t_env *env);
 
 #endif

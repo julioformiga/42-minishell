@@ -94,40 +94,140 @@ t_cmdblock	*create_cmdblock(char *cmd_part)
 	t_cmdblock	*new_block;
 	char		**args;
 	int			i;
+	int			arg_count;
 
-	new_block = malloc(sizeof(t_cmdblock));
+	if (!cmd_part)
+		return (NULL);
+	printf("cmd_part: %s\n", cmd_part);
 	args = ft_split(cmd_part, ' ');
+	if (!args || !args[0])
+	{
+		free_array(args);
+		return (NULL);
+	}
+	new_block = malloc(sizeof(t_cmdblock));
+	if (!new_block)
+	{
+		free_array(args);
+		return (NULL);
+	}
 	new_block->exec = ft_strdup(args[0]);
-	new_block->args = malloc(sizeof(char *) * (cmd_count_args(cmd_part)));
+	if (!new_block->exec)
+	{
+		free(new_block);
+		free_array(args);
+		return (NULL);
+	}
+	arg_count = cmd_count_args(cmd_part);
+	new_block->args = malloc(sizeof(char *) * arg_count);
+	if (!new_block->args)
+	{
+		free(new_block->exec);
+		free(new_block);
+		free_array(args);
+		return (NULL);
+	}
 	i = 0;
-	while (i++, args[i])
-		new_block->args[i - 1] = ft_strdup(args[i]);
-	new_block->args[i - 1] = NULL;
+	while (args[i + 1])
+	{
+		new_block->args[i] = ft_strdup(args[i + 1]);
+		if (!new_block->args[i])
+		{
+			while (--i >= 0)
+				free(new_block->args[i]);
+			free(new_block->args);
+			free(new_block->exec);
+			free(new_block);
+			free_array(args);
+			return (NULL);
+		}
+		i++;
+	}
+	new_block->args[i] = NULL;
 	free_array(args);
 	new_block->separator = NULL;
 	new_block->next = NULL;
 	return (new_block);
 }
 
+static void	free_cmdblock_content(t_cmdblock *block)
+{
+	int	i;
+
+	if (!block)
+		return ;
+	if (block->exec)
+		free(block->exec);
+	if (block->args)
+	{
+		i = 0;
+		while (block->args[i])
+			free(block->args[i++]);
+		free(block->args);
+	}
+	if (block->separator)
+		free(block->separator);
+}
+static void	free_cmd_content(t_cmd *cmd)
+{
+	t_cmdblock	*current;
+	t_cmdblock	*next;
+
+	if (cmd->cmd_line)
+		free(cmd->cmd_line);
+	current = cmd->cmd;
+	while (current)
+	{
+		next = current->next;
+		free_cmdblock_content(current);
+		free(current);
+		current = next;
+	}
+	cmd->cmd_line = NULL;
+	cmd->cmd = NULL;
+}
 void	cmd_init(char *readline, t_cmd *cmd)
 {
 	t_cmdblock	*block;
 	char		**cmd_parts;
 	int			i;
 
+	if (!readline || !cmd)
+		return ;
 	cmd->cmd_line = ft_strdup(readline);
+	if (!cmd->cmd_line)
+		return ;
 	cmd_parts = ft_split(readline, '|');
+	if (!cmd_parts)
+	{
+		free(cmd->cmd_line);
+		cmd->cmd_line = NULL;
+		return ;
+	}
 	i = -1;
+	cmd->cmd = NULL;
 	while (cmd_parts[++i])
 	{
 		if (i == 0)
 		{
 			cmd->cmd = create_cmdblock(cmd_parts[i]);
+			if (!cmd->cmd)
+			{
+				free_array(cmd_parts);
+				free(cmd->cmd_line);
+				return ;
+			}
 			block = cmd->cmd;
 		}
 		else
 		{
 			block->next = create_cmdblock(cmd_parts[i]);
+			if (!block->next)
+			{
+				free_array(cmd_parts);
+				free_cmd_content(cmd);
+				return ;
+			}
 			block = block->next;
 		}
 	}
@@ -146,7 +246,7 @@ void	cmd_print(t_cmd *command)
 	{
 		printf("|\tCommand: %s\n", block->exec);
 		i = -1;
-		while (i++, block->args[i] != NULL)
+		while (block->args[++i])
 			printf("|\t\tArg[%d]: %s\n", i, block->args[i]);
 		if (block->separator)
 			printf("|\t\tSeparator: %s\n", block->separator);

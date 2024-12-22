@@ -57,11 +57,8 @@ tests:		all
 			cd build/ && cmake .. && make && cd ..
 			./build/test_minishell
 
-run:		all
-			printf "🚀 $(YELLOW)Running$(RESET): $(BIN)\n"
-			./$(BIN)
 checkleaks:	all
-			valgrind --leak-check=full --show-leak-kinds=all --suppressions=external.supp ./$(BIN)
+			valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=external.supp ./$(BIN)
 
 gensupp:	all
 			valgrind --leak-check=full --show-leak-kinds=all --gen-suppressions=all -s ./$(BIN) 2>> new.supp
@@ -70,6 +67,10 @@ norm:
 			printf "$(RED)"
 			norminette $(SRCS) lib include | grep "Error"
 			printf "$(RESET)"
+
+run:		all
+			printf "🚀 $(YELLOW)Running$(RESET): $(BIN)\n"
+			./$(BIN)
 
 .SILENT:	all clean fclean re run
 .PHONY:		all clean fclean re run

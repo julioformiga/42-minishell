@@ -80,8 +80,8 @@ int	main(int argc, char **argv, char **envp)
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
-	add_history("less external.supp");
 	add_history("cat external.supp | grep fun");
+	add_history("env | grep MEM");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
