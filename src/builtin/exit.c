@@ -33,7 +33,8 @@ int	builtin_exit(t_cmd *cmd, t_env *env)
 			exit_code = 2;
 		}
 	}
-	env_free(env);
+	rl_clear_history();
 	cmd_free(cmd);
+	env_free(env);
 	exit(exit_code);
 }
