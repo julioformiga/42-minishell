@@ -24,7 +24,7 @@
 # include <curses.h>
 # include <dirent.h>
 
-# define DEBUG 0
+# define DEBUG 1
 
 extern int	g_signal;
 
@@ -35,6 +35,16 @@ typedef struct s_env
 	char			*value;
 	struct s_env	*next;
 }	t_env;
+
+/* ================================ PARSER ===================================*/
+typedef struct s_parser
+{
+	char	*input;
+	int		i;
+	int		start;
+	int		in_quotes;
+	char	quote_char;
+}	t_parser;
 
 /* ================================= CMD =====================================*/
 typedef struct s_cmdblock
@@ -80,7 +90,7 @@ void			env_print(t_env *env);
 void			env_free(t_env *env);
 
 char			*cmd_check(t_cmd *cmd, t_env *env);
-void			cmd_parser(char *readline, t_cmd *command);
+void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
 int				cmd_count_args(char *cmd);
 char			**cmd_get_args(char *cmd);
 int				cmd_exec(t_cmd *cmd, t_env *env);
@@ -88,7 +98,7 @@ int				cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 					char **full_path);
 void			cmd_init(char *readline, t_cmd *command);
 void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
-void			cmd_print(t_cmd *cmd);
+void			cmd_debug(t_cmd *cmd);
 void			cmd_free(t_cmd *cmd);
 
 int				builtin_echo(t_cmd *cmd, t_env *env);

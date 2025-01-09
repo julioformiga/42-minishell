@@ -1,20 +1,13 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd_parser.c                                       :+:      :+:    :+:   */
+/*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/20 14:21:23 by julio.formiga     #+#    #+#             */
-/*   Updated: 2024/11/20 14:21:23 by julio.formiga    ###   ########.fr       */
+/*   Created: 2025/01/09 11:17:17 by julio.formiga     #+#    #+#             */
+/*   Updated: 2025/01/09 11:17:17 by julio.formiga    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
-{
-	(void)env;
-	(void)cmd;
-	(void)rl;
-}

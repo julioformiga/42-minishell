@@ -44,6 +44,8 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 {
 	char	*input;
 
+	if (DEBUG == 1)
+		cmd_debug(cmd);
 	input = NULL;
 	if (cmd->cmd->exec)
 	{
@@ -55,8 +57,6 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 			cmd_exec(cmd, env);
 		}
 	}
-	if (DEBUG == 1)
-		cmd_print(cmd);
 }
 
 static int	ft_check_only_spaces(char *str)
@@ -81,7 +81,9 @@ int	main(int argc, char **argv, char **envp)
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
 	add_history("cat external.supp | grep fun");
-	add_history("env | grep MEM");
+	add_history("env | grep MEM > result.txt");
+	add_history("ls | grep Makefile > result.txt");
+	add_history("echo \"Hello\" 'World'");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
@@ -99,7 +101,7 @@ int	main(int argc, char **argv, char **envp)
 			free(rl);
 			continue ;
 		}
-		cmd_parser(rl, cmd);
+		cmd_parser(rl, cmd, env);
 		cmd_init(rl, cmd);
 		free(rl);
 		exec_process(cmd, env);
