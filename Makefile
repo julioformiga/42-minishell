@@ -46,7 +46,7 @@ fclean:		clean
 			$(RM) vgcore.* a.out
 			make fclean -C $(LIBFT_DIR)
 			printf "🧹 $(RED)Cleaning$(RESET): build/\n"
-			cd build/ && make clean && cd ..
+#			cd build/ && make clean && cd ..
 
 re:			fclean all
 
