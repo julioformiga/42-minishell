@@ -18,7 +18,8 @@ void	signal_handler(int signum)
 	{
 		g_signal = 0;
 		write(STDOUT_FILENO, "\n", 1);
-		rl_on_new_line();
+		if (rl_end == 0)
+			rl_on_new_line();
 		rl_replace_line("", 0);
 		rl_redisplay();
 	}
@@ -32,7 +33,7 @@ void	setup_signals(void)
 	sa.sa_flags = SA_RESTART;
 	sigemptyset(&sa.sa_mask);
 
-	rl_catch_signals = 0;
+	// rl_catch_signals = 0;
 	sigaction(SIGINT, &sa, NULL);
 	signal(SIGQUIT, SIG_IGN);
 }
