@@ -44,7 +44,7 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 {
 	char	*input;
 
-	if (DEBUG == 1)
+	if (ft_atoi(env_get(env, "DEBUG")) == 1)
 		cmd_debug(cmd);
 	input = NULL;
 	if (cmd->cmd->exec)
@@ -80,10 +80,9 @@ int	main(int argc, char **argv, char **envp)
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
-	add_history("cat external.supp | grep fun");
-	add_history("env | grep MEM > result.txt");
+	env_set(env, "DEBUG", ft_itoa(DEBUG));
+	add_history("export DEBUG=1");
 	add_history("ls | grep Makefile > result.txt");
-	add_history("echo \"Hello\" 'World'");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
@@ -92,6 +91,7 @@ int	main(int argc, char **argv, char **envp)
 		rl = prompt(env);
 		if (!rl)
 		{
+			printf("exit\n");
 			free(cmd);
 			break ;
 		}
