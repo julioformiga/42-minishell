@@ -41,6 +41,9 @@ t_env	*env_init(char **envp)
 
 int	env_set(t_env *env, char *key, char *value)
 {
+	t_env	*new;
+	t_env	*last;
+
 	while (env != NULL)
 	{
 		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
@@ -49,9 +52,17 @@ int	env_set(t_env *env, char *key, char *value)
 			env->value = ft_strdup(value);
 			return (0);
 		}
+		last = env;
 		env = env->next;
 	}
-	return (1);
+	new = malloc(sizeof(t_env));
+	if (!new)
+		return (1);
+	new->key = ft_strdup(key);
+	new->value = ft_strdup(value);
+	new->next = NULL;
+	last->next = new;
+	return (0);
 }
 
 char	*env_get(t_env *env, char *key)
