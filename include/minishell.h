@@ -24,7 +24,7 @@
 # include <curses.h>
 # include <dirent.h>
 
-# define DEBUG 1
+# define DEBUG 0
 
 extern int	g_signal;
 
@@ -89,6 +89,9 @@ int				env_unset(t_env **env, char *key);
 void			env_print(t_env *env);
 void			env_free(t_env *env);
 
+t_cmdblock		*create_cmdblock(char *cmd_part);
+void			free_cmdblock_content(t_cmdblock *block);
+void			free_cmd_content(t_cmd *cmd);
 char			*cmd_check(t_cmd *cmd, t_env *env);
 void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
 int				cmd_count_args(char *cmd);
@@ -96,7 +99,7 @@ char			**cmd_get_args(char *cmd);
 int				cmd_exec(t_cmd *cmd, t_env *env);
 int				cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 					char **full_path);
-void			cmd_init(char *readline, t_cmd *command);
+void			cmd_init(char *rl, t_cmd *cmd, t_env *env);
 void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
 void			cmd_debug(t_cmd *cmd);
 void			cmd_free(t_cmd *cmd);

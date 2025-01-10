@@ -46,7 +46,7 @@ void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 
 	if (argc == 3 && argv[1] && ft_strncmp(argv[1], "-c", 3) == 0)
 	{
-		cmd_init(argv[2], cmd);
+		cmd_init(argv[2], cmd, env);
 		g_signal = cmd_exec(cmd, env);
 		cmd_free(cmd);
 		env_free(env);

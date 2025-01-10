@@ -150,7 +150,7 @@ t_cmdblock	*create_cmdblock(char *cmd_part)
 	return (new_block);
 }
 
-static void	free_cmdblock_content(t_cmdblock *block)
+void	free_cmdblock_content(t_cmdblock *block)
 {
 	int	i;
 
@@ -168,7 +168,7 @@ static void	free_cmdblock_content(t_cmdblock *block)
 	if (block->separator)
 		free(block->separator);
 }
-static void	free_cmd_content(t_cmd *cmd)
+void	free_cmd_content(t_cmd *cmd)
 {
 	t_cmdblock	*current;
 	t_cmdblock	*next;
@@ -187,50 +187,12 @@ static void	free_cmd_content(t_cmd *cmd)
 	cmd->cmd = NULL;
 }
 
-void	cmd_init(char *readline, t_cmd *cmd)
+void	cmd_init(char *rl, t_cmd *cmd, t_env *env)
 {
-	t_cmdblock	*block;
-	char		**cmd_parts;
-	int			i;
-
-	if (!readline || !cmd)
+	if (!rl || !cmd)
 		return ;
-	cmd->cmd_line = ft_strdup(readline);
+	cmd->cmd_line = ft_strdup(rl);
 	if (!cmd->cmd_line)
 		return ;
-	cmd_parts = ft_split(readline, '|');
-	if (!cmd_parts)
-	{
-		free(cmd->cmd_line);
-		cmd->cmd_line = NULL;
-		return ;
-	}
-	i = -1;
-	cmd->cmd = NULL;
-	while (cmd_parts[++i])
-	{
-		if (i == 0)
-		{
-			cmd->cmd = create_cmdblock(cmd_parts[i]);
-			if (!cmd->cmd)
-			{
-				free_array(cmd_parts);
-				free(cmd->cmd_line);
-				return ;
-			}
-			block = cmd->cmd;
-		}
-		else
-		{
-			block->next = create_cmdblock(cmd_parts[i]);
-			if (!block->next)
-			{
-				free_array(cmd_parts);
-				free_cmd_content(cmd);
-				return ;
-			}
-			block = block->next;
-		}
-	}
-	free_array(cmd_parts);
+	cmd_parser(rl, cmd, env);
 }

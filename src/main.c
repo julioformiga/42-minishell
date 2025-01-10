@@ -81,8 +81,10 @@ int	main(int argc, char **argv, char **envp)
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
 	env_set(env, "DEBUG", ft_itoa(DEBUG));
+	env_set(env, "a", "123");
 	add_history("export DEBUG=1");
 	add_history("ls | grep Makefile > result.txt");
+	add_history("e\"ch\"o \"arg01> > $a |'nb'$a \" 'arg02> > $a$a' | cat");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
@@ -101,8 +103,7 @@ int	main(int argc, char **argv, char **envp)
 			free(rl);
 			continue ;
 		}
-		cmd_parser(rl, cmd, env);
-		cmd_init(rl, cmd);
+		cmd_init(rl, cmd, env);
 		free(rl);
 		exec_process(cmd, env);
 		cmd_free(cmd);
