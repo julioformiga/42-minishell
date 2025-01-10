@@ -1,0 +1,8 @@
+export a=b
+
+echo "arg01 $a \"|\"'\nb'\$a " 'arg02 \n"$a" \$a'
+
+Full command:
+    Command #1: echo
+        Arg #1: [arg01 b "|"'\nb'$a ]               [dquotes]
+        Arg #2: [arg02 \n"$a" \$a]                  [squotes]
