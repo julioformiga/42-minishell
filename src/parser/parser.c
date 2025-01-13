@@ -12,26 +12,163 @@
 
 #include "minishell.h"
 
-static void	cmd_parser_readline(char *rl)
+static int ft_isspace(char c)
 {
-	int		i = -1;
+	return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r');
+}
 
-	printf(">>>>> %s\n", rl);
-	while(rl[++i])
+static int is_operator_start(char c)
+{
+	return (c == '|' || c == '<' || c == '>');
+}
+
+static int count_tokens(char *rl)
+{
+	int		count;
+	char	quote;
+
+	count = 0;
+	while (*rl)
 	{
-		printf("\033[1;34m");
-		if (rl[i] == '"' && rl[i - 1] != '\\' & i != 0)
-			continue;
-		else if (rl[i] == '"' && rl[i - 1] == ' ')
+		while (*rl && ft_isspace(*rl))
+			rl++;
+		if (!*rl)
+			break;
+		count++;
+		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
 		{
-			while (++i, rl[i] != '"' && rl[i - 1] != '\\')
-				printf("%c", rl[i]);
+			quote = *rl++;
+			while (*rl && *rl != quote)
+				rl++;
+			if (*rl)
+				rl++;
+		}
+		else if (is_operator_start(*rl))
+		{
+			if (*rl == '<' && *(rl + 1) == '<')
+				rl++;
+			else if (*rl == '>' && *(rl + 1) == '>')
+				rl++;
+			rl++;
 		}
 		else
-			printf("%c", rl[i]);
-		printf("\033[0m");
+			while (*rl && !ft_isspace(*rl) && !is_operator_start(*rl))
+				rl++;
 	}
-	printf("\n");
+	return (count);
+}
+
+static char *extract_quoted_token(char **rl)
+{
+	char	quote;
+	char	*start;
+	char	*token;
+	int		len;
+
+	quote = **rl;
+	start = *rl;
+	(*rl)++;
+	while (**rl && **rl != quote)
+		(*rl)++;
+	if (**rl)
+		(*rl)++;
+	len = *rl - start;
+	token = ft_substr(start, 0, len);
+	return (token);
+}
+
+static char *extract_operator(char **rl)
+{
+	char	*token;
+
+	if (**rl == '|')
+		token = ft_strdup("|");
+	else if (**rl == '<' && *(*rl + 1) == '<')
+	{
+		token = ft_strdup("<<");
+		(*rl)++;
+	}
+	else if (**rl == '>' && *(*rl + 1) == '>')
+	{
+		token = ft_strdup(">>");
+		(*rl)++;
+	}
+	else if (**rl == '<')
+		token = ft_strdup("<");
+	else
+		token = ft_strdup(">");
+	(*rl)++;
+	return (token);
+}
+
+static char *extract_word(char **rl)
+{
+	char	*start;
+	char	*token;
+	char	*clean;
+	int		len;
+	int		i;
+	int		j;
+
+	start = *rl;
+	while (**rl && !ft_isspace(**rl) && !is_operator_start(**rl))
+		(*rl)++;
+	len = *rl - start;
+	token = ft_substr(start, 0, len);
+	if (!token)
+		return (NULL);
+
+	clean = malloc(len + 1);
+	if (!clean)
+	{
+		free(token);
+		return (NULL);
+	}
+	i = 0;
+	j = 0;
+	while (token[i])
+	{
+		if (token[i] != '"' && token[i] != '\'')
+			clean[j++] = token[i];
+		i++;
+	}
+	clean[j] = '\0';
+	free(token);
+	return (clean);
+}
+
+static char **cmd_parser_readline(char *rl)
+{
+	char	**tokens;
+	int		token_count;
+	int		i;
+
+	token_count = count_tokens(rl);
+	tokens = malloc(sizeof(char *) * (token_count + 1));
+	if (!tokens)
+		return (NULL);
+	i = 0;
+	while (*rl)
+	{
+		while (*rl && ft_isspace(*rl))
+			rl++;
+		if (!*rl)
+			break;
+		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
+			tokens[i] = extract_quoted_token(&rl);
+		else if (is_operator_start(*rl))
+			tokens[i] = extract_operator(&rl);
+		else
+			tokens[i] = extract_word(&rl);
+		if (!tokens[i])
+		{
+			free_array(tokens);
+			return (NULL);
+		}
+		i++;
+	}
+	tokens[i] = NULL;
+	return (tokens);
 }
 
 void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
@@ -41,8 +178,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	int			i;
 
 	(void)env;
-	cmd_parser_readline(rl);
-	cmd_parts = ft_split(rl, '|');
+	cmd_parts = cmd_parser_readline(rl);
 	if (!cmd_parts)
 	{
 		free(cmd->cmd_line);
@@ -53,6 +189,10 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	cmd->cmd = NULL;
 	while (cmd_parts[++i])
 	{
+		printf("\033[1;33m");
+		cmd_parts[i] = parser_expansion(cmd_parts[i], env);
+		printf("Block %d: %s\n", i, cmd_parts[i]);
+		printf("\033[0m");
 		if (i == 0)
 		{
 			cmd->cmd = create_cmdblock(cmd_parts[i]);

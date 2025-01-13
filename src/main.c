@@ -82,9 +82,10 @@ int	main(int argc, char **argv, char **envp)
 	cmd = malloc(sizeof(t_cmd));
 	env_set(env, "DEBUG", ft_itoa(DEBUG));
 	env_set(env, "a", "123");
+	env_set(env, "c", "cho");
 	add_history("export DEBUG=1");
 	add_history("ls | grep Makefile > result.txt");
-	add_history("e\"ch\"o \"arg01> > $a |'nb'$a \" 'arg02> > $a$a' | cat");
+	add_history("e$c \"arg01>     > $a |'nb'$a   \" a$USER 'arg02> > $a$a' | cat >$USER result.txt");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)

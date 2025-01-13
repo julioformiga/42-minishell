@@ -24,7 +24,7 @@
 # include <curses.h>
 # include <dirent.h>
 
-# define DEBUG 0
+# define DEBUG 1
 
 extern int	g_signal;
 
@@ -89,6 +89,7 @@ int				env_unset(t_env **env, char *key);
 void			env_print(t_env *env);
 void			env_free(t_env *env);
 
+char			*parser_expansion(const char *str, t_env *env);
 t_cmdblock		*create_cmdblock(char *cmd_part);
 void			free_cmdblock_content(t_cmdblock *block);
 void			free_cmd_content(t_cmd *cmd);
