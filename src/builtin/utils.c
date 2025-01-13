@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/03 19:25:53 by julio.formiga     #+#    #+#             */
-/*   Updated: 2025/01/03 19:25:53 by julio.formiga    ###   ########.fr       */
+/*   Created: 2025/01/03 19:25:53 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/12 18:28:38 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ static t_builtin	g_builtins[] = {
 {"env", builtin_env},
 {"export", builtin_export},
 {"unset", builtin_unset},
+{"pwd", builtin_pwd},
 {NULL, NULL}
 };
 
@@ -56,4 +57,3 @@ int	execute_builtin(t_cmd *cmd, t_env *env, int input_fd, int output_fd)
 	close(stdin_backup);
 	return (result);
 }
-

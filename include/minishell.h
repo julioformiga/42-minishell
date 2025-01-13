@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/30 14:35:35 by julio.formiga     #+#    #+#             */
-/*   Updated: 2024/08/30 14:35:35 by julio.formiga    ###   ########.fr       */
+/*   Created: 2024/08/30 14:35:35 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/12 18:35:58 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,5 +110,6 @@ int				builtin_export(t_cmd *cmd, t_env *env);
 int				builtin_unset(t_cmd *cmd, t_env *env);
 int				builtin_env(t_cmd *cmd, t_env *env);
 int				builtin_exit(t_cmd *cmd, t_env *env);
+int				builtin_pwd(t_cmd *cmd, t_env *env);
 
 #endif
