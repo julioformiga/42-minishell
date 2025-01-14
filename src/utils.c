@@ -12,6 +12,21 @@
 
 #include "minishell.h"
 
+void	env_free(t_env *env)
+{
+	t_env	*tmp;
+
+	while (env)
+	{
+		tmp = env;
+		env = env->next;
+		free(tmp->key);
+		free(tmp->value);
+		free(tmp);
+	}
+	free(env);
+}
+
 int	ft_array_len(char **array)
 {
 	int	i;

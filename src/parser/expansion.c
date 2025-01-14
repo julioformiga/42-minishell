@@ -36,17 +36,6 @@ static char *get_var_name(const char *str)
 	return (var_name);
 }
 
-static char *get_env_value(const char *var_name, t_env *env)
-{
-	while (env)
-	{
-		if (ft_strncmp(env->key, var_name, ft_strlen(var_name)) == 0)
-			return (ft_strdup(env->value));
-		env = env->next;
-	}
-	return (ft_strdup(""));
-}
-
 static char *expand_variable(const char *str, int *i, t_env *env)
 {
 	char	*var_name;
@@ -57,7 +46,7 @@ static char *expand_variable(const char *str, int *i, t_env *env)
 	var_name = get_var_name(str + *i);
 	if (!var_name)
 		return (NULL);
-	value = get_env_value(var_name, env);
+	value = env_get(env, var_name);
 	*i += ft_strlen(var_name);
 	free(var_name);
 	return (value);

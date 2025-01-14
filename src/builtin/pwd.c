@@ -20,7 +20,6 @@ int	builtin_pwd(t_cmd *cmd, t_env *env)
 	(void)env;
 	if (getcwd(cwd, 4096) != 0)
 	{
-		//ft_printf("AAAAAAAAA\n");
 		ft_putstr_fd(cwd, STDOUT_FILENO);
 		ft_putchar_fd('\n', STDOUT_FILENO);
 		return (0);

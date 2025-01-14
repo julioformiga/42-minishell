@@ -12,13 +12,68 @@
 
 #include "minishell.h"
 
-static char	*ft_strjoin_free(char *s1, char *s2)
+t_env	*env_init(char **envp)
 {
-	char	*result;
+	t_env	*env;
+	t_env	*tmp;
+	int		i;
 
-	result = ft_strjoin(s1, s2);
-	free(s1);
-	return (result);
+	env = NULL;
+	i = 0;
+	while (envp[i] != NULL)
+	{
+		tmp = malloc(sizeof(t_env));
+		tmp->key = ft_strndup(envp[i], ft_strchr(envp[i], '=') - envp[i]);
+		tmp->value = ft_strdup(ft_strchr(envp[i], '=') + 1);
+		if (!tmp->key || !tmp->value)
+		{
+			free(tmp->key);
+			free(tmp->value);
+			free(tmp);
+			return (NULL);
+		}
+		tmp->next = env;
+		env = tmp;
+		i++;
+	}
+	return (env);
+}
+
+char	*env_get(t_env *env, char *key)
+{
+	while (env != NULL)
+	{
+		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
+			return (ft_strdup(env->value));
+		env = env->next;
+	}
+	return (NULL);
+}
+
+int	env_set(t_env *env, char *key, char *value)
+{
+	t_env	*new;
+	t_env	*last;
+
+	while (env != NULL)
+	{
+		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
+		{
+			free(env->value);
+			env->value = ft_strdup(value);
+			return (0);
+		}
+		last = env;
+		env = env->next;
+	}
+	new = malloc(sizeof(t_env));
+	if (!new)
+		return (1);
+	new->key = ft_strdup(key);
+	new->value = ft_strdup(value);
+	new->next = NULL;
+	last->next = new;
+	return (0);
 }
 
 int	env_unset(t_env **env, char *key)
@@ -57,8 +112,8 @@ int	builtin_env(t_cmd *cmd, t_env *env)
 	while (current)
 	{
 		line = ft_strjoin(current->key, "=");
-		line = ft_strjoin_free(line, current->value);
-		line = ft_strjoin_free(line, "\n");
+		line = ft_strjoin(line, current->value);
+		line = ft_strjoin(line, "\n");
 		ft_putstr_fd(line, STDOUT_FILENO);
 		free(line);
 		current = current->next;

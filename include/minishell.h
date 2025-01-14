@@ -86,7 +86,6 @@ t_env			*env_init(char **envp);
 char			*env_get(t_env *env, char *key);
 int				env_set(t_env *env, char *key, char *value);
 int				env_unset(t_env **env, char *key);
-void			env_print(t_env *env);
 void			env_free(t_env *env);
 
 char			*parser_expansion(const char *str, t_env *env);
