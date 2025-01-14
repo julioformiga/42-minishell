@@ -36,16 +36,6 @@ typedef struct s_env
 	struct s_env	*next;
 }	t_env;
 
-/* ================================ PARSER ===================================*/
-typedef struct s_parser
-{
-	char	*input;
-	int		i;
-	int		start;
-	int		in_quotes;
-	char	quote_char;
-}	t_parser;
-
 /* ================================= CMD =====================================*/
 typedef struct s_cmdblock
 {
@@ -93,7 +83,7 @@ t_cmdblock		*create_cmdblock(char *cmd_part);
 void			free_cmdblock_content(t_cmdblock *block);
 void			free_cmd_content(t_cmd *cmd);
 char			*cmd_check(t_cmd *cmd, t_env *env);
-void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
+t_cmdblock		*cmd_parser(char *rl, t_cmd *cmd, t_env *env);
 int				cmd_count_args(char *cmd);
 char			**cmd_get_args(char *cmd);
 int				cmd_exec(t_cmd *cmd, t_env *env);

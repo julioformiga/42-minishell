@@ -27,12 +27,13 @@ char	*prompt(t_env *env)
 	if (ft_strncmp(dir, dir_home, ft_strlen(dir_home)) == 0)
 		dir = ft_strjoin("~", dir + ft_strlen(dir_home));
 	if (g_signal == 0)
-		prompt_ini = ft_strjoin("\033[1;32m[minishell@42] ", dir);
+		prompt_ini = ft_strjoin("[minishell@42] ", dir);
 	else if (g_signal == 1)
 		prompt_ini = ft_strjoin("\033[1;31m[minishell@42] ", dir);
 	else
 		prompt_ini = ft_strjoin("\033[1;33m[minishell@42] ", dir);
-	prompt = ft_strjoin(prompt_ini, " $>\033[0m ");
+	// prompt = ft_strjoin(prompt_ini, " $>\033[0m ");
+	prompt = ft_strjoin(prompt_ini, " $> ");
 	free(prompt_ini);
 	free(dir);
 	rl = readline(prompt);
@@ -84,6 +85,7 @@ int	main(int argc, char **argv, char **envp)
 	env_set(env, "a", "123");
 	env_set(env, "c", "cho");
 	add_history("export DEBUG=1");
+	add_history("echo $$USER");
 	add_history("ls | grep Makefile > result.txt");
 	add_history("e$c \"arg01>     > $a |'nb'$a   \" a$USER 'arg02> > $a$a' | cat >$USER result.txt");
 	cmd_exec_inline(argc, argv, env, cmd);

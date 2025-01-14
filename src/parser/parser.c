@@ -171,11 +171,12 @@ static char **cmd_parser_readline(char *rl)
 	return (tokens);
 }
 
-void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
+t_cmdblock	*cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 {
 	t_cmdblock	*block;
 	char		**cmd_parts;
 	int			i;
+	int			args_count;
 
 	(void)env;
 	cmd_parts = cmd_parser_readline(rl);
@@ -183,40 +184,66 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	{
 		free(cmd->cmd_line);
 		cmd->cmd_line = NULL;
-		return ;
 	}
 	i = -1;
-	cmd->cmd = NULL;
 	while (cmd_parts[++i])
 	{
 		printf("\033[1;33m");
 		cmd_parts[i] = parser_expansion(cmd_parts[i], env);
-		printf("Block %d: %s\n", i, cmd_parts[i]);
-		printf("\033[0m");
 		if (i == 0)
 		{
-			cmd->cmd = create_cmdblock(cmd_parts[i]);
-			if (!cmd->cmd)
+			block = malloc(sizeof(t_cmdblock));
+			if (is_operator_start(cmd_parts[i][0]))
 			{
-				free_array(cmd_parts);
-				free(cmd->cmd_line);
-				return ;
+				printf("Separator: %s\n", cmd_parts[i]);
+				block->separator = ft_strdup(cmd_parts[i]);
+				block->next = malloc(sizeof(t_cmdblock));
+				block = block->next;
 			}
-			if (cmd_parts[i + 1])
-				cmd->cmd->args[0] = ft_strdup(cmd_parts[i + 1]);
-			block = cmd->cmd;
+			else
+			{
+				printf("Exec: %s\n", cmd_parts[i]);
+				block->exec = ft_strdup(cmd_parts[i]);
+				args_count = 0;
+			}
 		}
 		else
 		{
-			block->next = create_cmdblock(cmd_parts[i]);
-			if (!block->next)
+			if (is_operator_start(cmd_parts[i][0]))
 			{
-				free_array(cmd_parts);
-				free_cmd_content(cmd);
-				return ;
+				printf("Separator: %s\n", cmd_parts[i]);
+				block->separator = ft_strdup(cmd_parts[i]);
+				block->next = malloc(sizeof(t_cmdblock));
+				block = block->next;
 			}
-			block = block->next;
+			else
+			{
+				if (!is_operator_start(cmd_parts[i - 1][0]) && args_count == 0)
+				{
+					block->args = malloc(sizeof(char *) * 2);
+					block->args[0] = ft_strdup(cmd_parts[i]);
+					printf("Arg [%d]: %s\n", args_count, block->args[args_count]);
+					block->args[1] = NULL;
+					args_count = 1;
+				}
+				else if (!is_operator_start(cmd_parts[i - 1][0]))
+				{
+					block->args[args_count] = ft_strdup(cmd_parts[i]);
+					printf("Arg [%d]: %s\n", args_count, block->args[args_count]);
+					block->args[args_count + 1] = NULL;
+					args_count++;
+				}
+				else if (is_operator_start(cmd_parts[i - 1][0]))
+				{
+					block->exec = ft_strdup(cmd_parts[i]);
+					printf("Exec: %s\n", block->exec);
+					args_count = 0;
+				}
+			}
 		}
+		printf("\033[0m");
 	}
+	printf("Block: %s\n", cmd->cmd->exec);
 	free_array(cmd_parts);
+	return (block);
 }
