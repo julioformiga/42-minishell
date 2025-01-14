@@ -202,6 +202,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				free(cmd->cmd_line);
 				return ;
 			}
+			if (cmd_parts[i + 1])
+				cmd->cmd->args[0] = ft_strdup(cmd_parts[i + 1]);
 			block = cmd->cmd;
 		}
 		else
