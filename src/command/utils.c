@@ -92,18 +92,19 @@ void	cmd_debug(t_cmd *cmd)
 	int			n;
 
 	block = cmd->cmd;
-	printf("\n+---------------------------------------------------+\n");
+	printf("\n+-------------------------------------------------------------+\n");
 	printf("| Full command: %s\n", cmd->cmd_line);
 	i = 0;
 	while (i++, block)
 	{
 		n = -1;
 		printf("|\tCommand #%d: %s\n", i, block->exec);
-		while (block->args[++n])
-			printf("|\t\tArg #%d: %s\n", n + 1, block->args[n]);
+		if (block->args)
+			while (block->args[++n])
+				printf("|\t\tArg #%d: %s\n", n + 1, block->args[n]);
 		if (block->separator)
 			printf("|\t\tSeparator: %s\n", block->separator);
 		block = block->next;
 	}
-	printf("+---------------------------------------------------+\n\n");
+	printf("\n+-------------------------------------------------------------+\n");
 }
