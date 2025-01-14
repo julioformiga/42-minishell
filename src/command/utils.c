@@ -106,5 +106,5 @@ void	cmd_debug(t_cmd *cmd)
 			printf("|\t\tSeparator: %s\n", block->separator);
 		block = block->next;
 	}
-	printf("\n+-------------------------------------------------------------+\n");
+	printf("+-------------------------------------------------------------+\n");
 }
