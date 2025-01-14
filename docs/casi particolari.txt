@@ -1,0 +1,5 @@
+1) $"variabile" non espande la variabile, mentre "$variabile" si
+
+2) export variabile senza valore, poi env e non vedo variabile, mentre vedo variabile con comando export
+
+3) 

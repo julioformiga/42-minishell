@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/17 14:28:29 by julio.formiga     #+#    #+#             */
-/*   Updated: 2024/12/17 14:28:29 by julio.formiga    ###   ########.fr       */
+/*   Created: 2024/12/17 14:28:29 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/14 17:46:06 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@ static	void	print_export(t_env *env)
 	current = env;
 	while (current)
 	{
-		printf("declare -x %s=\"%s\"\n", current->key, current->value);
+		if (ft_strncmp(current->value, "", 1) != 0)
+			printf("declare -x %s=\"%s\"\n", current->key, current->value);
+		else
+			printf("declare -x %s\n", current->key);
 		current = current->next;
 	}
 }
@@ -28,7 +31,6 @@ int	builtin_export(t_cmd *cmd, t_env *env)
 {
 	int		i;
 	char	*key;
-	char	*value;
 
 	if (!cmd->cmd->args[0])
 	{
@@ -38,12 +40,18 @@ int	builtin_export(t_cmd *cmd, t_env *env)
 	i = -1;
 	while (cmd->cmd->args[++i])
 	{
-		key = ft_strndup(cmd->cmd->args[i],
-				ft_strchr(cmd->cmd->args[i], '=') - cmd->cmd->args[i]);
-		value = ft_strdup(ft_strchr(cmd->cmd->args[i], '=') + 1);
-		env_set(env, key, value);
+		if (ft_strchr(cmd->cmd->args[i], '='))
+		{
+			key = ft_strndup(cmd->cmd->args[i],
+					ft_strchr(cmd->cmd->args[i], '=') - cmd->cmd->args[i]);
+			env_set(env, key, ft_strdup(ft_strchr(cmd->cmd->args[i], '=') + 1));
+		}
+		else
+		{
+			key = ft_strdup(cmd->cmd->args[i]);
+			env_set(env, key, "");
+		}
 		free(key);
-		free(value);
 	}
 	return (1);
 }

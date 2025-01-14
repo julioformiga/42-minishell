@@ -1,0 +1,10 @@
+dividere la riga di comando in base ai pipe
+
+ciascun pipe avra' una lista per i comandi e una a parte per i redirect.
+	i redirect vanno "estratti" all'inizio
+
+per ciscuna lista comandi, la prima stringa sara' il comando, e gli altri saranno argomenti
+
+le virgolette (" e ') vanno tenute all'inizio, e rimosse solo dopo espansione
+	dopo aver rimosso le virgolette, gli spazi vanno lasciati come sono
+	a quel punto, i comandi possono essere eseguiti
