@@ -43,6 +43,15 @@ static char *expand_variable(const char *str, int *i, t_env *env)
 
 
 	(*i)++;
+	if (str[*i] == '?')
+	{
+		(*i)++;
+		return (ft_itoa(g_signal));
+	}
+	if (str[*i] == '$')
+	{
+		(*i)++;
+	}
 	var_name = get_var_name(str + *i);
 	if (!var_name)
 		return (NULL);
