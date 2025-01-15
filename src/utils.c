@@ -63,7 +63,7 @@ void	cmd_free(t_cmd *cmd)
 		free(tmp->exec);
 		if (tmp->args)
 			free_array(tmp->args);
-		free(tmp->separator);
+		free(tmp->op);
 		free(tmp);
 	}
 	free(cmd->cmd_line);

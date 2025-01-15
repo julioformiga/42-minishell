@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/09 11:17:17 by julio.formiga     #+#    #+#             */
-/*   Updated: 2025/01/09 11:17:17 by julio.formiga    ###   ########.fr       */
+/*   Created: 2025/01/15 18:00:30 by julio.formiga     #+#    #+#             */
+/*   Updated: 2025/01/15 18:00:30 by julio.formiga    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ static char *extract_word(char **rl)
 	return (clean);
 }
 
-static char **cmd_parser_readline(char *rl)
+char **cmd_parser_readline(char *rl)
 {
 	char	**tokens;
 	int		token_count;
@@ -180,7 +180,8 @@ static t_cmdblock *create_new_block(void)
 		return (NULL);
 	block->exec = NULL;
 	block->args = NULL;
-	block->separator = NULL;
+	block->op = NULL;
+	block->redir = NULL;
 	block->next = NULL;
 	return (block);
 }
@@ -194,8 +195,8 @@ static void	free_cmdblock(t_cmdblock *block)
 		next = block->next;
 		if (block->exec)
 			free(block->exec);
-		if (block->separator)
-			free(block->separator);
+		if (block->op)
+			free(block->op);
 		if (block->args)
 			free_array(block->args);
 		free(block);
@@ -226,7 +227,6 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		return;
 	}
 
-
 	current = first;
 	arg_count = 0;
 	i = 0;
@@ -245,8 +245,13 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 
 		if (is_operator_start(cmd_parts[i][0]))
 		{
-			current->separator = ft_strdup(cmd_parts[i]);
-			if (!current->separator)
+			if (i == 0)
+			{
+				current->op = ft_strdup(cmd_parts[i]);
+				continue;
+			}
+			current->op = ft_strdup(cmd_parts[i]);
+			if (!current->op)
 				break;
 			current->next = create_new_block();
 			if (!current->next)

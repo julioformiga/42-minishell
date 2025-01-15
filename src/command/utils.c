@@ -88,6 +88,7 @@ char	**cmd_get_args(char *cmd)
 void	cmd_debug(t_cmd *cmd)
 {
 	t_cmdblock	*block;
+	int			count_redir;
 	int			i;
 	int			n;
 
@@ -95,6 +96,7 @@ void	cmd_debug(t_cmd *cmd)
 	printf("\n+-------------------------------------------------------------+\n");
 	printf("| Full command: %s\n", cmd->cmd_line);
 	i = 0;
+	count_redir = 0;
 	while (i++, block)
 	{
 		n = -1;
@@ -102,9 +104,15 @@ void	cmd_debug(t_cmd *cmd)
 		if (block->args)
 			while (block->args[++n])
 				printf("|\t\tArg #%d: %s\n", n + 1, block->args[n]);
-		if (block->separator)
-			printf("|\t\tSeparator: %s\n", block->separator);
+		if (block->op)
+		{
+			printf("|\t\tOperator: %s\n", block->op);
+			if (block->op[0] == '>' || block->op[0] == '<')
+				count_redir++;
+		}
 		block = block->next;
 	}
+	printf("+-------------------------------------------------------------+\n");
+	printf("| Operators: %d\n", count_redir);
 	printf("+-------------------------------------------------------------+\n");
 }

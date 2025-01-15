@@ -111,7 +111,7 @@ t_cmdblock	*create_cmdblock(char *cmd_part)
 	}
 	new_block->args[i] = NULL;
 	free_array(args);
-	new_block->separator = NULL;
+	new_block->op = NULL;
 	new_block->next = NULL;
 	return (new_block);
 }
@@ -131,8 +131,8 @@ void	free_cmdblock_content(t_cmdblock *block)
 			free(block->args[i++]);
 		free(block->args);
 	}
-	if (block->separator)
-		free(block->separator);
+	if (block->op)
+		free(block->op);
 }
 
 void	free_cmd_content(t_cmd *cmd)

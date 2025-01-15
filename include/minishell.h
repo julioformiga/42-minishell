@@ -39,9 +39,10 @@ typedef struct s_env
 /* ================================= CMD =====================================*/
 typedef struct s_cmdblock
 {
+	char				*op;
 	char				*exec;
 	char				**args;
-	char				*separator;
+	char				**redir; // 0-"> $USER"  1">> asd"
 	struct s_cmdblock	*next;
 }	t_cmdblock;
 
@@ -78,6 +79,7 @@ int				env_set(t_env *env, char *key, char *value);
 int				env_unset(t_env **env, char *key);
 void			env_free(t_env *env);
 
+char			**cmd_parser_readline(char *rl);
 char			*parser_expansion(const char *str, t_env *env);
 t_cmdblock		*create_cmdblock(char *cmd_part);
 void			free_cmdblock_content(t_cmdblock *block);
