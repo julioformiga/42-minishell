@@ -8,6 +8,7 @@ A minimal shell implementation inspired by Bash.
 
 ### Built-in Commands
 - [x] `echo` with option `-n`
+ - [ ] Delete " and '
 - [x] `cd` with relative or absolute path
 - [x] `pwd` without options
 - [x] `export` without options
