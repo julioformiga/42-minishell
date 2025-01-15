@@ -111,15 +111,15 @@ int	builtin_env(t_cmd *cmd, t_env *env)
 	current = env;
 	while (current)
 	{
-		line = ft_strjoin(current->key, "");
 		if (current->value && ft_strncmp(current->value, "", 1) != 0)
 		{
+			line = ft_strjoin(current->key, "");
 			line = ft_strjoin(line, "=");
 			line = ft_strjoin(line, current->value);
+			line = ft_strjoin(line, "\n");
+			ft_putstr_fd(line, STDOUT_FILENO);
+			free(line);
 		}
-		line = ft_strjoin(line, "\n");
-		ft_putstr_fd(line, STDOUT_FILENO);
-		free(line);
 		current = current->next;
 	}
 	return (1);
