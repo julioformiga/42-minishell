@@ -11,6 +11,8 @@ A minimal shell implementation inspired by Bash.
 - [x] `cd` with relative or absolute path
 - [x] `pwd` without options
 - [x] `export` without options
+  - [ ] export VAR+=
+  - [ ] export VAR=
 - [x] `unset` without options
 - [x] `env` without options or arguments
 - [x] `exit` without options
