@@ -171,79 +171,127 @@ static char **cmd_parser_readline(char *rl)
 	return (tokens);
 }
 
-t_cmdblock	*cmd_parser(char *rl, t_cmd *cmd, t_env *env)
+static t_cmdblock *create_new_block(void)
 {
-	t_cmdblock	*block;
-	char		**cmd_parts;
-	int			i;
-	int			args_count;
+	t_cmdblock *block;
 
-	(void)env;
+	block = malloc(sizeof(t_cmdblock));
+	if (!block)
+		return (NULL);
+	block->exec = NULL;
+	block->args = NULL;
+	block->separator = NULL;
+	block->next = NULL;
+	return (block);
+}
+
+static void	free_cmdblock(t_cmdblock *block)
+{
+	t_cmdblock	*next;
+
+	while (block)
+	{
+		next = block->next;
+		if (block->exec)
+			free(block->exec);
+		if (block->separator)
+			free(block->separator);
+		if (block->args)
+			free_array(block->args);
+		free(block);
+		block = next;
+	}
+}
+
+void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
+{
+	t_cmdblock	*current;
+	t_cmdblock	*first;
+	char		**cmd_parts;
+	int			arg_count;
+	int			i;
+
 	cmd_parts = cmd_parser_readline(rl);
 	if (!cmd_parts)
 	{
 		free(cmd->cmd_line);
 		cmd->cmd_line = NULL;
+		return;
 	}
-	i = -1;
-	while (cmd_parts[++i])
+
+	first = create_new_block();
+	if (!first)
 	{
-		printf("\033[1;33m");
-		cmd_parts[i] = parser_expansion(cmd_parts[i], env);
-		if (i == 0)
+		free_array(cmd_parts);
+		return;
+	}
+
+
+	current = first;
+	arg_count = 0;
+	i = 0;
+
+	while (cmd_parts[i])
+	{
+		char *expanded = parser_expansion(cmd_parts[i], env);
+		if (!expanded)
 		{
-			block = malloc(sizeof(t_cmdblock));
-			if (is_operator_start(cmd_parts[i][0]))
-			{
-				printf("Separator: %s\n", cmd_parts[i]);
-				block->separator = ft_strdup(cmd_parts[i]);
-				block->next = malloc(sizeof(t_cmdblock));
-				block = block->next;
-			}
-			else
-			{
-				printf("Exec: %s\n", cmd_parts[i]);
-				block->exec = ft_strdup(cmd_parts[i]);
-				args_count = 0;
-			}
+			free_cmdblock(first);
+			free_array(cmd_parts);
+			return;
+		}
+		free(cmd_parts[i]);
+		cmd_parts[i] = expanded;
+
+		if (is_operator_start(cmd_parts[i][0]))
+		{
+			current->separator = ft_strdup(cmd_parts[i]);
+			if (!current->separator)
+				break;
+			current->next = create_new_block();
+			if (!current->next)
+				break;
+			current = current->next;
+			arg_count = 0;
+		}
+		else if (!current->exec)
+		{
+			current->exec = ft_strdup(cmd_parts[i]);
+			if (!current->exec)
+				break;
 		}
 		else
 		{
-			if (is_operator_start(cmd_parts[i][0]))
+			if (arg_count == 0)
 			{
-				printf("Separator: %s\n", cmd_parts[i]);
-				block->separator = ft_strdup(cmd_parts[i]);
-				block->next = malloc(sizeof(t_cmdblock));
-				block = block->next;
+				current->args = malloc(sizeof(char *) * 2);
+				if (!current->args)
+					break;
+				current->args[0] = ft_strdup(cmd_parts[i]);
+				if (!current->args[0])
+				{
+					free(current->args);
+					current->args = NULL;
+					break;
+				}
+				current->args[1] = NULL;
 			}
 			else
 			{
-				if (!is_operator_start(cmd_parts[i - 1][0]) && args_count == 0)
-				{
-					block->args = malloc(sizeof(char *) * 2);
-					block->args[0] = ft_strdup(cmd_parts[i]);
-					printf("Arg [%d]: %s\n", args_count, block->args[args_count]);
-					block->args[1] = NULL;
-					args_count = 1;
-				}
-				else if (!is_operator_start(cmd_parts[i - 1][0]))
-				{
-					block->args[args_count] = ft_strdup(cmd_parts[i]);
-					printf("Arg [%d]: %s\n", args_count, block->args[args_count]);
-					block->args[args_count + 1] = NULL;
-					args_count++;
-				}
-				else if (is_operator_start(cmd_parts[i - 1][0]))
-				{
-					block->exec = ft_strdup(cmd_parts[i]);
-					printf("Exec: %s\n", block->exec);
-					args_count = 0;
-				}
+				char **temp = malloc(sizeof(char *) * (arg_count + 2));
+				if (!temp)
+					break;
+				for (int j = 0; j < arg_count; j++)
+					temp[j] = current->args[j];
+				temp[arg_count] = ft_strdup(cmd_parts[i]);
+				temp[arg_count + 1] = NULL;
+				free(current->args);
+				current->args = temp;
 			}
+			arg_count++;
 		}
-		printf("\033[0m");
+		i++;
 	}
-	printf("Block: %s\n", cmd->cmd->exec);
+	cmd->cmd = first;
 	free_array(cmd_parts);
-	return (block);
 }

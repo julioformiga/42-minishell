@@ -20,16 +20,19 @@ int	builtin_echo(t_cmd *cmd, t_env *env)
 	(void)env;
 	i = 0;
 	no_newline = 0;
-	if (cmd->cmd->args[i] && ft_strncmp(cmd->cmd->args[i], "-n", 2) == 0)
+	if (cmd->cmd->args)
 	{
-		no_newline = 1;
-		i++;
-	}
-	while (cmd->cmd->args[i])
-	{
-		ft_putstr_fd(cmd->cmd->args[i], STDOUT_FILENO);
-		if (cmd->cmd->args[++i])
-			ft_putchar_fd(' ', STDOUT_FILENO);
+		if (cmd->cmd->args[i] && ft_strncmp(cmd->cmd->args[i], "-n", 2) == 0)
+		{
+			no_newline = 1;
+			i++;
+		}
+		while (cmd->cmd->args[i])
+		{
+			ft_putstr_fd(cmd->cmd->args[i], STDOUT_FILENO);
+			if (cmd->cmd->args[++i])
+				ft_putchar_fd(' ', STDOUT_FILENO);
+		}
 	}
 	if (!no_newline)
 		ft_putchar_fd('\n', STDOUT_FILENO);

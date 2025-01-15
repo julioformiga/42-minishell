@@ -58,7 +58,7 @@ int	builtin_cd(t_cmd *cmd, t_env *env)
 	int		result;
 
 	result = 0;
-	if (!cmd->cmd->args[0])
+	if (!cmd->cmd->args)
 		result = cd_home(env);
 	else if (ft_strncmp(cmd->cmd->args[0], "-", 2) == 0)
 		result = cd_previous(env);

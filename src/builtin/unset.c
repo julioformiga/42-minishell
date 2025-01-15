@@ -17,7 +17,8 @@ int	builtin_unset(t_cmd *cmd, t_env *env)
 	int	i;
 
 	i = -1;
-	while (cmd->cmd->args[++i])
-		env_unset(&env, cmd->cmd->args[i]);
+	if (cmd->cmd->args)
+		while (cmd->cmd->args[++i])
+			env_unset(&env, cmd->cmd->args[i]);
 	return (1);
 }

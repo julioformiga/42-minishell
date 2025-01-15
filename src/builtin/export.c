@@ -32,7 +32,7 @@ int	builtin_export(t_cmd *cmd, t_env *env)
 	int		i;
 	char	*key;
 
-	if (!cmd->cmd->args[0])
+	if (!cmd->cmd->args)
 	{
 		print_export(env);
 		return (1);
