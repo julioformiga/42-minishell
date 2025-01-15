@@ -30,9 +30,10 @@ int	builtin_exit(t_cmd *cmd, t_env *env)
 				exit_code = ft_atoi(cmd->cmd->args[0]);
 			else
 			{
-				printf("minishell\nexit: %s: numeric argument required\n",
+				printf("minishell: exit: %s: numeric argument required\n",
 					cmd->cmd->args[0]);
 				exit_code = 2;
+				return (exit_code);
 			}
 		}
 	}
