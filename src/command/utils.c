@@ -104,10 +104,10 @@ void	cmd_debug(t_cmd *cmd)
 		if (block->args)
 			while (block->args[++n])
 				printf("|\t\tArg #%d: %s\n", n + 1, block->args[n]);
-		if (block->op)
+		if (block->op_type)
 		{
-			printf("|\t\tOperator: %s\n", block->op);
-			if (block->op[0] == '>' || block->op[0] == '<')
+			printf("|\t\tOperator: %d\n", block->op_type);
+			if (block->op_type)
 				count_redir++;
 		}
 		block = block->next;

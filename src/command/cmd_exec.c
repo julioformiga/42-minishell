@@ -12,6 +12,98 @@
 
 #include "minishell.h"
 
+static int handle_heredoc(char *delimiter)
+{
+	int		pipe_fd[2];
+	char	*line;
+	size_t	delim_len;
+
+	if (pipe(pipe_fd) == -1)
+		return (-1);
+
+	delim_len = ft_strlen(delimiter);
+	while (1)
+	{
+		line = readline("pipe heredoc> ");
+		if (!line)
+		{
+			close(pipe_fd[1]);
+			return (-1);
+		}
+		if (ft_strlen(line) == delim_len &&
+			ft_strcmp(line, delimiter) == 0)
+		{
+			free(line);
+			break;
+		}
+		write(pipe_fd[1], line, ft_strlen(line));
+		write(pipe_fd[1], "\n", 1);
+		free(line);
+	}
+	close(pipe_fd[1]);
+	return (pipe_fd[0]);
+}
+
+static int setup_redirections(t_redirect *redirects)
+{
+	t_redirect	*current;
+	int			fd;
+	int			heredoc_fd;
+
+	heredoc_fd = -1;
+	current = redirects;
+	while (current)
+	{
+		if (current->op_type == OP_HEREDOC)
+		{
+			heredoc_fd = handle_heredoc(current->file);
+			if (heredoc_fd == -1)
+				return (-1);
+		}
+		current = current->next;
+	}
+
+	current = redirects;
+	while (current)
+	{
+		if (current->op_type == OP_REDIR_IN)
+		{
+			fd = open(current->file, O_RDONLY);
+			if (fd == -1)
+				return (-1);
+			dup2(fd, STDIN_FILENO);
+			close(fd);
+		}
+		else if (current->op_type == OP_HEREDOC)
+		{
+			dup2(heredoc_fd, STDIN_FILENO);
+			close(heredoc_fd);
+			// fd = handle_heredoc(current->file);
+			// if (fd == -1)
+			// 	return (-1);
+			// dup2(fd, STDIN_FILENO);
+			// close(fd);
+		}
+		else if (current->op_type == OP_REDIR_OUT)
+		{
+			fd = open(current->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			if (fd == -1)
+				return (-1);
+			dup2(fd, STDOUT_FILENO);
+			close(fd);
+		}
+		else if (current->op_type == OP_REDIR_APPEND)
+		{
+			fd = open(current->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			if (fd == -1)
+				return (-1);
+			dup2(fd, STDOUT_FILENO);
+			close(fd);
+		}
+		current = current->next;
+	}
+	return (0);
+}
 static void	execute_piped_command(t_cmd *cmd, t_env *env,
 									int input_fd, int output_fd)
 {
@@ -21,6 +113,15 @@ static void	execute_piped_command(t_cmd *cmd, t_env *env,
 
 	if (cmd_setup(cmd, env, &args, &full_path) != 0)
 		exit(1);
+
+	// Configurar redirecionamentos primeiro
+	if (cmd->cmd->redirects && setup_redirections(cmd->cmd->redirects) == -1)
+	{
+		perror("redirect");
+		exit(1);
+	}
+
+	// Depois configurar pipes
 	if (input_fd != STDIN_FILENO)
 	{
 		dup2(input_fd, STDIN_FILENO);
@@ -31,6 +132,7 @@ static void	execute_piped_command(t_cmd *cmd, t_env *env,
 		dup2(output_fd, STDOUT_FILENO);
 		close(output_fd);
 	}
+
 	env_array = env_to_array(env);
 	execve(full_path, args, env_array);
 	free_array(env_array);

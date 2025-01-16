@@ -24,11 +24,12 @@
 # include <curses.h>
 # include <dirent.h>
 
-# define DEBUG 1
+# define DEBUG 0
 
 extern int	g_signal;
 
 /* ================================= ENV =====================================*/
+
 typedef struct s_env
 {
 	char			*key;
@@ -37,12 +38,28 @@ typedef struct s_env
 }	t_env;
 
 /* ================================= CMD =====================================*/
+
+typedef enum e_operator {
+	OP_NONE,
+	OP_PIPE,
+	OP_REDIR_IN,
+	OP_REDIR_OUT,
+	OP_REDIR_APPEND,
+	OP_HEREDOC
+}	t_operator;
+
+typedef struct s_redirect {
+	t_operator			op_type;
+	char				*file;
+	struct s_redirect	*next;
+}	t_redirect;
+
 typedef struct s_cmdblock
 {
-	char				*op;
 	char				*exec;
 	char				**args;
-	char				**redir; // 0-"> $USER"  1">> asd"
+	t_operator			op_type;
+	t_redirect			*redirects;
 	struct s_cmdblock	*next;
 }	t_cmdblock;
 
@@ -54,15 +71,17 @@ typedef struct s_cmd
 
 typedef int	(*t_builtin_fn)(t_cmd *cmd, t_env *env);
 
-typedef struct sbuiltin
+typedef struct s_builtin
 {
 	char			*name;
 	t_builtin_fn	fn;
 }	t_builtin;
+
 /* =============================== FUNCTIONS =================================*/
 void			signal_handler(int signum);
 void			setup_signals(void);
 
+int				ft_strcmp(const char *s1, const char *s2);
 char			*ft_strndup(const char *s1, size_t n);
 
 char			**env_to_array(t_env *env);

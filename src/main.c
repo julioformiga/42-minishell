@@ -88,6 +88,7 @@ int	main(int argc, char **argv, char **envp)
 	add_history("echo $$USER");
 	add_history("ls | grep Makefile > result.txt");
 	add_history("e$c \"arg01>     > $a |'nb'$a   \" a$USER 'arg02> > $a$a' | cat >$USER result.txt");
+	add_history("cat << EOF | tr a-z A-Z > uppercase.txt");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
