@@ -12,8 +12,8 @@ A minimal shell implementation inspired by Bash.
 - [x] `cd` with relative or absolute path
 - [x] `pwd` without options
 - [x] `export` without options
-  - [ ] export VAR+=
-  - [ ] export VAR=
+  - [x] export VAR+=
+  - [x] export VAR=
 - [x] `unset` without options
 - [x] `env` without options or arguments
 - [x] `exit` without options
@@ -24,6 +24,7 @@ A minimal shell implementation inspired by Bash.
 - [x] Basic command execution with PATH search
 - [x] Arguments handling
 - [x] Environment variables expansion (`$VAR`)
+- [ ] Check expansion (`$$` => `$`)
 - [ ] Exit status variable expansion (`$?`)
 
 ### Redirections
