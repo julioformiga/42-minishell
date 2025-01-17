@@ -134,6 +134,6 @@ void	cmd_debug(t_cmd *cmd)
 		block = block->next;
 	}
 	printf("+-------------------------------------------------------------+\n");
-	printf("| Operators: %d\n", count_redir);
+	printf("| Redirects: %d\n", count_redir);
 	printf("+-------------------------------------------------------------+\n");
 }
