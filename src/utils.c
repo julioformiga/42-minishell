@@ -63,11 +63,20 @@ void	cmd_free(t_cmd *cmd)
 		free(tmp->exec);
 		if (tmp->args)
 			free_array(tmp->args);
-		free(tmp->op);
 		free(tmp);
 	}
 	free(cmd->cmd_line);
 	free(cmd);
+}
+
+int ft_strcmp(const char *s1, const char *s2)
+{
+	while (*s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
+	return (*s1 - *s2);
 }
 
 char	*ft_strndup(const char *s1, size_t n)

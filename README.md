@@ -8,7 +8,7 @@ A minimal shell implementation inspired by Bash.
 
 ### Built-in Commands
 - [x] `echo` with option `-n`
- - [ ] Delete " and '
+  - [ ] Delete " and '
 - [x] `cd` with relative or absolute path
 - [x] `pwd` without options
 - [x] `export` without options
@@ -24,14 +24,13 @@ A minimal shell implementation inspired by Bash.
 - [x] Basic command execution with PATH search
 - [x] Arguments handling
 - [x] Environment variables expansion (`$VAR`)
-- [ ] Get PID variable expansion (`$$`)
 - [ ] Exit status variable expansion (`$?`)
 
 ### Redirections
-- [ ] `<` input redirection
-- [ ] `>` output redirection
-- [ ] `>>` append output redirection
-- [ ] `<<` heredoc
+- [x] `<` input redirection
+- [x] `>` output redirection
+- [x] `>>` append output redirection
+- [x] `<<` heredoc
 - [x] Pipes `|` between commands
 
 ### Signal Handling

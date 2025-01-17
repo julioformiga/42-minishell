@@ -85,9 +85,23 @@ char	**cmd_get_args(char *cmd)
 	return (args);
 }
 
+char	*get_operator_str(int op_type)
+{
+	switch (op_type)
+	{
+		case OP_PIPE: return ("|");
+		case OP_REDIR_IN: return ("<");
+		case OP_REDIR_OUT: return (">");
+		case OP_REDIR_APPEND: return (">>");
+		case OP_HEREDOC: return ("<<");
+		default: return ("unknown");
+	}
+}
+
 void	cmd_debug(t_cmd *cmd)
 {
 	t_cmdblock	*block;
+	t_redirect	*redir;
 	int			count_redir;
 	int			i;
 	int			n;
@@ -104,15 +118,22 @@ void	cmd_debug(t_cmd *cmd)
 		if (block->args)
 			while (block->args[++n])
 				printf("|\t\tArg #%d: %s\n", n + 1, block->args[n]);
-		if (block->op)
+		if (block->redirects)
 		{
-			printf("|\t\tOperator: %s\n", block->op);
-			if (block->op[0] == '>' || block->op[0] == '<')
+			redir = block->redirects;
+			while (redir)
+			{
 				count_redir++;
+				printf("|\t\tRedirect: %s\n", get_operator_str(redir->op_type));
+				printf("|\t\t\tFile: %s\n", redir->file);
+				redir = redir->next;
+			}
 		}
+		if (block->op_type)
+			printf("|\t\tOperator: %s\n", get_operator_str(block->op_type));
 		block = block->next;
 	}
 	printf("+-------------------------------------------------------------+\n");
-	printf("| Operators: %d\n", count_redir);
+	printf("| Redirects: %d\n", count_redir);
 	printf("+-------------------------------------------------------------+\n");
 }

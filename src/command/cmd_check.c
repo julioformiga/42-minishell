@@ -56,7 +56,10 @@ char	*cmd_check(t_cmd *cmd, t_env *env)
 	}
 	free_array(paths);
 	if (!result)
+	{
 		printf("%s: command not found\n", cmd->cmd->exec);
+		g_signal = 127;
+	}
 	return (result);
 }
 

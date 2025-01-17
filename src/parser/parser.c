@@ -17,11 +17,6 @@ static int ft_isspace(char c)
 	return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r');
 }
 
-static int is_operator_start(char c)
-{
-	return (c == '|' || c == '<' || c == '>');
-}
-
 static int count_tokens(char *rl)
 {
 	int		count;
@@ -74,30 +69,6 @@ static char *extract_quoted_token(char **rl)
 		(*rl)++;
 	len = *rl - start;
 	token = ft_substr(start, 0, len);
-	return (token);
-}
-
-static char *extract_operator(char **rl)
-{
-	char	*token;
-
-	if (**rl == '|')
-		token = ft_strdup("|");
-	else if (**rl == '<' && *(*rl + 1) == '<')
-	{
-		token = ft_strdup("<<");
-		(*rl)++;
-	}
-	else if (**rl == '>' && *(*rl + 1) == '>')
-	{
-		token = ft_strdup(">>");
-		(*rl)++;
-	}
-	else if (**rl == '<')
-		token = ft_strdup("<");
-	else
-		token = ft_strdup(">");
-	(*rl)++;
 	return (token);
 }
 
@@ -180,8 +151,8 @@ static t_cmdblock *create_new_block(void)
 		return (NULL);
 	block->exec = NULL;
 	block->args = NULL;
-	block->op = NULL;
-	block->redir = NULL;
+	block->op_type = OP_NONE;
+	block->redirects = NULL;
 	block->next = NULL;
 	return (block);
 }
@@ -195,13 +166,28 @@ static void	free_cmdblock(t_cmdblock *block)
 		next = block->next;
 		if (block->exec)
 			free(block->exec);
-		if (block->op)
-			free(block->op);
 		if (block->args)
 			free_array(block->args);
 		free(block);
 		block = next;
 	}
+}
+
+static t_operator get_operator_type(const char *op)
+{
+	if (!op)
+		return (OP_NONE);
+	if (ft_strcmp(op, "|") == 0)
+		return (OP_PIPE);
+	if (ft_strcmp(op, "<") == 0)
+		return (OP_REDIR_IN);
+	if (ft_strcmp(op, ">") == 0)
+		return (OP_REDIR_OUT);
+	if (ft_strcmp(op, ">>") == 0)
+		return (OP_REDIR_APPEND);
+	if (ft_strcmp(op, "<<") == 0)
+		return (OP_HEREDOC);
+	return (OP_NONE);
 }
 
 void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
@@ -245,19 +231,28 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 
 		if (is_operator_start(cmd_parts[i][0]))
 		{
-			if (i == 0)
+			t_operator op_type = get_operator_type(cmd_parts[i]);
+
+			if (op_type == OP_PIPE)
 			{
-				current->op = ft_strdup(cmd_parts[i]);
-				continue;
+				current->op_type = OP_PIPE;
+				current->next = create_new_block();
+				if (!current->next)
+					break;
+				current = current->next;
+				arg_count = 0;
 			}
-			current->op = ft_strdup(cmd_parts[i]);
-			if (!current->op)
-				break;
-			current->next = create_new_block();
-			if (!current->next)
-				break;
-			current = current->next;
-			arg_count = 0;
+			else if (i + 1 < count_tokens(rl))
+			{
+				i++;
+				char *file = parser_expansion(cmd_parts[i], env);
+				if (!file || !add_redirect(current, op_type, file))
+				{
+					free(file);
+					break;
+				}
+				free(file);
+			}
 		}
 		else if (!current->exec)
 		{
