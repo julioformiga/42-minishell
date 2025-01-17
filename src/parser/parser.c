@@ -17,11 +17,6 @@ static int ft_isspace(char c)
 	return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r');
 }
 
-static int is_operator_start(char c)
-{
-	return (c == '|' || c == '<' || c == '>');
-}
-
 static int count_tokens(char *rl)
 {
 	int		count;
@@ -74,30 +69,6 @@ static char *extract_quoted_token(char **rl)
 		(*rl)++;
 	len = *rl - start;
 	token = ft_substr(start, 0, len);
-	return (token);
-}
-
-static char *extract_operator(char **rl)
-{
-	char	*token;
-
-	if (**rl == '|')
-		token = ft_strdup("|");
-	else if (**rl == '<' && *(*rl + 1) == '<')
-	{
-		token = ft_strdup("<<");
-		(*rl)++;
-	}
-	else if (**rl == '>' && *(*rl + 1) == '>')
-	{
-		token = ft_strdup(">>");
-		(*rl)++;
-	}
-	else if (**rl == '<')
-		token = ft_strdup("<");
-	else
-		token = ft_strdup(">");
-	(*rl)++;
 	return (token);
 }
 
@@ -219,45 +190,6 @@ static t_operator get_operator_type(const char *op)
 	return (OP_NONE);
 }
 
-static t_redirect *create_redirect(t_operator type, char *file)
-{
-	t_redirect *redir;
-
-	redir = malloc(sizeof(t_redirect));
-	if (!redir)
-		return (NULL);
-	redir->op_type = type;
-	redir->file = ft_strdup(file);
-	if (!redir->file)
-	{
-		free(redir);
-		return (NULL);
-	}
-	redir->next = NULL;
-	return (redir);
-}
-
-static int add_redirect(t_cmdblock *block, t_operator type, char *file)
-{
-	t_redirect *new_redir;
-	t_redirect *current;
-
-	new_redir = create_redirect(type, file);
-	if (!new_redir)
-		return (0);
-
-	if (!block->redirects)
-		block->redirects = new_redir;
-	else
-	{
-		current = block->redirects;
-		while (current->next)
-			current = current->next;
-		current->next = new_redir;
-	}
-	return (1);
-}
-
 void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 {
 	t_cmdblock	*current;
@@ -310,9 +242,9 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				current = current->next;
 				arg_count = 0;
 			}
-			else if (i + 1 < count_tokens(rl))  // Verifica se há um arquivo após o redirecionador
+			else if (i + 1 < count_tokens(rl))
 			{
-				i++;  // Avança para o nome do arquivo
+				i++;
 				char *file = parser_expansion(cmd_parts[i], env);
 				if (!file || !add_redirect(current, op_type, file))
 				{
