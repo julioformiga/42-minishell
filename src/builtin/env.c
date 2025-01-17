@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/28 21:19:48 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/14 17:30:45 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/17 14:56:49 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,17 +50,27 @@ char	*env_get(t_env *env, char *key)
 	return (NULL);
 }
 
-int	env_set(t_env *env, char *key, char *value)
+int	env_set(t_env *env, char *key, char *value, int plus)
 {
 	t_env	*new;
 	t_env	*last;
+	char	*old_value;
 
+	if (key_check(key, value, plus))
+		return (1);
+	old_value = "";
 	while (env != NULL)
 	{
 		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
 		{
-			free(env->value);
-			env->value = ft_strdup(value);
+			if (plus && env->value)
+				old_value = ft_strdup(env->value);
+			if (value)
+				free(env->value);//che succede se faccio free(NULL)?
+			if (value && plus)
+				env->value = ft_strjoin(old_value, value);
+			else if (value)
+				env->value = ft_strdup(value);
 			return (0);
 		}
 		last = env;
@@ -70,7 +80,8 @@ int	env_set(t_env *env, char *key, char *value)
 	if (!new)
 		return (1);
 	new->key = ft_strdup(key);
-	new->value = ft_strdup(value);
+	if (value)
+		new->value = ft_strdup(value);
 	new->next = NULL;
 	last->next = new;
 	return (0);
@@ -111,10 +122,9 @@ int	builtin_env(t_cmd *cmd, t_env *env)
 	current = env;
 	while (current)
 	{
-		if (current->value && ft_strncmp(current->value, "", 1) != 0)
+		if (current->value)
 		{
-			line = ft_strjoin(current->key, "");
-			line = ft_strjoin(line, "=");
+			line = ft_strjoin(current->key, "=");
 			line = ft_strjoin(line, current->value);
 			line = ft_strjoin(line, "\n");
 			ft_putstr_fd(line, STDOUT_FILENO);

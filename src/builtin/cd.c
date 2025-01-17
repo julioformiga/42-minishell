@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cd.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/21 01:38:25 by julio.formiga     #+#    #+#             */
-/*   Updated: 2024/09/21 01:38:25 by julio.formiga    ###   ########.fr       */
+/*   Created: 2024/09/21 01:38:25 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/16 16:49:02 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,8 @@ int	builtin_cd(t_cmd *cmd, t_env *env)
 	if (result == 0)
 	{
 		dir = env_get(env, "PWD");
-		env_set(env, "OLDPWD", dir);
-		env_set(env, "PWD", getcwd(NULL, 0));
+		env_set(env, "OLDPWD", dir, 0);
+		env_set(env, "PWD", getcwd(NULL, 0), 0);
 	}
 	return (result);
 }

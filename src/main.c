@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/30 13:34:41 by julio.formiga     #+#    #+#             */
-/*   Updated: 2024/08/30 13:34:41 by julio.formiga    ###   ########.fr       */
+/*   Created: 2024/08/30 13:34:41 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/17 14:01:06 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,9 +81,9 @@ int	main(int argc, char **argv, char **envp)
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
-	env_set(env, "DEBUG", ft_itoa(DEBUG));
-	env_set(env, "a", "123");
-	env_set(env, "c", "cho");
+	env_set(env, "DEBUG", ft_itoa(DEBUG), 0);
+	env_set(env, "a", "123", 0);
+	env_set(env, "c", "cho", 0);
 	add_history("export DEBUG=1");
 	add_history("ls | grep Makefile > result.txt");
 	add_history("e$c \"arg01>     > $a |'nb'$a   \" a$USER 'arg02> > $a$a' | cat >$USER result.txt");
