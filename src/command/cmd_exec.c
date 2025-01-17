@@ -114,14 +114,12 @@ static void	execute_piped_command(t_cmd *cmd, t_env *env,
 	if (cmd_setup(cmd, env, &args, &full_path) != 0)
 		exit(1);
 
-	// Configurar redirecionamentos primeiro
 	if (cmd->cmd->redirects && setup_redirections(cmd->cmd->redirects) == -1)
 	{
 		perror("redirect");
 		exit(1);
 	}
 
-	// Depois configurar pipes
 	if (input_fd != STDIN_FILENO)
 	{
 		dup2(input_fd, STDIN_FILENO);

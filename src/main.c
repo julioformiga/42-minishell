@@ -85,10 +85,11 @@ int	main(int argc, char **argv, char **envp)
 	env_set(env, "a", "123");
 	env_set(env, "c", "cho");
 	add_history("export DEBUG=1");
-	add_history("echo $$USER");
 	add_history("ls | grep Makefile > result.txt");
 	add_history("e$c \"arg01>     > $a |'nb'$a   \" a$USER 'arg02> > $a$a' | cat >$USER result.txt");
 	add_history("cat << EOF | tr a-z A-Z > uppercase.txt");
+	add_history("echo $$USER");
+	add_history("echo $\"USER\"");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
