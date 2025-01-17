@@ -48,7 +48,7 @@ fclean:		clean
 			printf "🧹 $(RED)Cleaning$(RESET): build/\n"
 #			cd build/ && make clean && cd ..
 
-re:			fclean all
+re:			fclean all run
 
 debug:		all
 			cp $(BIN) a.out

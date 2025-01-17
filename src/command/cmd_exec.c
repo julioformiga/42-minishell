@@ -78,11 +78,6 @@ static int setup_redirections(t_redirect *redirects)
 		{
 			dup2(heredoc_fd, STDIN_FILENO);
 			close(heredoc_fd);
-			// fd = handle_heredoc(current->file);
-			// if (fd == -1)
-			// 	return (-1);
-			// dup2(fd, STDIN_FILENO);
-			// close(fd);
 		}
 		else if (current->op_type == OP_REDIR_OUT)
 		{
@@ -162,11 +157,13 @@ void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 
 int	cmd_exec(t_cmd *cmd, t_env *env)
 {
-	int		pipefd[2];
-	int		prev_pipe;
-	pid_t	pid;
-	int		status;
-	t_cmd	*current;
+	int			pipefd[2];
+	int			prev_pipe;
+	pid_t		pid;
+	int			status;
+	t_cmd		*current;
+	t_redirect	*redir;
+	int			final_output_fd;
 
 	prev_pipe = STDIN_FILENO;
 	current = cmd;
@@ -179,14 +176,34 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		}
 		if (get_builtin(current->cmd->exec))
 		{
-			if (current->cmd->next)
+			final_output_fd = STDOUT_FILENO;
+			if (current->cmd->redirects)
 			{
-				status = execute_builtin(current, env, prev_pipe, pipefd[1]);
-				close(pipefd[1]);
+				if (current->cmd->next)
+					close(pipefd[1]);
+				redir = current->cmd->redirects;
+				while (redir)
+				{
+					if (redir->op_type == OP_REDIR_OUT)
+					{
+						final_output_fd = open(redir->file,
+							O_WRONLY | O_CREAT | O_TRUNC, 0644);
+					}
+					else if (redir->op_type == OP_REDIR_APPEND)
+					{
+						final_output_fd = open(redir->file,
+							O_WRONLY | O_CREAT | O_APPEND, 0644);
+					}
+					redir = redir->next;
+				}
 			}
-			else
-				status = execute_builtin(current, env, prev_pipe,
-						STDOUT_FILENO);
+			else if (current->cmd->next)
+			{
+				final_output_fd = pipefd[1];
+			}
+			status = execute_builtin(current, env, prev_pipe, final_output_fd);
+			if (final_output_fd != STDOUT_FILENO && final_output_fd != pipefd[1])
+				close(final_output_fd);
 		}
 		else
 		{

@@ -90,6 +90,9 @@ int	main(int argc, char **argv, char **envp)
 	add_history("cat << EOF | tr a-z A-Z > uppercase.txt");
 	add_history("echo $$USER");
 	add_history("echo $\"USER\"");
+	add_history("> output.txt ls");
+	add_history("> output.txt echo asd");
+	add_history("< output.txt cat");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
