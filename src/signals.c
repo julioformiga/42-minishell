@@ -32,7 +32,6 @@ void	setup_signals(void)
 	sa.sa_handler = signal_handler;
 	sa.sa_flags = SA_RESTART;
 	sigemptyset(&sa.sa_mask);
-
 	sigaction(SIGINT, &sa, NULL);
 	signal(SIGQUIT, SIG_IGN);
 }

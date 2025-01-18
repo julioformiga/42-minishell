@@ -102,15 +102,13 @@ void	cmd_debug(t_cmd *cmd)
 {
 	t_cmdblock	*block;
 	t_redirect	*redir;
-	int			count_redir;
 	int			i;
 	int			n;
 
 	block = cmd->cmd;
-	printf("\n+-------------------------------------------------------------+\n");
+	printf("\n+-----------------------------------------------------------+\n");
 	printf("| Full command: %s\n", cmd->cmd_line);
 	i = 0;
-	count_redir = 0;
 	while (i++, block)
 	{
 		n = -1;
@@ -123,7 +121,6 @@ void	cmd_debug(t_cmd *cmd)
 			redir = block->redirects;
 			while (redir)
 			{
-				count_redir++;
 				printf("|\t\tRedirect: %s\n", get_operator_str(redir->op_type));
 				printf("|\t\t\tFile: %s\n", redir->file);
 				redir = redir->next;
@@ -133,7 +130,7 @@ void	cmd_debug(t_cmd *cmd)
 			printf("|\t\tOperator: %s\n", get_operator_str(block->op_type));
 		block = block->next;
 	}
-	printf("+-------------------------------------------------------------+\n");
-	printf("| Redirects: %d\n", count_redir);
-	printf("+-------------------------------------------------------------+\n");
+	printf("+-----------------------------------------------------------+\n");
+	printf("| Signal: %d\n", g_signal);
+	printf("+-----------------------------------------------------------+\n");
 }

@@ -57,9 +57,10 @@ char	*cmd_check(t_cmd *cmd, t_env *env)
 	free_array(paths);
 	if (!result)
 	{
-		printf("%s: command not found\n", cmd->cmd->exec);
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(cmd->cmd->exec, STDERR_FILENO);
+		ft_putstr_fd(": command not found\n", STDERR_FILENO);
 		g_signal = 127;
 	}
 	return (result);
 }
-

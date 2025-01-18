@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static int handle_heredoc(char *delimiter)
+static int	handle_heredoc(char *delimiter)
 {
 	int		pipe_fd[2];
 	char	*line;
@@ -20,7 +20,6 @@ static int handle_heredoc(char *delimiter)
 
 	if (pipe(pipe_fd) == -1)
 		return (-1);
-
 	delim_len = ft_strlen(delimiter);
 	while (1)
 	{
@@ -30,11 +29,10 @@ static int handle_heredoc(char *delimiter)
 			close(pipe_fd[1]);
 			return (-1);
 		}
-		if (ft_strlen(line) == delim_len &&
-			ft_strcmp(line, delimiter) == 0)
+		if (ft_strlen(line) == delim_len && ft_strcmp(line, delimiter) == 0)
 		{
 			free(line);
-			break;
+			break ;
 		}
 		write(pipe_fd[1], line, ft_strlen(line));
 		write(pipe_fd[1], "\n", 1);
@@ -44,7 +42,7 @@ static int handle_heredoc(char *delimiter)
 	return (pipe_fd[0]);
 }
 
-static int setup_redirections(t_redirect *redirects)
+static int	setup_redirections(t_redirect *redirects)
 {
 	t_redirect	*current;
 	int			fd;
@@ -62,7 +60,6 @@ static int setup_redirections(t_redirect *redirects)
 		}
 		current = current->next;
 	}
-
 	current = redirects;
 	while (current)
 	{
@@ -99,6 +96,7 @@ static int setup_redirections(t_redirect *redirects)
 	}
 	return (0);
 }
+
 static void	execute_piped_command(t_cmd *cmd, t_env *env,
 									int input_fd, int output_fd)
 {
@@ -108,13 +106,11 @@ static void	execute_piped_command(t_cmd *cmd, t_env *env,
 
 	if (cmd_setup(cmd, env, &args, &full_path) != 0)
 		exit(1);
-
 	if (cmd->cmd->redirects && setup_redirections(cmd->cmd->redirects) == -1)
 	{
-		perror("redirect");
+		perror("redirect error");
 		exit(1);
 	}
-
 	if (input_fd != STDIN_FILENO)
 	{
 		dup2(input_fd, STDIN_FILENO);
@@ -125,20 +121,17 @@ static void	execute_piped_command(t_cmd *cmd, t_env *env,
 		dup2(output_fd, STDOUT_FILENO);
 		close(output_fd);
 	}
-
 	env_array = env_to_array(env);
 	execve(full_path, args, env_array);
 	free_array(env_array);
 	free_array(args);
 	free(full_path);
-	perror("execve");
+	perror("execve error");
 	exit(1);
 }
 
 void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 {
-	extern int	g_signal;
-
 	if (argc == 3 && argv[1] && ft_strncmp(argv[1], "-c", 3) == 0)
 	{
 		cmd_init(argv[2], cmd, env);
@@ -160,7 +153,6 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 	int			pipefd[2];
 	int			prev_pipe;
 	pid_t		pid;
-	int			status;
 	t_cmd		*current;
 	t_redirect	*redir;
 	int			final_output_fd;
@@ -187,12 +179,12 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 					if (redir->op_type == OP_REDIR_OUT)
 					{
 						final_output_fd = open(redir->file,
-							O_WRONLY | O_CREAT | O_TRUNC, 0644);
+								O_WRONLY | O_CREAT | O_TRUNC, 0644);
 					}
 					else if (redir->op_type == OP_REDIR_APPEND)
 					{
 						final_output_fd = open(redir->file,
-							O_WRONLY | O_CREAT | O_APPEND, 0644);
+								O_WRONLY | O_CREAT | O_APPEND, 0644);
 					}
 					redir = redir->next;
 				}
@@ -201,8 +193,10 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 			{
 				final_output_fd = pipefd[1];
 			}
-			status = execute_builtin(current, env, prev_pipe, final_output_fd);
-			if (final_output_fd != STDOUT_FILENO && final_output_fd != pipefd[1])
+			g_signal = execute_builtin(current, env,
+					prev_pipe, final_output_fd);
+			if (final_output_fd != STDOUT_FILENO
+				&& final_output_fd != pipefd[1])
 				close(final_output_fd);
 		}
 		else
@@ -234,7 +228,7 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		}
 		current->cmd = current->cmd->next;
 	}
-	while (wait(&status) > 0)
+	while (wait(&g_signal) > 0)
 		;
-	return (WEXITSTATUS(status));
+	return (WEXITSTATUS(g_signal));
 }

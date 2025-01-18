@@ -24,7 +24,7 @@ static char	*ft_chartostr(char c)
 	return (str);
 }
 
-static char *get_var_name(const char *str)
+static char	*get_var_name(const char *str)
 {
 	int		i;
 	char	*var_name;
@@ -36,11 +36,10 @@ static char *get_var_name(const char *str)
 	return (var_name);
 }
 
-static char *expand_variable(const char *str, int *i, t_env *env)
+static char	*expand_variable(const char *str, int *i, t_env *env)
 {
 	char	*var_name;
 	char	*value;
-
 
 	(*i)++;
 	if (str[*i] == '?')

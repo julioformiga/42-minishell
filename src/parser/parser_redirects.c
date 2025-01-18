@@ -12,14 +12,14 @@
 
 #include "minishell.h"
 
-int is_operator_start(char c)
+int	is_operator_start(char c)
 {
 	return (c == '|' || c == '<' || c == '>');
 }
 
-static t_redirect *create_redirect(t_operator type, char *file)
+static t_redirect	*create_redirect(t_operator type, char *file)
 {
-	t_redirect *redir;
+	t_redirect	*redir;
 
 	redir = malloc(sizeof(t_redirect));
 	if (!redir)
@@ -35,7 +35,7 @@ static t_redirect *create_redirect(t_operator type, char *file)
 	return (redir);
 }
 
-char *extract_operator(char **rl)
+char	*extract_operator(char **rl)
 {
 	char	*token;
 
@@ -59,15 +59,14 @@ char *extract_operator(char **rl)
 	return (token);
 }
 
-int add_redirect(t_cmdblock *block, t_operator type, char *file)
+int	add_redirect(t_cmdblock *block, t_operator type, char *file)
 {
-	t_redirect *new_redir;
-	t_redirect *current;
+	t_redirect	*new_redir;
+	t_redirect	*current;
 
 	new_redir = create_redirect(type, file);
 	if (!new_redir)
 		return (0);
-
 	if (!block->redirects)
 		block->redirects = new_redir;
 	else

@@ -12,28 +12,35 @@
 
 #include "minishell.h"
 
-static t_builtin	g_builtins[] = {
-{"echo", builtin_echo},
-{"cd", builtin_cd},
-{"exit", builtin_exit},
-{"e", builtin_exit},
-{"env", builtin_env},
-{"export", builtin_export},
-{"unset", builtin_unset},
-{"pwd", builtin_pwd},
-{NULL, NULL}
-};
+static t_builtin	*get_builtins(void)
+{
+	static t_builtin	builtins[] = {
+	{"echo", builtin_echo},
+	{"cd", builtin_cd},
+	{"exit", builtin_exit},
+	{"e", builtin_exit},
+	{"env", builtin_env},
+	{"export", builtin_export},
+	{"unset", builtin_unset},
+	{"pwd", builtin_pwd},
+	{NULL, NULL}
+	};
+
+	return (builtins);
+}
 
 t_builtin_fn	get_builtin(char *cmd_name)
 {
-	int	i;
+	t_builtin	*builtins;
+	int			i;
 
+	builtins = get_builtins();
 	i = -1;
-	while (g_builtins[++i].name)
+	while (builtins[++i].name)
 	{
-		if (ft_strncmp(cmd_name, g_builtins[i].name,
-				ft_strlen(g_builtins[i].name) + 1) == 0)
-			return (g_builtins[i].fn);
+		if (ft_strncmp(cmd_name, builtins[i].name,
+				ft_strlen(builtins[i].name) + 1) == 0)
+			return (builtins[i].fn);
 	}
 	return (NULL);
 }

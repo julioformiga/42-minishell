@@ -62,7 +62,6 @@ t_cmdblock	*create_cmdblock(char *cmd_part)
 	int			i;
 	int			arg_count;
 
-
 	if (!cmd_part)
 		return (NULL);
 	args = ft_split(cmd_part, ' ');
