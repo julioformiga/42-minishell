@@ -41,10 +41,19 @@ t_env	*env_init(char **envp)
 
 char	*env_get(t_env *env, char *key)
 {
+	char *value;
+
+	if (!env || !key)
+		return (NULL);
 	while (env != NULL)
 	{
-		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
-			return (ft_strdup(env->value));
+		if (ft_strcmp(env->key, key) == 0 && env->value)
+		{
+			value = ft_strdup(env->value);
+			if (!value)
+				return (NULL);
+			return (value);
+		}
 		env = env->next;
 	}
 	return (NULL);
@@ -56,21 +65,22 @@ int	env_set(t_env *env, char *key, char *value, int plus)
 	t_env	*last;
 	char	*old_value;
 
-	if (key_check(key, value, plus))
+	if (env_key_check(key, value, plus))
 		return (1);
-	old_value = "";
 	while (env != NULL)
 	{
-		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
+		if (ft_strcmp(env->key, key) == 0)
 		{
+			old_value = NULL;
 			if (plus && env->value)
 				old_value = ft_strdup(env->value);
 			if (value)
-				free(env->value);//che succede se faccio free(NULL)?
+				free(env->value);
 			if (value && plus)
 				env->value = ft_strjoin(old_value, value);
 			else if (value)
 				env->value = ft_strdup(value);
+			free(old_value);
 			return (0);
 		}
 		last = env;
@@ -116,7 +126,6 @@ int	env_unset(t_env **env, char *key)
 int	builtin_env(t_cmd *cmd, t_env *env)
 {
 	t_env	*current;
-	char	*line;
 
 	(void)cmd;
 	current = env;
@@ -124,11 +133,10 @@ int	builtin_env(t_cmd *cmd, t_env *env)
 	{
 		if (current->value)
 		{
-			line = ft_strjoin(current->key, "=");
-			line = ft_strjoin(line, current->value);
-			line = ft_strjoin(line, "\n");
-			ft_putstr_fd(line, STDOUT_FILENO);
-			free(line);
+			ft_putstr_fd(current->key, STDOUT_FILENO);
+			ft_putchar_fd('=', STDOUT_FILENO);
+			ft_putstr_fd(current->value, STDOUT_FILENO);
+			ft_putchar_fd('\n', STDOUT_FILENO);
 		}
 		current = current->next;
 	}

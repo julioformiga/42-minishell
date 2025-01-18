@@ -54,16 +54,39 @@ int	builtin_export(t_cmd *cmd, t_env *env)
 	return (1);
 }
 
-int	key_check(char *key, char *value, int plus)
+int	env_key_check(char *key, char *value, int plus)
 {
 	int		i;
+	char	*tmp;
 	char	*s;
+	char	*new_s;
 
 	s = ft_strdup(key);
+	if (!s)
+		return (1);
 	if (plus)
-		s = ft_strjoin(s, "+");
+	{
+		new_s = ft_strjoin(s, "+");
+		free(s);
+		if (!new_s)
+			return (1);
+		s = new_s;
+	}
 	if (value)
-		s = ft_strjoin(ft_strjoin(s, "="), value);
+	{
+		tmp = ft_strjoin(s, "=");
+		if (!tmp)
+		{
+			free(s);
+			return (1);
+		}
+		new_s = ft_strjoin(tmp, value);
+		if (!new_s)
+			return (1);
+		free(tmp);
+		free(s);
+		s = new_s;
+	}
 	i = -1;
 	while (key[++i] != '\0')
 	{

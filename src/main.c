@@ -16,23 +16,21 @@ int	g_signal = 0;
 
 char	*prompt(t_env *env)
 {
-	char	*prompt;
 	char	*prompt_ini;
+	char	*prompt;
 	char	*dir;
 	char	*dir_home;
 	char	*rl;
 
 	dir = env_get(env, "PWD");
 	dir_home = env_get(env, "HOME");
-	if (ft_strncmp(dir, dir_home, ft_strlen(dir_home)) == 0)
+	if (ft_strcmp(dir, dir_home) == 0)
 		dir = ft_strjoin("~", dir + ft_strlen(dir_home));
-	if (g_signal == 0)
-		prompt_ini = ft_strjoin("\033[1;32m[minishell@42] ", dir);
-	else
-		prompt_ini = ft_strjoin("\033[1;31m[minishell@42] ", dir);
-	prompt = ft_strjoin(prompt_ini, " $>\033[0m ");
+	prompt_ini = ft_strjoin("[minishell@42] ", dir);
+	prompt = ft_strjoin(prompt_ini, " $> ");
 	free(prompt_ini);
 	free(dir);
+	free(dir_home);
 	rl = readline(prompt);
 	free(prompt);
 	return (rl);
@@ -41,10 +39,12 @@ char	*prompt(t_env *env)
 static void	exec_process(t_cmd *cmd, t_env *env)
 {
 	char	*input;
+	char	*debug;
 
-	if (ft_atoi(env_get(env, "DEBUG")) == 1)
+	debug = env_get(env, "DEBUG");
+	if (ft_atoi(debug) == 1)
 		cmd_debug(cmd);
-	input = NULL;
+	free(debug);
 	if (cmd->cmd->exec)
 	{
 		input = ft_strtrim(cmd->cmd->exec, " \t\n\r");
@@ -78,7 +78,7 @@ int	main(int argc, char **argv, char **envp)
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
-	env_set(env, "DEBUG", ft_itoa(DEBUG), 0);
+	env_set(env, "DEBUG", "1", 0);
 	env_set(env, "a", "123", 0);
 	env_set(env, "c", "cho", 0);
 	add_history("export DEBUG=1");

@@ -94,7 +94,7 @@ int				execute_builtin(t_cmd *cmd, t_env *env,
 
 t_env			*env_init(char **envp);
 char			*env_get(t_env *env, char *key);
-int				key_check(char *key, char *value, int plus);
+int				env_key_check(char *key, char *value, int plus);
 int				env_set(t_env *env, char *key, char *value, int plus);
 int				env_unset(t_env **env, char *key);
 void			env_free(t_env *env);

@@ -38,8 +38,7 @@ t_builtin_fn	get_builtin(char *cmd_name)
 	i = -1;
 	while (builtins[++i].name)
 	{
-		if (ft_strncmp(cmd_name, builtins[i].name,
-				ft_strlen(builtins[i].name) + 1) == 0)
+		if (ft_strcmp(cmd_name, builtins[i].name) == 0)
 			return (builtins[i].fn);
 	}
 	return (NULL);
