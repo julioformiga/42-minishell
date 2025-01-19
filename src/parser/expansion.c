@@ -28,12 +28,15 @@ static char	*expand_variable(const char *str, int *i, t_env *env)
 {
 	char	*var_name;
 	char	*value;
+	char	*sig;
 
+	sig = NULL;
 	(*i)++;
 	if (str[*i] == '?')
 	{
 		(*i)++;
-		return (ft_itoa(g_signal));
+		sig = ft_itoa(g_signal);
+		return (sig);
 	}
 	var_name = get_var_name(str + *i);
 	if (!var_name)

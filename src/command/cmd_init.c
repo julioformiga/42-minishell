@@ -18,7 +18,7 @@ int	cmd_setup(t_cmd *cmd, t_env *env, char ***args, char **full_path)
 
 	*full_path = cmd_check(cmd, env);
 	if (!*full_path)
-		return (1);
+		return (g_signal);
 	if (!cmd->cmd || !cmd->cmd->exec)
 		return (1);
 	if (cmd->cmd->args == NULL)

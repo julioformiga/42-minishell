@@ -105,7 +105,7 @@ static void	execute_piped_command(t_cmd *cmd, t_env *env,
 	char			**env_array;
 
 	if (cmd_setup(cmd, env, &args, &full_path) != 0)
-		exit(1);
+		exit(g_signal);
 	if (cmd->cmd->redirects && setup_redirections(cmd->cmd->redirects) == -1)
 	{
 		perror("redirect error");
@@ -135,7 +135,7 @@ void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 	if (argc == 3 && argv[1] && ft_strncmp(argv[1], "-c", 3) == 0)
 	{
 		cmd_init(argv[2], cmd, env);
-		g_signal = cmd_exec(cmd, env);
+		cmd_exec(cmd, env);
 		cmd_free(cmd);
 		env_free(env);
 		exit(g_signal);
@@ -143,7 +143,6 @@ void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 	else if (argc > 1)
 	{
 		printf("Usage:\n./minishell\nOR\n./minishell -c \"command\"\n");
-		cmd_free(cmd);
 		g_signal = 2;
 	}
 }
@@ -152,11 +151,13 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 {
 	int			pipefd[2];
 	int			prev_pipe;
+	int			result;
 	pid_t		pid;
 	t_cmd		*current;
 	t_redirect	*redir;
 	int			final_output_fd;
 
+	result = 0;
 	prev_pipe = STDIN_FILENO;
 	current = cmd;
 	while (current->cmd)
@@ -190,10 +191,8 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 				}
 			}
 			else if (current->cmd->next)
-			{
 				final_output_fd = pipefd[1];
-			}
-			g_signal = execute_builtin(current, env,
+			result = execute_builtin(current, env,
 					prev_pipe, final_output_fd);
 			if (final_output_fd != STDOUT_FILENO
 				&& final_output_fd != pipefd[1])
@@ -228,7 +227,8 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		}
 		current->cmd = current->cmd->next;
 	}
-	while (wait(&g_signal) > 0)
-		;
-	return (WEXITSTATUS(g_signal));
+	while (wait(&result) > 0)
+		if (WIFEXITED(result))
+			g_signal = WEXITSTATUS(result);
+	return (WEXITSTATUS(result));
 }
