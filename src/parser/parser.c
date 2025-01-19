@@ -12,12 +12,6 @@
 
 #include "minishell.h"
 
-static int	ft_isspace(char c)
-{
-	return (c == ' ' || c == '\t' || c == '\n'
-		|| c == '\v' || c == '\f' || c == '\r');
-}
-
 static int	count_tokens(char *rl)
 {
 	int		count;

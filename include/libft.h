@@ -66,6 +66,13 @@ void	ft_putstr_fd(char *s, int fd);
 void	ft_putendl_fd(char *s, int fd);
 void	ft_putnbr_fd(int n, int fd);
 
+// =========== PLUS ============
+int		ft_isspace(char c);
+char	*ft_chartostr(char c);
+int		ft_strcmp(const char *s1, const char *s2);
+char	*ft_strndup(const char *s1, size_t n);
+
+// =========== BONUS ===========
 typedef struct s_list
 {
 	void			*content;

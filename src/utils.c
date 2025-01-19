@@ -68,30 +68,3 @@ void	cmd_free(t_cmd *cmd)
 	free(cmd->cmd_line);
 	free(cmd);
 }
-
-int	ft_strcmp(const char *s1, const char *s2)
-{
-	while (*s1 && *s2 && *s1 == *s2)
-	{
-		s1++;
-		s2++;
-	}
-	return (*s1 - *s2);
-}
-
-char	*ft_strndup(const char *s1, size_t n)
-{
-	char	*str;
-	size_t	i;
-
-	if (!s1 || n == 0)
-		return (NULL);
-	str = malloc(sizeof(char) * (n + 1));
-	if (str == NULL)
-		return (NULL);
-	i = -1;
-	while (++i < n)
-		str[i] = s1[i];
-	str[i] = '\0';
-	return (str);
-}
