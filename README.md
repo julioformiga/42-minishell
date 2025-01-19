@@ -1,6 +1,4 @@
-🚧 ========== WIP ========== 🚧
-
-# 🚀 Minishell
+# 🚧  Minishell (WIP) 🚧
 
 A minimal shell implementation inspired by Bash.
 
@@ -40,7 +38,7 @@ A minimal shell implementation inspired by Bash.
 - [x] `Ctrl-\` does nothing
 
 ### Error Handling
-- [x] Command not found
+- [ ] Command not found (return 127)
 - [x] Permission denied
 - [x] File not found
 - [ ] Syntax errors
@@ -57,3 +55,7 @@ A minimal shell implementation inspired by Bash.
 - [ ] Invalid file descriptors
 
 ## 🛠️ Building
+
+```bash
+make run
+```
