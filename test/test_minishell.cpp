@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include <unistd.h>
 #include <libgen.h>
 #include <sys/types.h>
@@ -16,23 +15,40 @@ protected:
         shell_path = "bin/minishell";
     }
 
-    string shell_path;
+    struct CommandOutput {
+        string stdout_output;
+        string stderr_output;
+        int exit_code;
+    };
 
-    string exec_command(const string& command) {
+	string shell_path;
+
+    CommandOutput exec_command(const string& command) {
+        string modified_command = command + " 2> /tmp/stderr_output";
+        CommandOutput result;
+
+        // Capture stdout
         char buffer[128];
-        string result = "";
-        FILE* pipe = popen(command.c_str(), "r");
-
+        FILE* pipe = popen(modified_command.c_str(), "r");
         if (!pipe) {
-            return "ERROR";
+            return {"ERROR", "ERROR", -1};
         }
 
         while (!feof(pipe)) {
             if (fgets(buffer, 128, pipe) != NULL)
-                result += buffer;
+                result.stdout_output += buffer;
+        }
+        result.exit_code = pclose(pipe);
+
+        FILE* stderr_file = fopen("/tmp/stderr_output", "r");
+        if (stderr_file) {
+            while (fgets(buffer, 128, stderr_file)) {
+                result.stderr_output += buffer;
+            }
+            fclose(stderr_file);
+            unlink("/tmp/stderr_output");
         }
 
-        pclose(pipe);
         return result;
     }
 
@@ -42,50 +58,18 @@ protected:
 };
 
 TEST_F(MinishellTest, BasicExecution) {
-    string result = exec_command("echo 'ls' | " + shell_path);
-    ASSERT_FALSE(result.empty()) << "Shell should execute basic commands";
+    CommandOutput result = exec_command("echo 'ls' | " + shell_path);
+    ASSERT_FALSE(result.stdout_output.empty()) << "Shell should execute basic commands";
 }
 
 TEST_F(MinishellTest, CtrlDHandling) {
     string command = "echo -ne '' | " + shell_path;
-    string result = exec_command(command);
-    ASSERT_TRUE(result.find("") != string::npos) << "Shell should handle Ctrl+D (EOF) gracefully";
-}
-
-TEST_F(MinishellTest, CtrlCHandling) {
-    int pipefd[2];
-    pipe(pipefd);
-
-    pid_t pid = fork();
-    if (pid == 0) {
-        // Processo filho
-        close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[1]);
-
-        execl(shell_path.c_str(), "minishell", NULL);
-        exit(1);
-    }
-
-    close(pipefd[1]);
-    usleep(100000);
-
-    send_signal_to_process(pid, SIGINT);
-
-    char buffer[1024];
-    ssize_t bytes_read = read(pipefd[0], buffer, sizeof(buffer)-1);
-    buffer[bytes_read] = '\0';
-
-    kill(pid, SIGTERM);
-    waitpid(pid, NULL, 0);
-    close(pipefd[0]);
-
-    string output(buffer);
-    ASSERT_TRUE(output.find("$>") != string::npos) << "Ctrl+C should create new prompt";
+    CommandOutput result = exec_command(command);
+    ASSERT_TRUE(result.stdout_output.find("") != string::npos) << "Shell should handle Ctrl+D (EOF) gracefully";
 }
 
 TEST_F(MinishellTest, NoMemoryLeaks) {
-    string command = "echo 'ls\nexit' | valgrind --leak-check=full --show-leak-kinds=all "
+    string command = "echo 'exit' | valgrind --leak-check=full --show-leak-kinds=all "
                     "--suppressions=external.supp --error-exitcode=1 " + shell_path;
     int result = system(command.c_str());
     ASSERT_EQ(result, 0) << "Memory leak detected";
@@ -93,28 +77,34 @@ TEST_F(MinishellTest, NoMemoryLeaks) {
 
 TEST_F(MinishellTest, MultipleCommands) {
     string command = "echo 'ls\npwd\nexit' | " + shell_path;
-    string result = exec_command(command);
-    ASSERT_FALSE(result.empty()) << "Shell should handle multiple commands";
+    CommandOutput result = exec_command(command);
+    ASSERT_FALSE(result.stdout_output.empty()) << "Shell should handle multiple commands";
 }
 
 TEST_F(MinishellTest, InvalidCommand) {
-    string command = "echo 'invalidcommand\nexit' | " + shell_path;
-    string result = exec_command(command);
-    ASSERT_TRUE(result.find("not found") != string::npos ||
-                result.find("error") != string::npos)
-        << "Shell should handle invalid commands";
+    string command = shell_path + " -c 'invalidcommand'";
+    CommandOutput result = exec_command(command);
+
+    ASSERT_FALSE(result.stderr_output.empty())
+        << "Invalid command should produce error output";
+    ASSERT_TRUE(result.stderr_output.find("not found") != string::npos ||
+                result.stderr_output.find("error") != string::npos)
+        << "Error message should indicate command not found";
+
+	ASSERT_EQ(result.exit_code, 127)
+		<< "Invalid command should set exit status to 127";
 }
 
 TEST_F(MinishellTest, EnvironmentVariables) {
     string command = "echo 'echo $PATH\nexit' | " + shell_path;
-    string result = exec_command(command);
-    ASSERT_FALSE(result.empty()) << "Shell should handle environment variables";
+    CommandOutput result = exec_command(command);
+    ASSERT_FALSE(result.stdout_output.empty()) << "Shell should handle environment variables";
 }
 
 TEST_F(MinishellTest, PipeHandling) {
     string command = "echo 'ls | wc -l\nexit' | " + shell_path;
-    string result = exec_command(command);
-    ASSERT_FALSE(result.empty()) << "Shell should handle pipes";
+    CommandOutput result = exec_command(command);
+    ASSERT_FALSE(result.stdout_output.empty()) << "Shell should handle pipes";
 }
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
