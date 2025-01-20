@@ -23,6 +23,7 @@ A minimal shell implementation inspired by Bash.
 - [x] Arguments handling
 - [x] Environment variables expansion (`$VAR`)
 - [ ] Check expansion (`$$` => `$`)
+- [ ] Segfault when the $VAR in ENV is not set
 - [ ] Exit status variable expansion (`$?`)
 
 ### Redirections
