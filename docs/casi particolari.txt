@@ -1,11 +1,6 @@
 1) $"variabile" non espande la variabile, mentre "$variabile" si
 
-2) export variabile senza valore, poi env e non vedo variabile, mentre vedo variabile con comando export senza argomenti
-	- crea nuova variabile con export e dalle un valore (es: export ciao=123)
-	- poi lancia comando export ciao, che succede?
-
-	export= non e' un comando sconosciuto in bash
-
+2) export=ciao non e' un comando sconosciuto in bash
 
 3) $$ mostra pid, mentre $$USER mostra pid con attaccata stringa USER, mentre $"$USER" mostra solo $USER espanso
 	questo perche' quando bash trova $ prova ad espandere, e se non ci riesce stampa una stringa vuota ""

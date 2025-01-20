@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/28 21:19:48 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/17 14:56:49 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/20 12:29:50 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ t_env	*env_init(char **envp)
 
 char	*env_get(t_env *env, char *key)
 {
-	char *value;
+	char	*value;
 
 	if (!env || !key)
 		return (NULL);
@@ -63,26 +63,13 @@ int	env_set(t_env *env, char *key, char *value, int plus)
 {
 	t_env	*new;
 	t_env	*last;
-	char	*old_value;
 
-	if (env_key_check(key, value, plus))
+	if (env_key_check(key, value, plus, -1))
 		return (1);
+	if (!env_update(env, key, value, plus))
+		return (0);
 	while (env != NULL)
 	{
-		if (ft_strcmp(env->key, key) == 0)
-		{
-			old_value = NULL;
-			if (plus && env->value)
-				old_value = ft_strdup(env->value);
-			if (value)
-				free(env->value);
-			if (value && plus)
-				env->value = ft_strjoin(old_value, value);
-			else if (value)
-				env->value = ft_strdup(value);
-			free(old_value);
-			return (0);
-		}
 		last = env;
 		env = env->next;
 	}

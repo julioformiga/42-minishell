@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 14:28:29 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/17 14:55:37 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/20 13:13:14 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,52 +54,82 @@ int	builtin_export(t_cmd *cmd, t_env *env)
 	return (1);
 }
 
-int	env_key_check(char *key, char *value, int plus)
+int	env_update(t_env *env, char *key, char *value, int plus)
 {
-	int		i;
+	char	*old_value;
+	t_env	*last;
+
+	while (env != NULL)
+	{
+		if (ft_strcmp(env->key, key) == 0)
+		{
+			old_value = NULL;
+			if (plus && env->value)
+				old_value = ft_strdup(env->value);
+			if (value)
+				free(env->value);
+			if (value && plus && old_value)
+				env->value = ft_strjoin(old_value, value);
+			else if (value)
+				env->value = ft_strdup(value);
+			free(old_value);
+			return (0);
+		}
+		last = env;
+		env = env->next;
+	}
+	return (1);
+}
+
+char	*build_string(char *err, char *value)
+{
 	char	*tmp;
-	char	*s;
 	char	*new_s;
 
-	s = ft_strdup(key);
-	if (!s)
-		return (1);
-	if (plus)
-	{
-		new_s = ft_strjoin(s, "+");
-		free(s);
-		if (!new_s)
-			return (1);
-		s = new_s;
-	}
 	if (value)
 	{
-		tmp = ft_strjoin(s, "=");
+		tmp = ft_strjoin(err, "=");
 		if (!tmp)
 		{
-			free(s);
-			return (1);
+			free(err);
+			return (NULL);
 		}
 		new_s = ft_strjoin(tmp, value);
 		if (!new_s)
-			return (1);
+			return (NULL);
 		free(tmp);
-		free(s);
-		s = new_s;
+		free(err);
+		err = new_s;
 	}
-	i = -1;
+	return (err);
+}
+
+int	env_key_check(char *key, char *value, int plus, int i)
+{
+	char	*err;
+	char	*tmp;
+
+	if (plus)
+	{
+		tmp = ft_strjoin(key, "+");
+		if (!tmp)
+			return (1);
+	}
+	else
+		tmp = ft_strdup(key);
+	err = build_string(tmp, value);
+	if (err == NULL)
+		return (1);
 	while (key[++i] != '\0')
 	{
 		if ((!ft_isalnum(key[i]) && i != 0 && key[i] != '_')
 			|| (!ft_isalpha(key[i]) && i == 0 && key[i] != '_'))
 		{
-			ft_printf("minishell: export: `%s': not a valid identifier\n", s);
-			free(s);
-			return (1);
+			ft_printf("minishell: export: `%s': not a valid identifier\n", err);
+			return (free(err), 1);
 		}
 	}
-	free(s);
-	return (0);
+	return (free(err), 0);
 }
 
 /* int	builtin_export(t_cmd *cmd, t_env *env)

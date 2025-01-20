@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 14:35:35 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/16 18:47:04 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/20 12:19:26 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,9 @@ int				execute_builtin(t_cmd *cmd, t_env *env,
 
 t_env			*env_init(char **envp);
 char			*env_get(t_env *env, char *key);
-int				env_key_check(char *key, char *value, int plus);
+char			*build_string(char *err_string, char *value);
+int				env_key_check(char *key, char *value, int plus, int i);//i needs to be -1
+int				env_update(t_env *env, char *key, char *value, int plus);
 int				env_set(t_env *env, char *key, char *value, int plus);
 int				env_unset(t_env **env, char *key);
 void			env_free(t_env *env);
