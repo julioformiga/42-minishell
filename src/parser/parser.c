@@ -237,7 +237,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			if (!current->exec)
 				break ;
 		}
-		else
+		else if(cmd_parts[i] && ft_strlen(cmd_parts[i]) > 0)
 		{
 			if (arg_count == 0)
 			{
@@ -263,7 +263,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 					temp[j] = current->args[j];
 				temp[arg_count] = ft_strdup(cmd_parts[i]);
 				temp[arg_count + 1] = NULL;
-				free(current->args);
+				free_array(current->args);
 				current->args = temp;
 			}
 			arg_count++;

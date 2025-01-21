@@ -60,6 +60,7 @@ char	*parser_expansion(const char *str, t_env *env)
 	if (!expanded)
 		return (NULL);
 	i = 0;
+	temp = NULL;
 	in_quotes = 0;
 	while (str[i])
 	{
@@ -94,7 +95,8 @@ char	*parser_expansion(const char *str, t_env *env)
 		}
 		new_expanded = ft_strjoin(expanded, temp);
 		free(expanded);
-		free(temp);
+		if (temp && temp[0] != '\0')
+			free(temp);
 		expanded = new_expanded;
 		if (!expanded)
 			return (NULL);

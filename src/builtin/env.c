@@ -56,7 +56,7 @@ char	*env_get(t_env *env, char *key)
 		}
 		env = env->next;
 	}
-	return (NULL);
+	return ("");
 }
 
 int	env_set(t_env *env, char *key, char *value, int plus)

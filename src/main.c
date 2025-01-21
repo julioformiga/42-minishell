@@ -91,6 +91,7 @@ int	main(int argc, char **argv, char **envp)
 	add_history("> output.txt echo asd");
 	add_history("< output.txt cat");
 	add_history("ls -l | grep obj > result.txt");
+	add_history("echo $e $c");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (g_signal != 2)
