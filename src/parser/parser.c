@@ -151,22 +151,6 @@ static t_cmdblock	*create_new_block(void)
 	return (block);
 }
 
-static void	free_cmdblock(t_cmdblock *block)
-{
-	t_cmdblock	*next;
-
-	while (block)
-	{
-		next = block->next;
-		if (block->exec)
-			free(block->exec);
-		if (block->args)
-			free_array(block->args);
-		free(block);
-		block = next;
-	}
-}
-
 static t_operator	get_operator_type(const char *op)
 {
 	if (!op)
@@ -218,7 +202,6 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		expanded = parser_expansion(cmd_parts[i], env);
 		if (!expanded)
 		{
-			free_cmdblock(first);
 			free_array(cmd_parts);
 			return ;
 		}

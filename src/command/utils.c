@@ -43,46 +43,32 @@ char	**env_to_array(t_env *env)
 	return (env_array);
 }
 
-int	cmd_count_args(char *cmd)
+void	cmd_free(t_cmd *cmd)
 {
-	int		count;
-	char	*token;
+	t_cmdblock	*block;
+	t_cmdblock	*tmp;
+	t_redirect	*redir;
 
-	count = 0;
-	token = strtok(cmd, " ");
-	while (token != NULL)
+	block = cmd->cmd;
+	while (block)
 	{
-		count++;
-		token = strtok(NULL, " ");
+		tmp = block;
+		block = block->next;
+		free(tmp->exec);
+		if (tmp->args)
+			free_array(tmp->args);
+		if (tmp->redirects)
+		{
+			redir = tmp->redirects;
+			free(redir->file);
+			while (redir->next)
+				free(redir->file);
+		}
+		free(tmp->redirects);
+		free(tmp);
 	}
-	return (count);
-}
-
-char	**cmd_get_args(char *cmd)
-{
-	char	**args;
-	char	*token;
-	int		i;
-	char	*cmd_copy;
-
-	cmd_copy = ft_strdup(cmd);
-	args = malloc(sizeof(char *) * (cmd_count_args(cmd_copy) + 1));
-	if (!args)
-	{
-		free(cmd_copy);
-		return (NULL);
-	}
-	token = strtok(cmd_copy, " ");
-	i = 0;
-	while (token != NULL)
-	{
-		args[i] = ft_strdup(token);
-		token = strtok(NULL, " ");
-		i++;
-	}
-	args[i] = NULL;
-	free(cmd_copy);
-	return (args);
+	free(cmd->cmd_line);
+	free(cmd);
 }
 
 char	*get_operator_str(int op_type)

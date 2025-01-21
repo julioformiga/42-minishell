@@ -45,7 +45,7 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 	if (ft_atoi(debug) == 1)
 		cmd_debug(cmd);
 	free(debug);
-	if (cmd->cmd->exec)
+	if (cmd->cmd)
 	{
 		input = ft_strtrim(cmd->cmd->exec, " \t\n\r");
 		if (input)

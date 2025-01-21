@@ -49,33 +49,3 @@ void	free_array(char **array)
 	free(array);
 	array = NULL;
 }
-
-void	cmd_free(t_cmd *cmd)
-{
-	t_cmdblock	*block;
-	t_cmdblock	*tmp;
-	t_redirect	*redir;
-
-	block = cmd->cmd;
-	while (block)
-	{
-		tmp = block;
-		block = block->next;
-		free(tmp->exec);
-		if (tmp->args)
-			free_array(tmp->args);
-		if (tmp->redirects)
-		{
-			redir = tmp->redirects;
-			while (redir)
-			{
-				free(redir->file);
-				redir = redir->next;
-			}
-		}
-		free(tmp->redirects);
-		free(tmp);
-	}
-	free(cmd->cmd_line);
-	free(cmd);
-}
