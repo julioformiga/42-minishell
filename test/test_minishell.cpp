@@ -39,6 +39,10 @@ protected:
                 result.stdout_output += buffer;
         }
         result.exit_code = pclose(pipe);
+        if (WIFEXITED(result.exit_code))
+            result.exit_code = WEXITSTATUS(result.exit_code);
+        else
+            result.exit_code = -1;
 
         FILE* stderr_file = fopen("/tmp/stderr_output", "r");
         if (stderr_file) {
@@ -69,7 +73,7 @@ TEST_F(MinishellTest, CtrlDHandling) {
 }
 
 TEST_F(MinishellTest, NoMemoryLeaks) {
-    string command = "echo 'exit' | valgrind --leak-check=full --show-leak-kinds=all "
+    string command = "echo 'ls -l | grep bin > output.txt' | valgrind --leak-check=full --show-leak-kinds=all "
                     "--suppressions=external.supp --error-exitcode=1 " + shell_path;
     int result = system(command.c_str());
     ASSERT_EQ(result, 0) << "Memory leak detected";
@@ -90,7 +94,6 @@ TEST_F(MinishellTest, InvalidCommand) {
     ASSERT_TRUE(result.stderr_output.find("not found") != string::npos ||
                 result.stderr_output.find("error") != string::npos)
         << "Error message should indicate command not found";
-
 	ASSERT_EQ(result.exit_code, 127)
 		<< "Invalid command should set exit status to 127";
 }
