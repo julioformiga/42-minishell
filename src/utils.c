@@ -49,22 +49,3 @@ void	free_array(char **array)
 	free(array);
 	array = NULL;
 }
-
-void	cmd_free(t_cmd *cmd)
-{
-	t_cmdblock	*block;
-	t_cmdblock	*tmp;
-
-	block = cmd->cmd;
-	while (block)
-	{
-		tmp = block;
-		block = block->next;
-		free(tmp->exec);
-		if (tmp->args)
-			free_array(tmp->args);
-		free(tmp);
-	}
-	free(cmd->cmd_line);
-	free(cmd);
-}

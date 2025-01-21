@@ -45,7 +45,7 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 	if (ft_atoi(debug) == 1)
 		cmd_debug(cmd);
 	free(debug);
-	if (cmd->cmd->exec)
+	if (cmd->cmd)
 	{
 		input = ft_strtrim(cmd->cmd->exec, " \t\n\r");
 		if (input)
@@ -90,9 +90,11 @@ int	main(int argc, char **argv, char **envp)
 	add_history("> output.txt ls");
 	add_history("> output.txt echo asd");
 	add_history("< output.txt cat");
+	add_history("ls -l | grep obj > result.txt");
+	add_history("echo $e $c");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
-	while (g_signal != 2)
+	while (1)
 	{
 		cmd = malloc(sizeof(t_cmd));
 		rl = prompt(env);

@@ -95,7 +95,7 @@ int				execute_builtin(t_cmd *cmd, t_env *env,
 t_env			*env_init(char **envp);
 char			*env_get(t_env *env, char *key);
 char			*build_string(char *err_string, char *value);
-int				env_key_check(char *key, char *value, int plus, int i);//i needs to be -1
+int				env_key_check(char *key, char *value, int plus, int i);
 int				env_update(t_env *env, char *key, char *value, int plus);
 int				env_set(t_env *env, char *key, char *value, int plus);
 int				env_unset(t_env **env, char *key);
@@ -103,9 +103,6 @@ void			env_free(t_env *env);
 
 char			**cmd_parser_readline(char *rl);
 char			*parser_expansion(const char *str, t_env *env);
-t_cmdblock		*create_cmdblock(char *cmd_part);
-void			free_cmdblock_content(t_cmdblock *block);
-void			free_cmd_content(t_cmd *cmd);
 char			*cmd_check(t_cmd *cmd, t_env *env);
 void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
 
@@ -113,13 +110,11 @@ int				is_operator_start(char c);
 char			*extract_operator(char **rl);
 int				add_redirect(t_cmdblock *block, t_operator type, char *file);
 
-int				cmd_count_args(char *cmd);
-char			**cmd_get_args(char *cmd);
-int				cmd_exec(t_cmd *cmd, t_env *env);
 int				cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 					char **full_path);
 void			cmd_init(char *rl, t_cmd *cmd, t_env *env);
 void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
+int				cmd_exec(t_cmd *cmd, t_env *env);
 void			cmd_debug(t_cmd *cmd);
 void			cmd_free(t_cmd *cmd);
 

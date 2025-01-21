@@ -151,22 +151,6 @@ static t_cmdblock	*create_new_block(void)
 	return (block);
 }
 
-static void	free_cmdblock(t_cmdblock *block)
-{
-	t_cmdblock	*next;
-
-	while (block)
-	{
-		next = block->next;
-		if (block->exec)
-			free(block->exec);
-		if (block->args)
-			free_array(block->args);
-		free(block);
-		block = next;
-	}
-}
-
 static t_operator	get_operator_type(const char *op)
 {
 	if (!op)
@@ -215,10 +199,12 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
-		expanded = parser_expansion(cmd_parts[i], env);
+		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
+			expanded = ft_strdup("$");
+		else
+			expanded = parser_expansion(cmd_parts[i], env);
 		if (!expanded)
 		{
-			free_cmdblock(first);
 			free_array(cmd_parts);
 			return ;
 		}
@@ -254,7 +240,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			if (!current->exec)
 				break ;
 		}
-		else
+		else if(cmd_parts[i] && ft_strlen(cmd_parts[i]) > 0)
 		{
 			if (arg_count == 0)
 			{
@@ -280,7 +266,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 					temp[j] = current->args[j];
 				temp[arg_count] = ft_strdup(cmd_parts[i]);
 				temp[arg_count + 1] = NULL;
-				free(current->args);
+				free_array(current->args);
 				current->args = temp;
 			}
 			arg_count++;

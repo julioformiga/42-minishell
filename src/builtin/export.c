@@ -57,7 +57,6 @@ int	builtin_export(t_cmd *cmd, t_env *env)
 int	env_update(t_env *env, char *key, char *value, int plus)
 {
 	char	*old_value;
-	t_env	*last;
 
 	while (env != NULL)
 	{
@@ -75,7 +74,6 @@ int	env_update(t_env *env, char *key, char *value, int plus)
 			free(old_value);
 			return (0);
 		}
-		last = env;
 		env = env->next;
 	}
 	return (1);
