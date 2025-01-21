@@ -68,9 +68,9 @@ norm:
 			norminette $(SRCS) lib include | grep "Error"
 			printf "$(RESET)"
 
-run:		all debug
-			printf "🚀 $(YELLOW)Running$(RESET): $(BIN)\n"
-			./$(BIN)
+run:		all debug checkleaks
+#			printf "🚀 $(YELLOW)Running$(RESET): $(BIN)\n"
+#			./$(BIN)
 
 .SILENT:	all clean fclean re run
 .PHONY:		all clean fclean re run
