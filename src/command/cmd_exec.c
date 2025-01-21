@@ -228,7 +228,11 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		current->cmd = current->cmd->next;
 	}
 	while (wait(&result) > 0)
+	{
 		if (WIFEXITED(result))
 			g_signal = WEXITSTATUS(result);
+		else if (WIFSIGNALED(result))
+			g_signal = WTERMSIG(result) + 128;
+	}
 	return (WEXITSTATUS(result));
 }
