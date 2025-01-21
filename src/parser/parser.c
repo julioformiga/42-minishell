@@ -266,7 +266,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 					temp[j] = current->args[j];
 				temp[arg_count] = ft_strdup(cmd_parts[i]);
 				temp[arg_count + 1] = NULL;
-				free_array(current->args);
+				free(current->args);
 				current->args = temp;
 			}
 			arg_count++;
