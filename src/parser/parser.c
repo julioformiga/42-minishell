@@ -199,7 +199,10 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
-		expanded = parser_expansion(cmd_parts[i], env);
+		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
+			expanded = ft_strdup("$");
+		else
+			expanded = parser_expansion(cmd_parts[i], env);
 		if (!expanded)
 		{
 			free_array(cmd_parts);
