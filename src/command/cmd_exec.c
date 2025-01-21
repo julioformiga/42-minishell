@@ -153,28 +153,28 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 	int			prev_pipe;
 	int			result;
 	pid_t		pid;
-	t_cmd		*current;
+	t_cmdblock	*current;
 	t_redirect	*redir;
 	int			final_output_fd;
 
 	result = 0;
 	prev_pipe = STDIN_FILENO;
-	current = cmd;
-	while (current->cmd)
+	current = cmd->cmd;
+	while (current)
 	{
-		if (current->cmd->next && pipe(pipefd) == -1)
+		if (current->next && pipe(pipefd) == -1)
 		{
 			perror("pipe");
 			return (1);
 		}
-		if (get_builtin(current->cmd->exec))
+		if (get_builtin(current->exec))
 		{
 			final_output_fd = STDOUT_FILENO;
-			if (current->cmd->redirects)
+			if (current->redirects)
 			{
-				if (current->cmd->next)
+				if (current->next)
 					close(pipefd[1]);
-				redir = current->cmd->redirects;
+				redir = current->redirects;
 				while (redir)
 				{
 					if (redir->op_type == OP_REDIR_OUT)
@@ -190,9 +190,9 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 					redir = redir->next;
 				}
 			}
-			else if (current->cmd->next)
+			else if (current->next)
 				final_output_fd = pipefd[1];
-			result = execute_builtin(current, env,
+			result = execute_builtin(cmd, env,
 					prev_pipe, final_output_fd);
 			if (final_output_fd != STDOUT_FILENO
 				&& final_output_fd != pipefd[1])
@@ -208,24 +208,24 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 			}
 			else if (pid == 0)
 			{
-				if (current->cmd->next)
+				if (current->next)
 				{
-					execute_piped_command(current, env, prev_pipe, pipefd[1]);
+					execute_piped_command(cmd, env, prev_pipe, pipefd[1]);
 					close(pipefd[0]);
 				}
 				else
-					execute_piped_command(current, env, prev_pipe,
+					execute_piped_command(cmd, env, prev_pipe,
 						STDOUT_FILENO);
 			}
 		}
 		if (prev_pipe != STDIN_FILENO)
 			close(prev_pipe);
-		if (current->cmd->next)
+		if (current->next)
 		{
 			close(pipefd[1]);
 			prev_pipe = pipefd[0];
 		}
-		current->cmd = current->cmd->next;
+		current = current->next;
 	}
 	while (wait(&result) > 0)
 	{
