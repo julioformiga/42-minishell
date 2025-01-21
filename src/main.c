@@ -94,7 +94,7 @@ int	main(int argc, char **argv, char **envp)
 	add_history("echo $e $c");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
-	while (g_signal != 2)
+	while (1)
 	{
 		cmd = malloc(sizeof(t_cmd));
 		rl = prompt(env);
