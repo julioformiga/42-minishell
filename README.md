@@ -6,7 +6,7 @@ A minimal shell implementation inspired by Bash.
 
 ### Built-in Commands
 - [x] `echo` with option `-n`
-  - [ ] Delete " and '
+  - [x] Delete " and '
 - [x] `cd` with relative or absolute path
 - [x] `pwd` without options
 - [x] `export` without options
@@ -22,9 +22,9 @@ A minimal shell implementation inspired by Bash.
 - [x] Basic command execution with PATH search
 - [x] Arguments handling
 - [x] Environment variables expansion (`$VAR`)
-- [ ] Check expansion (`$$` => `$`)
-- [ ] Segfault when the $VAR in ENV is not set
-- [ ] Exit status variable expansion (`$?`)
+- [x] Check expansion (`$$` => `$`)
+- [x] Segfault when the $VAR in ENV is not set
+- [x] Exit status variable expansion (`$?`)
 
 ### Redirections
 - [x] `<` input redirection
@@ -39,21 +39,21 @@ A minimal shell implementation inspired by Bash.
 - [x] `Ctrl-\` does nothing
 
 ### Error Handling
-- [ ] Command not found (return 127)
+- [x] Command not found (return 127)
 - [x] Permission denied
 - [x] File not found
 - [ ] Syntax errors
-- [ ] Memory leaks prevention
+- [x] Memory leaks prevention
 
 ### Edge Cases
 - [x] Empty input
 - [x] Multiple spaces between arguments
-- [ ] Multiple redirections
+- [x] Multiple redirections
 - [x] Multiple pipes
 - [x] Quotes inside quotes
 - [x] Environment variables in different contexts
 - [x] Non-existent environment variables
-- [ ] Invalid file descriptors
+- [x] Invalid file descriptors
 
 ## 🛠️ Building
 
