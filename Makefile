@@ -53,7 +53,7 @@ re:			fclean all run
 debug:		all
 			cp $(BIN) a.out
 
-tests:		all
+test:		all
 			cd build/ && cmake .. && make && cd ..
 			./build/test_minishell
 
