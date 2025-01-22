@@ -14,20 +14,16 @@
 
 char	**env_to_array(t_env *env)
 {
-	int		count;
 	char	**env_array;
 	t_env	*current;
 	char	*tmp;
 	int		i;
 
-	count = 0;
+	i = -1;
 	current = env;
-	while (current)
-	{
-		count++;
+	while (i++, current)
 		current = current->next;
-	}
-	env_array = malloc(sizeof(char *) * (count + 1));
+	env_array = malloc(sizeof(char *) * (i + 1));
 	if (!env_array)
 		return (NULL);
 	current = env;
@@ -69,52 +65,4 @@ void	cmd_free(t_cmd *cmd)
 	}
 	free(cmd->cmd_line);
 	free(cmd);
-}
-
-char	*get_operator_str(int op_type)
-{
-	switch (op_type)
-	{
-		case OP_PIPE: return ("|");
-		case OP_REDIR_IN: return ("<");
-		case OP_REDIR_OUT: return (">");
-		case OP_REDIR_APPEND: return (">>");
-		case OP_HEREDOC: return ("<<");
-		default: return ("unknown");
-	}
-}
-
-void	cmd_debug(t_cmd *cmd)
-{
-	t_cmdblock	*block;
-	t_redirect	*redir;
-	int			i;
-	int			n;
-
-	block = cmd->cmd;
-	printf("\n+-----------------------------------------------------------+\n");
-	printf("| Full command: %s\n", cmd->cmd_line);
-	i = 0;
-	while (i++, block)
-	{
-		n = -1;
-		printf("|\tCommand #%d: %s\n", i, block->exec);
-		if (block->args)
-			while (block->args[++n])
-				printf("|\t\tArg #%d: %s\n", n + 1, block->args[n]);
-		if (block->redirects)
-		{
-			redir = block->redirects;
-			while (redir)
-			{
-				printf("|\t\tRedirect: %s\n", get_operator_str(redir->op_type));
-				printf("|\t\t\tFile: %s\n", redir->file);
-				redir = redir->next;
-			}
-		}
-		if (block->op_type)
-			printf("|\t\tOperator: %s\n", get_operator_str(block->op_type));
-		block = block->next;
-	}
-	printf("+-----------------------------------------------------------+\n");
 }
