@@ -97,7 +97,7 @@ static int	setup_redirections(t_redirect *redirects)
 	return (0);
 }
 
-static void	execute_piped_command(t_cmd *cmd, t_env *env,
+static void	exec_piped_cmd(t_cmd *cmd, t_env *env,
 									int input_fd, int output_fd)
 {
 	char			*full_path;
@@ -153,50 +153,48 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 	int			prev_pipe;
 	int			result;
 	pid_t		pid;
-	t_cmdblock	*current;
+	t_cmd		*current;
 	t_redirect	*redir;
-	int			final_output_fd;
+	int			fd_output;
 
 	result = 0;
 	prev_pipe = STDIN_FILENO;
-	current = cmd->cmd;
-	while (current)
+	current = cmd;
+	while (current->cmd)
 	{
-		if (current->next && pipe(pipefd) == -1)
+		if (current->cmd->next && pipe(pipefd) == -1)
 		{
 			perror("pipe");
 			return (1);
 		}
-		if (get_builtin(current->exec))
+		if (get_builtin(current->cmd->exec))
 		{
-			final_output_fd = STDOUT_FILENO;
-			if (current->redirects)
+			fd_output = STDOUT_FILENO;
+			if (current->cmd->redirects)
 			{
-				if (current->next)
+				if (current->cmd->next)
 					close(pipefd[1]);
-				redir = current->redirects;
+				redir = current->cmd->redirects;
 				while (redir)
 				{
 					if (redir->op_type == OP_REDIR_OUT)
 					{
-						final_output_fd = open(redir->file,
+						fd_output = open(redir->file,
 								O_WRONLY | O_CREAT | O_TRUNC, 0644);
 					}
 					else if (redir->op_type == OP_REDIR_APPEND)
 					{
-						final_output_fd = open(redir->file,
+						fd_output = open(redir->file,
 								O_WRONLY | O_CREAT | O_APPEND, 0644);
 					}
 					redir = redir->next;
 				}
 			}
-			else if (current->next)
-				final_output_fd = pipefd[1];
-			result = execute_builtin(cmd, env,
-					prev_pipe, final_output_fd);
-			if (final_output_fd != STDOUT_FILENO
-				&& final_output_fd != pipefd[1])
-				close(final_output_fd);
+			else if (current->cmd->next)
+				fd_output = pipefd[1];
+			result = execute_builtin(current, env, prev_pipe, fd_output);
+			if (fd_output != STDOUT_FILENO && fd_output != pipefd[1])
+				close(fd_output);
 		}
 		else
 		{
@@ -208,24 +206,24 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 			}
 			else if (pid == 0)
 			{
-				if (current->next)
+				if (current->cmd->next)
 				{
-					execute_piped_command(cmd, env, prev_pipe, pipefd[1]);
+					exec_piped_cmd(current, env, prev_pipe, pipefd[1]);
 					close(pipefd[0]);
 				}
 				else
-					execute_piped_command(cmd, env, prev_pipe,
+					exec_piped_cmd(current, env, prev_pipe,
 						STDOUT_FILENO);
 			}
 		}
 		if (prev_pipe != STDIN_FILENO)
 			close(prev_pipe);
-		if (current->next)
+		if (current->cmd->next)
 		{
 			close(pipefd[1]);
 			prev_pipe = pipefd[0];
 		}
-		current = current->next;
+		current->cmd = current->cmd->next;
 	}
 	while (wait(&result) > 0)
 	{
