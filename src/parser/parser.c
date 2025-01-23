@@ -140,7 +140,7 @@ static t_cmdblock	*create_new_block(void)
 {
 	t_cmdblock	*block;
 
-	block = malloc(sizeof(t_cmdblock));
+	block = malloc(sizeof(t_cmdblock) * 1);
 	if (!block)
 		return (NULL);
 	block->exec = NULL;
@@ -148,6 +148,7 @@ static t_cmdblock	*create_new_block(void)
 	block->op_type = OP_NONE;
 	block->redirects = NULL;
 	block->next = NULL;
+	block->prev = NULL;
 	return (block);
 }
 
@@ -219,6 +220,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				current->next = create_new_block();
 				if (!current->next)
 					break ;
+				current->next->prev = current;
 				current = current->next;
 				arg_count = 0;
 			}

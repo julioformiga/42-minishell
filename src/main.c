@@ -45,14 +45,15 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 	if (ft_atoi(debug) == 1)
 		cmd_debug(cmd);
 	free(debug);
-	if (cmd->cmd)
+	if (cmd->cmd_line)
 	{
-		input = ft_strtrim(cmd->cmd->exec, " \t\n\r");
+		input = ft_strtrim(cmd->cmd_line, " \t\n\r");
 		if (input)
 		{
 			free(input);
 			add_history(cmd->cmd_line);
 			cmd_exec(cmd, env);
+			free_cmd(cmd);
 		}
 	}
 }
@@ -90,9 +91,10 @@ int	main(int argc, char **argv, char **envp)
 	add_history("> output.txt ls");
 	add_history("> output.txt echo asd");
 	add_history("< output.txt cat");
-	add_history("ls -l | grep obj > result.txt");
 	add_history("echo $e $c");
 	add_history("echo \"asd\" 'qwe' asd");
+	add_history("bat result.txt result-append.txt");
+	add_history("ls -l | grep obj > result.txt >> result-append.txt");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (1)
@@ -114,7 +116,6 @@ int	main(int argc, char **argv, char **envp)
 		cmd_init(rl, cmd, env);
 		free(rl);
 		exec_process(cmd, env);
-		cmd_free(cmd);
 	}
 	env_free(env);
 	return (g_signal);

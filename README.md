@@ -14,7 +14,7 @@ A minimal shell implementation inspired by Bash.
   - [x] export VAR=
 - [x] `unset` without options
 - [x] `env` without options or arguments
-  - [ ] `env | grep HOME`
+  - [x] `env | grep HOME`
 - [x] `exit` without options
 
 ### Command Line Parsing

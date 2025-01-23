@@ -61,6 +61,7 @@ typedef struct s_cmdblock
 	t_operator			op_type;
 	t_redirect			*redirects;
 	struct s_cmdblock	*next;
+	struct s_cmdblock	*prev;
 }	t_cmdblock;
 
 typedef struct s_cmd
@@ -116,8 +117,9 @@ void			cmd_init(char *rl, t_cmd *cmd, t_env *env);
 void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
 int				cmd_exec(t_cmd *cmd, t_env *env);
 void			cmd_debug(t_cmd *cmd);
-void			cmd_free(t_cmd *cmd);
+void			free_cmd(t_cmd *cmd);
 
+t_cmdblock		*get_first_block(t_cmdblock *block);
 int				builtin_echo(t_cmd *cmd, t_env *env);
 int				builtin_cd(t_cmd *cmd, t_env *env);
 int				builtin_export(t_cmd *cmd, t_env *env);
