@@ -97,39 +97,6 @@ static int	setup_redirections(t_redirect *redirects)
 	return (0);
 }
 
-static void	exec_piped_cmd(t_cmd *cmd, t_env *env,
-									int input_fd, int output_fd)
-{
-	char			*full_path;
-	char			**args;
-	char			**env_array;
-
-	if (cmd_setup(cmd, env, &args, &full_path) != 0)
-		exit(g_signal);
-	if (cmd->cmd->redirects && setup_redirections(cmd->cmd->redirects) == -1)
-	{
-		perror("redirect error");
-		exit(1);
-	}
-	if (input_fd != STDIN_FILENO)
-	{
-		dup2(input_fd, STDIN_FILENO);
-		close(input_fd);
-	}
-	if (output_fd != STDOUT_FILENO)
-	{
-		dup2(output_fd, STDOUT_FILENO);
-		close(output_fd);
-	}
-	env_array = env_to_array(env);
-	execve(full_path, args, env_array);
-	free_array(env_array);
-	free_array(args);
-	free(full_path);
-	perror("execve error");
-	exit(1);
-}
-
 void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 {
 	if (argc == 3 && argv[1] && ft_strncmp(argv[1], "-c", 3) == 0)
@@ -181,6 +148,39 @@ static void handle_pipe_setup(t_cmdblock *block, int *pipefd, int *prev_pipe)
 	}
 }
 
+static void	exec_piped_cmd(t_cmd *cmd, t_env *env,
+									int input_fd, int output_fd)
+{
+	char			*full_path;
+	char			**args;
+	char			**env_array;
+
+	if (cmd_setup(cmd, env, &args, &full_path) != 0)
+		exit(g_signal);
+	if (cmd->cmd->redirects && setup_redirections(cmd->cmd->redirects) == -1)
+	{
+		perror("redirect error");
+		exit(1);
+	}
+	if (input_fd != STDIN_FILENO)
+	{
+		dup2(input_fd, STDIN_FILENO);
+		close(input_fd);
+	}
+	if (output_fd != STDOUT_FILENO)
+	{
+		dup2(output_fd, STDOUT_FILENO);
+		close(output_fd);
+	}
+	env_array = env_to_array(env);
+	execve(full_path, args, env_array);
+	free_array(env_array);
+	free_array(args);
+	free(full_path);
+	perror("execve error");
+	exit(1);
+}
+
 int	cmd_exec(t_cmd *cmd, t_env *env)
 {
 	int			pipefd[2];
@@ -192,6 +192,9 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 
 	result = 0;
 	prev_pipe = STDIN_FILENO;
+	fd_output = STDOUT_FILENO;
+	pipefd[0] = -1;
+	pipefd[1] = -1;
 	cmdtmp = cmd;
 	while (cmdtmp->cmd)
 	{
@@ -223,10 +226,18 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 					close(pipefd[0]);
 				}
 				else
+				{
 					exec_piped_cmd(cmdtmp, env, prev_pipe, STDOUT_FILENO);
+				}
 			}
 		}
 		handle_pipe_setup(cmdtmp->cmd, pipefd, &prev_pipe);
+		if (!cmdtmp->cmd->next)
+		{
+			if (cmdtmp->cmd->prev)
+				cmdtmp->cmd = cmdtmp->cmd->prev;
+			break ;
+		}
 		cmdtmp->cmd = cmdtmp->cmd->next;
 	}
 	while (wait(&result) > 0)
