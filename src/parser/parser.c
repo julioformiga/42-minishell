@@ -194,7 +194,6 @@ static t_operator	get_operator_type(const char *op)
 void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 {
 	t_cmdblock	*current;
-	t_cmdblock	*first;
 	t_operator	op_type;
 	char		*file;
 	char		*expanded;
@@ -211,13 +210,12 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		cmd->cmd_line = NULL;
 		return ;
 	}
-	first = create_new_block();
-	if (!first)
+	current = create_new_block();
+	if (!current)
 	{
 		free_array(cmd_parts);
 		return ;
 	}
-	current = first;
 	arg_count = 0;
 	i = 0;
 	while (cmd_parts[i])
@@ -297,6 +295,6 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		i++;
 	}
-	cmd->cmd = first;
+	cmd->cmd = get_first_block(current);
 	free_array(cmd_parts);
 }
