@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/15 18:00:30 by julio.formiga     #+#    #+#             */
-/*   Updated: 2025/01/15 18:00:30 by julio.formiga    ###   ########.fr       */
+/*   Created: 2025/01/15 18:00:30 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/23 18:44:27 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static int	count_tokens(char *rl)
 				rl++;
 			rl++;
 		}
-		else
+		/* else */
 			while (*rl && !ft_isspace(*rl) && !is_operator_start(*rl))
 				rl++;
 	}
@@ -102,6 +102,24 @@ static char	*extract_word(char **rl)
 	return (clean);
 }
 
+//echo $' ciao   3spazi   $USER  $HOME  a'b c  d
+//stampa uno spazio dopo a' che non deve
+static char	*do_not_expand(char **rl)
+{
+	char	*str_to_check;
+	char	*start;
+	int 	len;
+
+	start = *rl;
+	(*rl)++;
+	while (**rl && **rl != '\'')
+		(*rl)++;
+	(*rl)++;
+	len = *rl - start;
+	str_to_check = ft_substr(start, 0, len);
+	return (str_to_check);
+}
+
 char	**cmd_parser_readline(char *rl)
 {
 	char	**tokens;
@@ -119,10 +137,14 @@ char	**cmd_parser_readline(char *rl)
 			rl++;
 		if (!*rl)
 			break ;
+		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))
+			rl++;
 		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
 			tokens[i] = extract_quoted_token(&rl);
 		else if (is_operator_start(*rl))
 			tokens[i] = extract_operator(&rl);
+		else if (*rl == '\'')
+			tokens[i] = do_not_expand(&rl);
 		else
 			tokens[i] = extract_word(&rl);
 		if (!tokens[i])
