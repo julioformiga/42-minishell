@@ -7,12 +7,26 @@
    ...
 }
 {
+   <Readline-reachable2>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:readline
+}
+{
    <Readline-definite>
    Memcheck:Leak
    match-leak-kinds: definite
    ...
    fun:readline
    ...
+}
+{
+   <Readline-definite2>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:readline
 }
 {
    <AddHistory>
