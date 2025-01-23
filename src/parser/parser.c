@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 18:00:30 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/23 18:44:27 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/23 20:09:43 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,7 @@ char	**cmd_parser_readline(char *rl)
 	if (!tokens)
 		return (NULL);
 	i = 0;
+	tokens[i] = ft_strdup("");
 	while (*rl)
 	{
 		while (*rl && ft_isspace(*rl))
@@ -140,21 +141,25 @@ char	**cmd_parser_readline(char *rl)
 		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))
 			rl++;
 		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
-			tokens[i] = extract_quoted_token(&rl);
+			tokens[i] = ft_strjoin(tokens[i], extract_quoted_token(&rl));
 		else if (is_operator_start(*rl))
-			tokens[i] = extract_operator(&rl);
+			tokens[i] = ft_strjoin(tokens[i], extract_operator(&rl));
 		else if (*rl == '\'')
-			tokens[i] = do_not_expand(&rl);
+			tokens[i] = ft_strjoin(tokens[i], do_not_expand(&rl));
 		else
-			tokens[i] = extract_word(&rl);
+			tokens[i] = ft_strjoin(tokens[i], extract_word(&rl));
 		if (!tokens[i])
 		{
 			free_array(tokens);
 			return (NULL);
 		}
-		i++;
+		if (*rl && ft_isspace(*rl))
+			tokens[++i] = ft_strdup("");
 	}
-	tokens[i] = NULL;
+	if (ft_isspace(*(rl - 1)))//in caso il comando finisca con spazi vuoti
+		tokens[i] = NULL;
+	else
+		tokens[++i] = NULL;
 	return (tokens);
 }
 
