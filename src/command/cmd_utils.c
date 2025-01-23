@@ -39,30 +39,62 @@ char	**env_to_array(t_env *env)
 	return (env_array);
 }
 
-void	cmd_free(t_cmd *cmd)
+static void	free_redirects(t_redirect *redirects)
+{
+	t_redirect	*current;
+	t_redirect	*next;
+
+	current = redirects;
+	while (current)
+	{
+		next = current->next;
+		if (current->file)
+			free(current->file);
+		free(current);
+		current = next;
+	}
+}
+
+t_cmdblock	*get_first_block(t_cmdblock *block)
+{
+	t_cmdblock	*current;
+
+	current = block;
+	while (current && current->prev)
+		current = current->prev;
+	return (current);
+}
+
+void	free_cmd(t_cmd *cmd)
 {
 	t_cmdblock	*block;
 	t_cmdblock	*tmp;
-	t_redirect	*redir;
 
-	block = cmd->cmd;
-	while (block)
+	if (!cmd)
+		return ;
+	// printf("first cmdblock: %p\n", get_first_block(cmd->cmd));
+	// printf("last cmdblock: %p\n", cmd->cmd);
+	// block = get_first_block(cmd->cmd);
+	if (cmd->cmd)
 	{
-		tmp = block;
-		block = block->next;
-		free(tmp->exec);
-		if (tmp->args)
-			free_array(tmp->args);
-		if (tmp->redirects)
+		block = cmd->cmd;
+		while (block)
 		{
-			redir = tmp->redirects;
-			free(redir->file);
-			while (redir->next)
-				free(redir->file);
+			tmp = block;
+			block = block->next;
+			if (tmp->exec)
+				free(tmp->exec);
+			if (tmp->args)
+				free_array(tmp->args);
+			if (tmp->redirects)
+			{
+				free_redirects(tmp->redirects);
+				free(tmp->redirects);
+			}
+			free(tmp);
 		}
-		free(tmp->redirects);
-		free(tmp);
 	}
-	free(cmd->cmd_line);
+	if (cmd->cmd_line)
+		free(cmd->cmd_line);
 	free(cmd);
 }
