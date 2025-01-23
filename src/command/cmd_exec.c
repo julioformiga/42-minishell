@@ -176,6 +176,8 @@ static void	exec_piped_cmd(t_cmd *cmd, t_env *env,
 	execve(full_path, args, env_array);
 	free_array(env_array);
 	free_array(args);
+	free_cmd(cmd);
+	env_free(env);
 	free(full_path);
 	perror("execve error");
 	exit(1);
