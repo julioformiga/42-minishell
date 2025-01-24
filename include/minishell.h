@@ -39,7 +39,8 @@ typedef struct s_env
 
 /* ================================= CMD =====================================*/
 
-typedef enum e_operator {
+typedef enum e_operator
+{
 	OP_NONE,
 	OP_PIPE,
 	OP_REDIR_IN,
@@ -48,7 +49,8 @@ typedef enum e_operator {
 	OP_HEREDOC
 }	t_operator;
 
-typedef struct s_redirect {
+typedef struct s_redirect
+{
 	t_operator			op_type;
 	char				*file;
 	struct s_redirect	*next;
@@ -115,6 +117,15 @@ int				cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 					char **full_path);
 void			cmd_init(char *rl, t_cmd *cmd, t_env *env);
 void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
+void			cmd_exec_setup_pipe(t_cmdblock *block, int *fd, int *prev_pipe);
+void			cmd_exec_handle_redirect(t_cmdblock *block,
+					int *pipefd, int *fd_output);
+int				cmd_exec_handle_heredoc(char *delimiter);
+int				cmd_exec_setup_redirect(t_redirect *redirects);
+int				cmd_exec_setup_heredoc(t_redirect *redirects, int *heredoc_fd);
+void			cmd_exec_pipe_cmd(t_cmd *cmd, t_env *env, int infd, int outfd);
+void			cmd_exec_pipe_wait_children(int *result);
+int				cmd_exec_pipe_check(t_cmd *cmdtmp, int *pipefd);
 int				cmd_exec(t_cmd *cmd, t_env *env);
 void			cmd_debug(t_cmd *cmd);
 void			free_cmd(t_cmd *cmd);

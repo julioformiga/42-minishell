@@ -12,31 +12,21 @@
 
 #include "minishell.h"
 
-char	**env_to_array(t_env *env)
+void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
 {
-	char	**env_array;
-	t_env	*current;
-	char	*tmp;
-	int		i;
-
-	i = -1;
-	current = env;
-	while (i++, current)
-		current = current->next;
-	env_array = malloc(sizeof(char *) * (i + 1));
-	if (!env_array)
-		return (NULL);
-	current = env;
-	i = -1;
-	while (i++, current)
+	if (argc == 3 && argv[1] && ft_strncmp(argv[1], "-c", 3) == 0)
 	{
-		tmp = ft_strjoin(current->key, "=");
-		env_array[i] = ft_strjoin(tmp, current->value);
-		free(tmp);
-		current = current->next;
+		cmd_init(argv[2], cmd, env);
+		cmd_exec(cmd, env);
+		free_cmd(cmd);
+		env_free(env);
+		exit(g_signal);
 	}
-	env_array[i] = NULL;
-	return (env_array);
+	else if (argc > 1)
+	{
+		printf("Usage:\n./minishell\nOR\n./minishell -c \"command\"\n");
+		g_signal = 2;
+	}
 }
 
 t_cmdblock	*get_first_block(t_cmdblock *block)

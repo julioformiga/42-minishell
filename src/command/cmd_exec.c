@@ -12,175 +12,68 @@
 
 #include "minishell.h"
 
-static int	handle_heredoc(char *delimiter)
+static int	handle_builtin_cmd(t_cmd *cmdtmp, t_env *env,
+							int *pipefd, int *prev_pipe)
 {
-	int		pipe_fd[2];
-	char	*line;
-	size_t	delim_len;
+	int	fd_output;
+	int	result;
 
-	if (pipe(pipe_fd) == -1)
-		return (-1);
-	delim_len = ft_strlen(delimiter);
-	while (1)
-	{
-		line = readline("pipe heredoc> ");
-		if (!line)
-		{
-			close(pipe_fd[1]);
-			return (-1);
-		}
-		if (ft_strlen(line) == delim_len && ft_strcmp(line, delimiter) == 0)
-		{
-			free(line);
-			break ;
-		}
-		write(pipe_fd[1], line, ft_strlen(line));
-		write(pipe_fd[1], "\n", 1);
-		free(line);
-	}
-	close(pipe_fd[1]);
-	return (pipe_fd[0]);
+	fd_output = STDOUT_FILENO;
+	cmd_exec_handle_redirect(cmdtmp->cmd, pipefd, &fd_output);
+	result = execute_builtin(cmdtmp, env, *prev_pipe, fd_output);
+	if (fd_output != STDOUT_FILENO && fd_output != pipefd[1])
+		close(fd_output);
+	return (result);
 }
 
-static int	setup_redirections(t_redirect *redirects)
+static int	handle_external_cmd(t_cmd *cmdtmp, t_env *env,
+							int *pipefd, int prev_pipe)
 {
-	t_redirect	*current;
-	int			fd;
-	int			heredoc_fd;
+	pid_t	pid;
 
-	heredoc_fd = -1;
-	current = redirects;
-	while (current)
+	pid = fork();
+	if (pid == -1)
 	{
-		if (current->op_type == OP_HEREDOC)
-		{
-			heredoc_fd = handle_heredoc(current->file);
-			if (heredoc_fd == -1)
-				return (-1);
-		}
-		current = current->next;
+		perror("fork");
+		return (1);
 	}
-	current = redirects;
-	while (current)
+	if (pid == 0)
 	{
-		if (current->op_type == OP_REDIR_IN)
+		if (cmdtmp->cmd->next)
 		{
-			fd = open(current->file, O_RDONLY);
-			if (fd == -1)
-				return (-1);
-			dup2(fd, STDIN_FILENO);
-			close(fd);
+			cmd_exec_pipe_cmd(cmdtmp, env, prev_pipe, pipefd[1]);
+			close(pipefd[0]);
 		}
-		else if (current->op_type == OP_HEREDOC)
-		{
-			dup2(heredoc_fd, STDIN_FILENO);
-			close(heredoc_fd);
-		}
-		else if (current->op_type == OP_REDIR_OUT)
-		{
-			fd = open(current->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if (fd == -1)
-				return (-1);
-			dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
-		else if (current->op_type == OP_REDIR_APPEND)
-		{
-			fd = open(current->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			if (fd == -1)
-				return (-1);
-			dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
-		current = current->next;
+		else
+			cmd_exec_pipe_cmd(cmdtmp, env, prev_pipe, STDOUT_FILENO);
 	}
 	return (0);
 }
 
-void	cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd)
+static int	execute_command(t_cmd *cmdtmp, t_env *env,
+							int *pipefd, int *prev_pipe)
 {
-	if (argc == 3 && argv[1] && ft_strncmp(argv[1], "-c", 3) == 0)
-	{
-		cmd_init(argv[2], cmd, env);
-		cmd_exec(cmd, env);
-		free_cmd(cmd);
-		env_free(env);
-		exit(g_signal);
-	}
-	else if (argc > 1)
-	{
-		printf("Usage:\n./minishell\nOR\n./minishell -c \"command\"\n");
-		g_signal = 2;
-	}
+	int	result;
+
+	result = 0;
+	if (get_builtin(cmdtmp->cmd->exec))
+		result = handle_builtin_cmd(cmdtmp, env, pipefd, prev_pipe);
+	else if (handle_external_cmd(cmdtmp, env, pipefd, *prev_pipe))
+		return (1);
+	cmd_exec_setup_pipe(cmdtmp->cmd, pipefd, prev_pipe);
+	return (result);
 }
 
-static void handle_redirections(t_cmdblock *block, int *pipefd, int *fd_output)
+static int	update_command_position(t_cmd **cmdtmp)
 {
-	t_redirect *redir;
-
-	*fd_output = STDOUT_FILENO;
-	if (block->redirects)
+	if (!(*cmdtmp)->cmd->next)
 	{
-		if (block->next)
-			close(pipefd[1]);
-		redir = block->redirects;
-		while (redir)
-		{
-			if (redir->op_type == OP_REDIR_OUT)
-				*fd_output = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			else if (redir->op_type == OP_REDIR_APPEND)
-				*fd_output = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			redir = redir->next;
-		}
+		if ((*cmdtmp)->cmd->prev)
+			(*cmdtmp)->cmd = (*cmdtmp)->cmd->prev;
+		return (1);
 	}
-	else if (block->next)
-		*fd_output = pipefd[1];
-}
-
-static void handle_pipe_setup(t_cmdblock *block, int *pipefd, int *prev_pipe)
-{
-	if (*prev_pipe != STDIN_FILENO)
-		close(*prev_pipe);
-	if (block->next)
-	{
-		close(pipefd[1]);
-		*prev_pipe = pipefd[0];
-	}
-}
-
-static void	exec_piped_cmd(t_cmd *cmd, t_env *env,
-									int input_fd, int output_fd)
-{
-	char			*full_path;
-	char			**args;
-	char			**env_array;
-
-	if (cmd_setup(cmd, env, &args, &full_path) != 0)
-		exit(g_signal);
-	if (cmd->cmd->redirects && setup_redirections(cmd->cmd->redirects) == -1)
-	{
-		perror("redirect error");
-		exit(1);
-	}
-	if (input_fd != STDIN_FILENO)
-	{
-		dup2(input_fd, STDIN_FILENO);
-		close(input_fd);
-	}
-	if (output_fd != STDOUT_FILENO)
-	{
-		dup2(output_fd, STDOUT_FILENO);
-		close(output_fd);
-	}
-	env_array = env_to_array(env);
-	execve(full_path, args, env_array);
-	free_array(env_array);
-	free_array(args);
-	free_cmd(cmd);
-	env_free(env);
-	free(full_path);
-	perror("execve error");
-	exit(1);
+	(*cmdtmp)->cmd = (*cmdtmp)->cmd->next;
+	return (0);
 }
 
 int	cmd_exec(t_cmd *cmd, t_env *env)
@@ -188,66 +81,23 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 	int			pipefd[2];
 	int			prev_pipe;
 	int			result;
-	pid_t		pid;
 	t_cmd		*cmdtmp;
-	int			fd_output;
 
 	result = 0;
 	prev_pipe = STDIN_FILENO;
-	fd_output = STDOUT_FILENO;
 	pipefd[0] = -1;
 	pipefd[1] = -1;
 	cmdtmp = cmd;
 	while (cmdtmp->cmd)
 	{
-		if (cmdtmp->cmd->next && pipe(pipefd) == -1)
-		{
-			perror("pipe");
+		if (cmd_exec_pipe_check(cmdtmp, pipefd))
 			return (1);
-		}
-		if (get_builtin(cmdtmp->cmd->exec))
-		{
-			handle_redirections(cmdtmp->cmd, pipefd, &fd_output);
-			result = execute_builtin(cmdtmp, env, prev_pipe, fd_output);
-			if (fd_output != STDOUT_FILENO && fd_output != pipefd[1])
-				close(fd_output);
-		}
-		else
-		{
-			pid = fork();
-			if (pid == -1)
-			{
-				perror("fork");
-				return (1);
-			}
-			else if (pid == 0)
-			{
-				if (cmdtmp->cmd->next)
-				{
-					exec_piped_cmd(cmdtmp, env, prev_pipe, pipefd[1]);
-					close(pipefd[0]);
-				}
-				else
-				{
-					exec_piped_cmd(cmdtmp, env, prev_pipe, STDOUT_FILENO);
-				}
-			}
-		}
-		handle_pipe_setup(cmdtmp->cmd, pipefd, &prev_pipe);
-		if (!cmdtmp->cmd->next)
-		{
-			if (cmdtmp->cmd->prev)
-				cmdtmp->cmd = cmdtmp->cmd->prev;
+		result = execute_command(cmdtmp, env, pipefd, &prev_pipe);
+		if (result == 1)
+			return (1);
+		if (update_command_position(&cmdtmp))
 			break ;
-		}
-		cmdtmp->cmd = cmdtmp->cmd->next;
 	}
-	while (wait(&result) > 0)
-	{
-		if (WIFEXITED(result))
-			g_signal = WEXITSTATUS(result);
-		else if (WIFSIGNALED(result))
-			g_signal = WTERMSIG(result) + 128;
-	}
+	cmd_exec_pipe_wait_children(&result);
 	return (WEXITSTATUS(result));
 }

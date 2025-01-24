@@ -29,23 +29,19 @@ static char	**get_paths(t_env *env)
 	return (paths);
 }
 
-char	*cmd_check(t_cmd *cmd, t_env *env)
+static char	*find_command_path(char **paths, char *cmd_name)
 {
 	char	*full_path;
 	char	*full_path_cmd;
-	char	**paths;
 	char	*result;
 	int		i;
 
-	paths = get_paths(env);
-	if (!paths)
-		return (NULL);
 	result = NULL;
 	i = -1;
 	while (paths[++i])
 	{
 		full_path = ft_strjoin(paths[i], "/");
-		full_path_cmd = ft_strjoin(full_path, cmd->cmd->exec);
+		full_path_cmd = ft_strjoin(full_path, cmd_name);
 		free(full_path);
 		if (access(full_path_cmd, X_OK) == 0)
 		{
@@ -54,6 +50,18 @@ char	*cmd_check(t_cmd *cmd, t_env *env)
 		}
 		free(full_path_cmd);
 	}
+	return (result);
+}
+
+char	*cmd_check(t_cmd *cmd, t_env *env)
+{
+	char	**paths;
+	char	*result;
+
+	paths = get_paths(env);
+	if (!paths)
+		return (NULL);
+	result = find_command_path(paths, cmd->cmd->exec);
 	free_array(paths);
 	if (!result)
 	{
