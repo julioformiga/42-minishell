@@ -64,15 +64,16 @@ static int	execute_command(t_cmd *cmdtmp, t_env *env,
 	return (result);
 }
 
-static void	update_command_position(t_cmd **cmdtmp)
+static int	update_command_position(t_cmd **cmdtmp)
 {
 	if (!(*cmdtmp)->cmd->next)
 	{
 		if ((*cmdtmp)->cmd->prev)
 			(*cmdtmp)->cmd = (*cmdtmp)->cmd->prev;
-		return ;
+		return (1);
 	}
 	(*cmdtmp)->cmd = (*cmdtmp)->cmd->next;
+	return (0);
 }
 
 int	cmd_exec(t_cmd *cmd, t_env *env)
@@ -94,8 +95,7 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		result = execute_command(cmdtmp, env, pipefd, &prev_pipe);
 		if (result == 1)
 			return (1);
-		update_command_position(&cmdtmp);
-		if (!cmdtmp->cmd->next)
+		if (update_command_position(&cmdtmp))
 			break ;
 	}
 	cmd_exec_pipe_wait_children(&result);
