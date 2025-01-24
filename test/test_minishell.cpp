@@ -147,6 +147,19 @@ TEST_F(MinishellTest, PipeHandling) {
     CommandOutput result = exec_command(command);
     ASSERT_FALSE(result.stdout_output.empty()) << "Shell should handle pipes";
 }
+
+TEST_F(MinishellTest, QuotesBeforeString) {
+    string command = "echo \"a\"b " + shell_path;
+    CommandOutput result = exec_command(command);
+    ASSERT_EQ(result.stdout_output, "ab") << "Shell should concatenate the two strings";
+}
+
+TEST_F(MinishellTest, DollarAndQuotes) {
+    string command = "echo 1$ $ $\"c\" $'c' \"$\"c \"$a $ab\"c '$a'c \"$a '$a'  $ab\"c" + shell_path;
+    CommandOutput result = exec_command(command);
+    ASSERT_EQ(result.stdout_output, "1$ $ c c $c  c $ac  ''  c") << "Shell should go to hell";
+}
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
