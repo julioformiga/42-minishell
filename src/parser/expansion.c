@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expansion.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/13 18:25:44 by julio.formiga     #+#    #+#             */
-/*   Updated: 2025/01/13 18:25:44 by julio.formiga    ###   ########.fr       */
+/*   Created: 2025/01/13 18:25:44 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/24 19:16:13 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

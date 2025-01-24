@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/15 18:00:30 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/23 20:09:43 by scarlucc         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/01/24 19:22:16 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,6 @@ static t_operator	get_operator_type(const char *op)
 void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 {
 	t_cmdblock	*current;
-	t_cmdblock	*first;
 	t_operator	op_type;
 	char		*file;
 	char		*expanded;
@@ -216,13 +215,12 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		cmd->cmd_line = NULL;
 		return ;
 	}
-	first = create_new_block();
-	if (!first)
+	current = create_new_block();
+	if (!current)
 	{
 		free_array(cmd_parts);
 		return ;
 	}
-	current = first;
 	arg_count = 0;
 	i = 0;
 	while (cmd_parts[i])
@@ -302,6 +300,6 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		i++;
 	}
-	cmd->cmd = first;
+	cmd->cmd = get_first_block(current);
 	free_array(cmd_parts);
 }
