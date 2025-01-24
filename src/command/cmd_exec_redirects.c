@@ -12,35 +12,6 @@
 
 #include "minishell.h"
 
-static int	handle_heredoc(char *delimiter)
-{
-	int		pipe_fd[2];
-	char	*line;
-	size_t	delim_len;
-
-	if (pipe(pipe_fd) == -1)
-		return (-1);
-	delim_len = ft_strlen(delimiter);
-	while (1)
-	{
-		line = readline("pipe heredoc> ");
-		if (!line)
-		{
-			close(pipe_fd[1]);
-			return (-1);
-		}
-		if (ft_strlen(line) == delim_len && ft_strcmp(line, delimiter) == 0)
-		{
-			free(line);
-			break ;
-		}
-		write(pipe_fd[1], line, ft_strlen(line));
-		write(pipe_fd[1], "\n", 1);
-		free(line);
-	}
-	return (close(pipe_fd[1]), pipe_fd[0]);
-}
-
 void	cmd_exec_handle_redirect(t_cmdblock *block, int *pipefd, int *fd_output)
 {
 	t_redirect	*redir;
@@ -66,56 +37,55 @@ void	cmd_exec_handle_redirect(t_cmdblock *block, int *pipefd, int *fd_output)
 		*fd_output = pipefd[1];
 }
 
+static int	setup_input_redirect(t_redirect *current, int *fd)
+{
+	*fd = open(current->file, O_RDONLY);
+	if (*fd == -1)
+		return (-1);
+	dup2(*fd, STDIN_FILENO);
+	close(*fd);
+	return (0);
+}
+
+static int	setup_output_redirect(t_redirect *current, int *fd)
+{
+	int	flags;
+
+	if (current->op_type == OP_REDIR_OUT)
+		flags = O_WRONLY | O_CREAT | O_TRUNC;
+	else
+		flags = O_WRONLY | O_CREAT | O_APPEND;
+	*fd = open(current->file, flags, 0644);
+	if (*fd == -1)
+		return (-1);
+	dup2(*fd, STDOUT_FILENO);
+	close(*fd);
+	return (0);
+}
+
 int	cmd_exec_setup_redirect(t_redirect *redirects)
 {
 	t_redirect	*current;
 	int			fd;
 	int			heredoc_fd;
 
-	heredoc_fd = -1;
+	if (cmd_exec_setup_heredoc(redirects, &heredoc_fd) == -1)
+		return (-1);
 	current = redirects;
 	while (current)
 	{
-		if (current->op_type == OP_HEREDOC)
-		{
-			heredoc_fd = handle_heredoc(current->file);
-			if (heredoc_fd == -1)
-				return (-1);
-		}
-		current = current->next;
-	}
-	current = redirects;
-	while (current)
-	{
-		if (current->op_type == OP_REDIR_IN)
-		{
-			fd = open(current->file, O_RDONLY);
-			if (fd == -1)
-				return (-1);
-			dup2(fd, STDIN_FILENO);
-			close(fd);
-		}
+		if (current->op_type == OP_REDIR_IN
+			&& setup_input_redirect(current, &fd))
+			return (-1);
 		else if (current->op_type == OP_HEREDOC)
 		{
 			dup2(heredoc_fd, STDIN_FILENO);
 			close(heredoc_fd);
 		}
-		else if (current->op_type == OP_REDIR_OUT)
-		{
-			fd = open(current->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if (fd == -1)
-				return (-1);
-			dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
-		else if (current->op_type == OP_REDIR_APPEND)
-		{
-			fd = open(current->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			if (fd == -1)
-				return (-1);
-			dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
+		else if ((current->op_type == OP_REDIR_OUT
+				|| current->op_type == OP_REDIR_APPEND)
+			&& setup_output_redirect(current, &fd))
+			return (-1);
 		current = current->next;
 	}
 	return (0);
