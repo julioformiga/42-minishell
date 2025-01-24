@@ -23,7 +23,28 @@ protected:
 
 	string shell_path;
 
-    CommandOutput exec_command(const string& command) {
+    string read_file_content(const string& filename) {
+        string content;
+        char buffer[128];
+        FILE* file = fopen(filename.c_str(), "r");
+
+        if (!file)
+            return "";
+
+        while (!feof(file)) {
+            if (fgets(buffer, 128, file) != NULL)
+                content += buffer;
+        }
+        fclose(file);
+        return content;
+    }
+
+    void cleanup_test_files() {
+        unlink("test/result.txt");
+        unlink("test/result-append.txt");
+    }
+
+	CommandOutput exec_command(const string& command) {
         string modified_command = command + " 2> /tmp/stderr_output";
         CommandOutput result;
 
@@ -72,11 +93,28 @@ TEST_F(MinishellTest, CtrlDHandling) {
     ASSERT_TRUE(result.stdout_output.find("") != string::npos) << "Shell should handle Ctrl+D (EOF) gracefully";
 }
 
-TEST_F(MinishellTest, NoMemoryLeaks) {
-    string command = "echo 'ls -l | grep bin > output.txt' | valgrind --leak-check=full --show-leak-kinds=all "
-                    "--suppressions=external.supp --error-exitcode=1 " + shell_path;
+TEST_F(MinishellTest, NoMemoryLeaksWithCommandsPipeRedirects) {
+    string command = "echo 'ls -l | grep src > test/result.txt >> test/result-append.txt'"
+		" | valgrind --leak-check=full --show-leak-kinds=all "
+		"--suppressions=external.supp --error-exitcode=1 "
+		+ shell_path;
     int result = system(command.c_str());
-    ASSERT_EQ(result, 0) << "Memory leak detected";
+
+	ASSERT_EQ(result, 0) << "Memory leak detected";
+    ASSERT_TRUE(access("test/result.txt", F_OK) == 0)
+        << "result.txt should have been created";
+    ASSERT_TRUE(access("test/result-append.txt", F_OK) == 0)
+        << "result-append.txt should have been created";
+
+	string result_content = read_file_content("test/result.txt");
+    string append_content = read_file_content("test/result-append.txt");
+
+    ASSERT_TRUE(result_content.empty())
+        << "result.txt should be empty";
+    ASSERT_TRUE(append_content.find("src") != string::npos)
+        << "result-append.txt should contain 'src'";
+
+	cleanup_test_files();
 }
 
 TEST_F(MinishellTest, MultipleCommands) {
