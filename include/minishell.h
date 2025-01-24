@@ -115,6 +115,9 @@ int				cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 					char **full_path);
 void			cmd_init(char *rl, t_cmd *cmd, t_env *env);
 void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
+void			cmd_exec_handle_redirect(t_cmdblock *block,
+					int *pipefd, int *fd_output);
+int				cmd_exec_setup_redirect(t_redirect *redirects);
 int				cmd_exec(t_cmd *cmd, t_env *env);
 void			cmd_debug(t_cmd *cmd);
 void			free_cmd(t_cmd *cmd);
