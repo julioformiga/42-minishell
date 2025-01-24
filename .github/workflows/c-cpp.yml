@@ -23,7 +23,6 @@ jobs:
 
       - name: Install Norminette
         run: |
-          python3 -m ensurepip --upgrade
           python3 -m pip install --upgrade pip
           python3 -m pip install pipx
           pipx install norminette
