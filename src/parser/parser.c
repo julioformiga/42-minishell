@@ -83,7 +83,7 @@ static char	*extract_word(char **rl)
 	token = ft_substr(start, 0, len);
 	if (!token)
 		return (NULL);
-	clean = malloc(len + 1);
+	clean = malloc(sizeof(char) * (len + 1));
 	if (!clean)
 	{
 		free(token);
@@ -123,6 +123,7 @@ static char	*do_not_expand(char **rl)
 char	**cmd_parser_readline(char *rl)
 {
 	char	**tokens;
+	char	*token;
 	int		token_count;
 	int		i;
 
@@ -131,7 +132,7 @@ char	**cmd_parser_readline(char *rl)
 	if (!tokens)
 		return (NULL);
 	i = 0;
-	tokens[i] = ft_strdup("");
+	tokens[i] = "";
 	while (*rl)
 	{
 		while (*rl && ft_isspace(*rl))
@@ -141,20 +142,23 @@ char	**cmd_parser_readline(char *rl)
 		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))
 			rl++;
 		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
-			tokens[i] = ft_strjoin(tokens[i], extract_quoted_token(&rl));
+			token = extract_quoted_token(&rl);
 		else if (is_operator_start(*rl))
-			tokens[i] = ft_strjoin(tokens[i], extract_operator(&rl));
+			token = extract_operator(&rl);
 		else if (*rl == '\'')
-			tokens[i] = ft_strjoin(tokens[i], do_not_expand(&rl));
+			token = do_not_expand(&rl);
 		else
-			tokens[i] = ft_strjoin(tokens[i], extract_word(&rl));
+			token = extract_word(&rl);
+		tokens[i] = ft_strjoin(tokens[i], token);
 		if (!tokens[i])
 		{
 			free_array(tokens);
+			free(token);
 			return (NULL);
 		}
 		if (*rl && ft_isspace(*rl))
-			tokens[++i] = ft_strdup("");
+			tokens[++i] = "";
+		free(token);
 	}
 	if (ft_isspace(*(rl - 1)))//in caso il comando finisca con spazi vuoti
 		tokens[i] = NULL;
