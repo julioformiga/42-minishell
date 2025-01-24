@@ -95,6 +95,7 @@ int	main(int argc, char **argv, char **envp)
 	add_history("echo \"asd\" 'qwe' asd");
 	add_history("bat result.txt result-append.txt");
 	add_history("ls -l | grep obj > result.txt >> result-append.txt");
+	add_history("echo \"a >$DISPLAY\"$DISPLAYb$DISPLAY'$DISPLAYq>we'|wc");
 	cmd_exec_inline(argc, argv, env, cmd);
 	free(cmd);
 	while (1)
