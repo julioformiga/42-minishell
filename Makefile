@@ -1,5 +1,5 @@
 CC			= cc
-CFLAGS		= -Wall -Wextra -Iinclude -g3
+CFLAGS		= -Wall -Wextra -Werror -fPIC -Iinclude -g3
 MAKEFLAGS	+= --no-print-directory -s
 
 RM			= rm -rf
