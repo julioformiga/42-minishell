@@ -20,7 +20,7 @@ void	ft_putstr_fd(char *s, int fd)
 		return ;
 	while (*s)
 	{
-		bytes_written = write(fd, s, 1);
+		bytes_written = write(fd, s++, 1);
 		if (bytes_written == -1) {
 			perror("write failed");
 			exit(EXIT_FAILURE);

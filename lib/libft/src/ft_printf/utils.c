@@ -51,7 +51,6 @@ int	print_string(char *str)
 		perror("write failed");
 		exit(EXIT_FAILURE);
 	}
-	(void)write(1, str, i);
 	return (i);
 }
 
