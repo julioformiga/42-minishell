@@ -14,8 +14,16 @@
 
 void	ft_putstr_fd(char *s, int fd)
 {
+	ssize_t	bytes_written;
+
 	if (!s || !fd)
 		return ;
 	while (*s)
-		(void)write(fd, s++, 1);
+	{
+		bytes_written = write(fd, s, 1);
+		if (bytes_written == -1) {
+			perror("write failed");
+			exit(EXIT_FAILURE);
+		}
+	}
 }
