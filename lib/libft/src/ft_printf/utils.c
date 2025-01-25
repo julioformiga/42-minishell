@@ -28,17 +28,29 @@ void	show_data(t_data *data)
 
 int	print_char(char c)
 {
-	(void)write(1, &c, 1);
+	ssize_t	bytes_written;
+
+	bytes_written = write(1, &c, 1);
+	if (bytes_written == -1) {
+		perror("write failed");
+		exit(EXIT_FAILURE);
+	}
 	return (1);
 }
 
 int	print_string(char *str)
 {
 	size_t	i;
+	ssize_t	bytes_written;
 
 	if (!str)
 		str = "(null)";
 	i = ft_strlen(str);
+	bytes_written = write(1, str, i);
+	if (bytes_written == -1) {
+		perror("write failed");
+		exit(EXIT_FAILURE);
+	}
 	(void)write(1, str, i);
 	return (i);
 }
