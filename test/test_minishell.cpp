@@ -166,8 +166,8 @@ TEST_F(MinishellTest, SpecialCharacters) {
     vector<pair<string, string>> tests = {
         {"echo ab", "ab"},
         {"echo \"abc\"", "abc"},
-		{"env","      1       4      12"}
-		// {"echo \"a >$DISPLAY\"$DISPLAYb$DISPLAY'$DISPLAYq>we'|wc", "      1       2      20"}
+		{"echo \"a $DEBUG\" $DEBUG 'qwe' | wc", "      1       4      10"}
+		// {"echo \"a >$DEBUG\"$DEBUGb$DEBUG'$DEBUGg>we'|wc", "      1       2      20"}
     };
 
     for (const auto& test : tests) {
