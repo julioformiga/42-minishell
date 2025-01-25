@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/24 19:22:16 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/25 19:17:49 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,12 +58,16 @@ static char	*extract_quoted_token(char **rl)
 	quote = **rl;
 	start = *rl;
 	(*rl)++;
-	while (**rl && **rl != quote)
+	while (**rl && **rl != quote)//espansione in questo ciclo
 		(*rl)++;
 	if (**rl)
+	{
 		(*rl)++;
-	len = *rl - start;
-	token = ft_substr(start, 0, len);
+		len = *rl - start - 2;
+	}
+	else
+		len = *rl - start - 1;
+	token = ft_substr(start, 1, len);
 	return (token);
 }
 
@@ -104,7 +108,7 @@ static char	*extract_word(char **rl)
 
 //echo $' ciao   3spazi   $USER  $HOME  a'b c  d
 //stampa uno spazio dopo a' che non deve
-static char	*do_not_expand(char **rl)
+/* static char	*extract_single_quote(char **rl)
 {
 	char	*str_to_check;
 	char	*start;
@@ -118,7 +122,7 @@ static char	*do_not_expand(char **rl)
 	len = *rl - start;
 	str_to_check = ft_substr(start, 0, len);
 	return (str_to_check);
-}
+} */
 
 char	**cmd_parser_readline(char *rl)
 {
@@ -139,14 +143,12 @@ char	**cmd_parser_readline(char *rl)
 			rl++;
 		if (!*rl)
 			break ;
-		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))
+		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))//forse togliere o mettere dentro extract_word()
 			rl++;
-		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
+		if (*rl == '\'' || *rl == '"'/*  && (ft_isspace(*(rl - 1))) */)
 			token = extract_quoted_token(&rl);
-		else if (is_operator_start(*rl))
+		else if (is_operator_start(*rl))//capire bene
 			token = extract_operator(&rl);
-		else if (*rl == '\'')
-			token = do_not_expand(&rl);
 		else
 			token = extract_word(&rl);
 		tokens[i] = ft_strjoin(tokens[i], token);
@@ -160,7 +162,7 @@ char	**cmd_parser_readline(char *rl)
 			tokens[++i] = "";
 		free(token);
 	}
-	if (ft_isspace(*(rl - 1)))//in caso il comando finisca con spazi vuoti
+	if (ft_isspace(*(rl - 1)))
 		tokens[i] = NULL;
 	else
 		tokens[++i] = NULL;
@@ -229,7 +231,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
-		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
+		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)//puo' essere generalizzato in espansione
 			expanded = ft_strdup("$");
 		else
 			expanded = parser_expansion(cmd_parts[i], env);
@@ -240,7 +242,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		free(cmd_parts[i]);
 		cmd_parts[i] = expanded;
-		if (is_operator_start(cmd_parts[i][0]))
+		if (is_operator_start(cmd_parts[i][0]))//che succede se echo ">prova.txt" giacomo
 		{
 			op_type = get_operator_type(cmd_parts[i]);
 			if (op_type == OP_PIPE)
@@ -253,7 +255,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				current = current->next;
 				arg_count = 0;
 			}
-			else if (i + 1 < count_tokens(rl))
+			else if (i + 1 < count_tokens(rl))//chiedere a Julio perche' questa cosa
 			{
 				i++;
 				file = parser_expansion(cmd_parts[i], env);
