@@ -11,17 +11,31 @@ using namespace std;
 
 class MinishellTest : public ::testing::Test {
 protected:
+	string shell_path;
     void SetUp() override {
         shell_path = "bin/minishell";
     }
 
-    struct CommandOutput {
+    string make_test_command(const string& cmd) {
+        return shell_path + " -c '" + cmd + "'";
+    }
+
+    string make_pipe_command(const string& cmd) {
+        return "echo '" + cmd + "' | " + shell_path;
+    }
+
+    void assert_command_output(const string& cmd, const string& expected_output,
+                             const string& message = "") {
+        CommandOutput result = exec_command(make_test_command(cmd));
+        ASSERT_EQ(result.stdout_output, expected_output + "\n") << message;
+    }
+
+	struct CommandOutput {
         string stdout_output;
         string stderr_output;
         int exit_code;
     };
 
-	string shell_path;
 
     string read_file_content(const string& filename) {
         string content;
@@ -148,8 +162,23 @@ TEST_F(MinishellTest, PipeHandling) {
     ASSERT_FALSE(result.stdout_output.empty()) << "Shell should handle pipes";
 }
 
+TEST_F(MinishellTest, SpecialCharacters) {
+    vector<pair<string, string>> tests = {
+        {"echo ab", "ab"},
+        {"echo \"abc\"", "abc"},
+		{"echo \"a $DISPLAY\" $DISPLAY 'qwe' | wc", "      1       4      12"}
+		// {"echo \"a >$DISPLAY\"$DISPLAYb$DISPLAY'$DISPLAYq>we'|wc", "      1       2      20"}
+    };
+
+    for (const auto& test : tests) {
+        CommandOutput result = exec_command(make_test_command(test.first));
+        ASSERT_EQ(result.stdout_output, test.second + "\n")
+            << "Failed on command: " << test.first;
+    }
+}
+
 // TEST_F(MinishellTest, QuotesBeforeString) {
-//     string command = "echo \"a\"b " + shell_path;
+//     string command = shell_path + "-c 'echo \"a\"b'";
 //     CommandOutput result = exec_command(command);
 //     ASSERT_EQ(result.stdout_output, "ab") << "Shell should concatenate the two strings";
 // }
