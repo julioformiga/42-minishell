@@ -17,7 +17,7 @@ void	signal_handler(int signum)
 	if (signum == SIGINT)
 	{
 		g_signal = 0;
-		write(STDOUT_FILENO, "\n", 1);
+		ft_putchar_fd('\n', STDOUT_FILENO);
 		if (rl_end == 0)
 			rl_on_new_line();
 		rl_replace_line("", 0);

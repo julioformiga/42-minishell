@@ -34,8 +34,8 @@ int	cmd_exec_handle_heredoc(char *delimiter)
 			free(line);
 			break ;
 		}
-		write(pipe_fd[1], line, ft_strlen(line));
-		write(pipe_fd[1], "\n", 1);
+		ft_putstr_fd(line, pipe_fd[1]);
+		ft_putchar_fd('\n', pipe_fd[1]);
 		free(line);
 	}
 	return (close(pipe_fd[1]), pipe_fd[0]);

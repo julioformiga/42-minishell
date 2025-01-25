@@ -28,7 +28,7 @@ void	show_data(t_data *data)
 
 int	print_char(char c)
 {
-	write(1, &c, 1);
+	(void)write(1, &c, 1);
 	return (1);
 }
 
@@ -39,7 +39,7 @@ int	print_string(char *str)
 	if (!str)
 		str = "(null)";
 	i = ft_strlen(str);
-	write(1, str, i);
+	(void)write(1, str, i);
 	return (i);
 }
 

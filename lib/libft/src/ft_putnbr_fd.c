@@ -17,13 +17,13 @@ void	ft_putnbr_fd(int n, int fd)
 	char	*nbrs;
 
 	if (n == -2147483648)
-		write (fd, "-2147483648", 11);
+		ft_putstr_fd("-2147483648", fd);
 	else
 	{
 		nbrs = ft_itoa(n);
 		if (nbrs == NULL)
 			return ;
-		write(fd, nbrs, ft_strlen(nbrs));
+		ft_putstr_fd(nbrs, fd);
 		free(nbrs);
 	}
 }
