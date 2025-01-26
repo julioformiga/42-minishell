@@ -47,32 +47,6 @@ static char	*expand_variable(const char *str, int *i, t_env *env)
 	return (value);
 }
 
-static char	*parser_part_removing_quotes_begin_end(char *str)
-{
-	char	*new_str;
-	int		i;
-	int		j;
-
-	new_str = malloc(sizeof(char) * (ft_strlen(str) + 1));
-	if (!new_str)
-		return (NULL);
-	i = 0;
-	j = 0;
-	if (str[i] == '\'' || str[i] == '"')
-		i++;
-	while (str[i])
-	{
-		if ((str[i] == '\'' && str[i + 1] == '\0')
-			|| (str[i] == '"' && str[i + 1] == '\0'))
-		{
-			break ;
-		}
-		new_str[j++] = str[i++];
-	}
-	new_str[j] = '\0';
-	return (new_str);
-}
-
 char	*parser_expansion(const char *str, t_env *env)
 {
 	char	*expanded;
@@ -127,7 +101,5 @@ char	*parser_expansion(const char *str, t_env *env)
 		if (!expanded)
 			return (NULL);
 	}
-	temp = parser_part_removing_quotes_begin_end(expanded);
-	free(expanded);
-	return (temp);
+	return (expanded);
 }

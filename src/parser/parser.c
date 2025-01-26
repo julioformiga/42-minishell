@@ -183,6 +183,32 @@ static t_cmdblock	*create_new_block(void)
 	return (block);
 }
 
+static char	*parser_part_removing_quotes_begin_end(char *str)
+{
+	char	*new_str;
+	int		i;
+	int		j;
+
+	new_str = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	if (!new_str)
+		return (NULL);
+	i = 0;
+	j = 0;
+	if (str[i] == '\'' || str[i] == '"')
+		i++;
+	while (str[i])
+	{
+		if ((str[i] == '\'' && str[i + 1] == '\0')
+			|| (str[i] == '"' && str[i + 1] == '\0'))
+		{
+			break ;
+		}
+		new_str[j++] = str[i++];
+	}
+	new_str[j] = '\0';
+	return (new_str);
+}
+
 static t_operator	get_operator_type(const char *op)
 {
 	if (!op)
@@ -229,6 +255,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
+		expanded = NULL;
 		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
 			expanded = ft_strdup("$");
 		else
@@ -240,6 +267,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		free(cmd_parts[i]);
 		cmd_parts[i] = expanded;
+		expanded = NULL;
 		if (is_operator_start(cmd_parts[i][0]))
 		{
 			op_type = get_operator_type(cmd_parts[i]);
@@ -267,7 +295,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		else if (!current->exec)
 		{
-			current->exec = ft_strdup(cmd_parts[i]);
+			expanded = parser_part_removing_quotes_begin_end(cmd_parts[i]);
+			current->exec = ft_strdup(expanded);
 			if (!current->exec)
 				break ;
 		}
@@ -278,7 +307,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				current->args = malloc(sizeof(char *) * 2);
 				if (!current->args)
 					break ;
-				current->args[0] = ft_strdup(cmd_parts[i]);
+				expanded = parser_part_removing_quotes_begin_end(cmd_parts[i]);
+				current->args[0] = ft_strdup(expanded);
 				if (!current->args[0])
 				{
 					free(current->args);
@@ -295,13 +325,15 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				j = -1;
 				while (j++, j < arg_count)
 					temp[j] = current->args[j];
-				temp[arg_count] = ft_strdup(cmd_parts[i]);
+				expanded = parser_part_removing_quotes_begin_end(cmd_parts[i]);
+				temp[arg_count] = ft_strdup(expanded);
 				temp[arg_count + 1] = NULL;
 				free(current->args);
 				current->args = temp;
 			}
 			arg_count++;
 		}
+		free(expanded);
 		i++;
 	}
 	cmd->cmd = get_first_block(current);
