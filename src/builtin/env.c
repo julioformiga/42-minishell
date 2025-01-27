@@ -128,5 +128,5 @@ int	builtin_env(t_cmd *cmd, t_env *env)
 		}
 		current = current->next;
 	}
-	return (1);
+	return (0);
 }
