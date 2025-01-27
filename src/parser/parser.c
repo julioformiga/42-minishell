@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/24 19:22:16 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/27 21:04:04 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static int	count_tokens(char *rl)
 		if (!*rl)
 			break ;
 		count++;
-		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
+		if (*rl == '\'' || *rl == '"')
 		{
 			quote = *rl++;
 			while (*rl && *rl != quote)
@@ -40,6 +40,7 @@ static int	count_tokens(char *rl)
 			else if (*rl == '>' && *(rl + 1) == '>')
 				rl++;
 			rl++;
+			count++;
 		}
 		/* else */
 			while (*rl && !ft_isspace(*rl) && !is_operator_start(*rl))
@@ -58,12 +59,16 @@ static char	*extract_quoted_token(char **rl)
 	quote = **rl;
 	start = *rl;
 	(*rl)++;
-	while (**rl && **rl != quote)
+	while (**rl && **rl != quote)//espansione in questo ciclo
 		(*rl)++;
 	if (**rl)
+	{
 		(*rl)++;
-	len = *rl - start;
-	token = ft_substr(start, 0, len);
+		len = *rl - start - 2;
+	}
+	else
+		len = *rl - start - 1;
+	token = ft_substr(start, 1, len);
 	return (token);
 }
 
@@ -71,19 +76,20 @@ static char	*extract_word(char **rl)
 {
 	char	*start;
 	char	*token;
-	char	*clean;
 	int		len;
+	/* char	*clean;
 	int		i;
-	int		j;
+	int		j; */
 
 	start = *rl;
-	while (**rl && !ft_isspace(**rl) && !is_operator_start(**rl))
+	while (**rl && !ft_isspace(**rl) && !is_operator_start(**rl)
+		&& !(**rl == '\'' || **rl == '"'))
 		(*rl)++;
 	len = *rl - start;
 	token = ft_substr(start, 0, len);
 	if (!token)
 		return (NULL);
-	clean = malloc(sizeof(char) * (len + 1));
+	/* clean = malloc(sizeof(char) * (len + 1)); //vecchoi codice per estrarre stringhe
 	if (!clean)
 	{
 		free(token);
@@ -98,13 +104,13 @@ static char	*extract_word(char **rl)
 		i++;
 	}
 	clean[j] = '\0';
-	free(token);
-	return (clean);
+	free(token); */
+	return (token);
 }
 
 //echo $' ciao   3spazi   $USER  $HOME  a'b c  d
 //stampa uno spazio dopo a' che non deve
-static char	*do_not_expand(char **rl)
+/* static char	*do_not_expand(char **rl)
 {
 	char	*str_to_check;
 	char	*start;
@@ -118,12 +124,13 @@ static char	*do_not_expand(char **rl)
 	len = *rl - start;
 	str_to_check = ft_substr(start, 0, len);
 	return (str_to_check);
-}
+} */
 
 char	**cmd_parser_readline(char *rl)
 {
 	char	**tokens;
 	char	*token;
+	char	*tmp;
 	int		token_count;
 	int		i;
 
@@ -132,36 +139,50 @@ char	**cmd_parser_readline(char *rl)
 	if (!tokens)
 		return (NULL);
 	i = 0;
-	tokens[i] = "";
+	tokens[i] = ft_strdup("");
 	while (*rl)
 	{
 		while (*rl && ft_isspace(*rl))
 			rl++;
 		if (!*rl)
 			break ;
-		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))
+		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))//togliere dopo
 			rl++;
-		if ((*rl == '\'' || *rl == '"') && (ft_isspace(*(rl - 1))))
+		if (*rl == '\'' || *rl == '"')
 			token = extract_quoted_token(&rl);
 		else if (is_operator_start(*rl))
+		{
 			token = extract_operator(&rl);
-		else if (*rl == '\'')
-			token = do_not_expand(&rl);
+			tmp = ft_strjoin(tokens[i], token);
+			if (tokens[i])
+				free(tokens[i]);
+			tokens[i] = tmp;
+			if (*rl && !ft_isspace(*rl))
+				tokens[++i] = ft_strdup("");
+			free(token);
+			token = ft_strdup("");
+		}
 		else
 			token = extract_word(&rl);
-		tokens[i] = ft_strjoin(tokens[i], token);
-		if (!tokens[i])
+		tmp = ft_strjoin(tokens[i], token);
+		if (tokens[i])
+				free(tokens[i]);
+		tokens[i] = tmp;
+		if (!tokens[i])//se tokens[i] == "" che succede?
 		{
 			free_array(tokens);
 			free(token);
 			return (NULL);
 		}
-		if (*rl && ft_isspace(*rl))
-			tokens[++i] = "";
+		if (*rl && (ft_isspace(*rl) || is_operator_start(*rl)))
+			tokens[++i] = ft_strdup("");
 		free(token);
 	}
 	if (ft_isspace(*(rl - 1)))//in caso il comando finisca con spazi vuoti
+	{
+		free(tokens[i]);
 		tokens[i] = NULL;
+	}
 	else
 		tokens[++i] = NULL;
 	return (tokens);
@@ -240,7 +261,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		free(cmd_parts[i]);
 		cmd_parts[i] = expanded;
-		if (is_operator_start(cmd_parts[i][0]))
+		//if (is_operator_start(cmd_parts[i][0]))
+		if (get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
 		{
 			op_type = get_operator_type(cmd_parts[i]);
 			if (op_type == OP_PIPE)
@@ -256,6 +278,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			else if (i + 1 < count_tokens(rl))
 			{
 				i++;
+				if (!cmd_parts[i])//protegge da echo >
+					break ;
 				file = parser_expansion(cmd_parts[i], env);
 				if (!file || !add_redirect(current, op_type, file))
 				{
