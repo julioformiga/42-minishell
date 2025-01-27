@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 18:25:44 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/24 19:16:13 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/25 19:29:21 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,32 @@ static char	*expand_variable(const char *str, int *i, t_env *env)
 	return (value);
 }
 
+/* static char	*parser_part_removing_quotes_begin_end(char *str)
+{
+	char	*new_str;
+	int		i;
+	int		j;
+
+	new_str = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	if (!new_str)
+		return (NULL);
+	i = 0;
+	j = 0;
+	if (str[i] == '\'' || str[i] == '"')
+		i++;
+	while (str[i])
+	{
+		if ((str[i] == '\'' && str[i + 1] == '\0')
+			|| (str[i] == '"' && str[i + 1] == '\0'))
+		{
+			break ;
+		}
+		new_str[j++] = str[i++];
+	}
+	new_str[j] = '\0';
+	return (new_str);
+} */
+
 char	*parser_expansion(const char *str, t_env *env)
 {
 	char	*expanded;
@@ -75,7 +101,7 @@ char	*parser_expansion(const char *str, t_env *env)
 				in_quotes = 0;
 			temp = ft_chartostr(str[i++]);
 		}
-		else if (str[i] == '$' && (in_quotes == 0 || quote_type == '"'))
+		else if (str[i] == '$' && (in_quotes == 0 || quote_type == '"'))//togliere perche' espansione fatta in cmd_parser_readline()
 		{
 			temp = expand_variable(str, &i, env);
 			if (!temp)
@@ -101,5 +127,8 @@ char	*parser_expansion(const char *str, t_env *env)
 		if (!expanded)
 			return (NULL);
 	}
-	return (expanded);
+	//temp = parser_part_removing_quotes_begin_end(expanded);//forse togliere, perche' quote a inizio e fine sono gia' rimosse in extract_quoted_token()
+	temp = ft_strdup(expanded);
+	free(expanded);
+	return (temp);
 }
