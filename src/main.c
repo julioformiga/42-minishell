@@ -79,7 +79,7 @@ int	main(int argc, char **argv, char **envp)
 	env = env_init(envp);
 	rl = NULL;
 	cmd = malloc(sizeof(t_cmd));
-	env_set(env, "DEBUG", "1", 0);
+	env_set(env, "DEBUG", "0", 0);
 	env_set(env, "a", "123", 0);
 	env_set(env, "c", "cho", 0);
 	add_history("export DEBUG=1");
