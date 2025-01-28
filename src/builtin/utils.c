@@ -61,6 +61,5 @@ int	execute_builtin(t_cmd *cmd, t_env *env, int input_fd, int output_fd)
 	dup2(stdin_backup, STDIN_FILENO);
 	close(stdout_backup);
 	close(stdin_backup);
-	printf("result builtin: %d\n", result);
 	return (g_signal = result, result);
 }
