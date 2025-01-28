@@ -189,6 +189,19 @@ TEST_F(MinishellTest, SpecialCharacters) {
 //     ASSERT_EQ(result.stdout_output, "1$ $ c c $c  c $ac  ''  c") << "Shell should go to hell";
 // }
 
+TEST_F(MinishellTest, EmptyRedirect) {
+    string command = shell_path + " -c 'echo >'";
+    CommandOutput result = exec_command(command);
+
+    ASSERT_FALSE(result.stderr_output.empty())
+        << "Invalid command should produce error output";
+    ASSERT_TRUE(result.stderr_output.find("unexpected token") != string::npos &&
+                result.stderr_output.find("error") != string::npos)
+        << "Error message should indicate command not found";
+	ASSERT_EQ(result.exit_code, 2)
+		<< "Invalid command should set exit status to 2";
+}
+
 // TEST_F(MinishellTest, emptyRedirect) {
 //     string command = "echo >" + shell_path;
 //     CommandOutput result = exec_command(command);
