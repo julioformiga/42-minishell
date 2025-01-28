@@ -25,12 +25,9 @@ static t_redirect	*create_redirect(t_operator type, char *file)
 	if (!redir)
 		return (NULL);
 	redir->op_type = type;
-	redir->file = ft_strdup(file);
-	if (!redir->file)
-	{
-		free(redir);
-		return (NULL);
-	}
+	redir->file = NULL;
+	if (file)
+		redir->file = ft_strdup(file);
 	redir->next = NULL;
 	return (redir);
 }
