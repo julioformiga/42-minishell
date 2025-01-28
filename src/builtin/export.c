@@ -30,28 +30,57 @@ static	void	print_export(t_env *env)
 int	builtin_export(t_cmd *cmd, t_env *env)
 {
 	int		i;
+	char	**tmp;
+	char	*key;
+	char	*value;
 
-	if (!cmd->cmd->args)
+	tmp = cmd->cmd->args;
+	if (!tmp)
 	{
 		print_export(env);
-		return (1);
+		return (0);
 	}
 	i = -1;
-	while (cmd->cmd->args[++i])
+	while (tmp[++i])
 	{
-		if (ft_strchr(cmd->cmd->args[i], '=') == NULL
-			|| cmd->cmd->args[i][0] == '=')
-			env_set(env, ft_strdup(cmd->cmd->args[i]), NULL, 0);
-		else if (ft_strncmp(ft_strchr(cmd->cmd->args[i], '=') - 1, "+", 1))
-			env_set(env, ft_strndup(cmd->cmd->args[i],
-					ft_strchr(cmd->cmd->args[i], '=') - cmd->cmd->args[i]),
-				ft_strdup(ft_strchr(cmd->cmd->args[i], '=') + 1), 0);
+		if (ft_strchr(tmp[i], '=') == NULL || tmp[i][0] == '=')
+		{
+			key = ft_strdup(tmp[i]);
+			if (env_set(env, key, NULL, 0))
+			{
+				free(key);
+				return (1);
+			}
+			free(key);
+		}
+		else if (ft_strncmp(ft_strchr(tmp[i], '=') - 1, "+", 1))
+		{
+			key = ft_strndup(tmp[i], ft_strchr(tmp[i], '=') - tmp[i]);
+			value = ft_strdup(ft_strchr(tmp[i], '=') + 1);
+			if (env_set(env, key, value, 0))
+			{
+				free(key);
+				free(value);
+				return (1);
+			}
+			free(key);
+			free(value);
+		}
 		else
-			env_set(env, ft_strndup(cmd->cmd->args[i],
-					ft_strchr(cmd->cmd->args[i], '=') - cmd->cmd->args[i] - 1),
-				ft_strdup(ft_strchr(cmd->cmd->args[i], '=') + 1), 1);
+		{
+			key = ft_strndup(tmp[i], ft_strchr(tmp[i], '=') - tmp[i] - 1);
+			value = ft_strdup(ft_strchr(tmp[i], '=') + 1);
+			if (env_set(env, key, value, 1))
+			{
+				free(key);
+				free(value);
+				return (1);
+			}
+			free(key);
+			free(value);
+		}
 	}
-	return (1);
+	return (0);
 }
 
 int	env_update(t_env *env, char *key, char *value, int plus)
@@ -129,37 +158,3 @@ int	env_key_check(char *key, char *value, int plus, int i)
 	}
 	return (free(err), 0);
 }
-
-/* int	builtin_export(t_cmd *cmd, t_env *env)
-{
-	int		i;
-	char	*key;
-
-	if (!cmd->cmd->args)
-	{
-		print_export(env);
-		return (1);
-	}
-	i = -1;
-	while (cmd->cmd->args[++i])
-	{
-		if (ft_strchr(cmd->cmd->args[i], '=') == NULL)
-			env_set(env, ft_strdup(cmd->cmd->args[i]), NULL, 0);
-		else if (ft_strncmp(ft_strchr(cmd->cmd->args[i], '=') - 1, "+", 1))
-		{
-			key = ft_strndup(cmd->cmd->args[i],
-					ft_strchr(cmd->cmd->args[i], '=') - cmd->cmd->args[i]);
-			env_set(env, key,
-				ft_strdup(ft_strchr(cmd->cmd->args[i], '=') + 1), 0);
-		}
-		else
-		{
-			key = ft_strndup(cmd->cmd->args[i],
-					ft_strchr(cmd->cmd->args[i], '=') - cmd->cmd->args[i] - 1);
-			env_set(env, key,
-				ft_strdup(ft_strchr(cmd->cmd->args[i], '=') + 1), 1);
-		}
-	}
-	free(key);
-	return (1);
-} */

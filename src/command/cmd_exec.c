@@ -94,7 +94,7 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 			return (1);
 		result = execute_command(cmdtmp, env, pipefd, &prev_pipe);
 		if (result == 1)
-			return (1);
+			return (g_signal = 1, 1);
 		if (update_command_position(&cmdtmp))
 			break ;
 	}
