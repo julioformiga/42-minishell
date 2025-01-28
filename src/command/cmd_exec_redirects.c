@@ -12,7 +12,17 @@
 
 #include "minishell.h"
 
-void	cmd_exec_handle_redirect(t_cmdblock *block, int *pipefd, int *fd_output)
+static	int	cmd_exec_check_file(char *file)
+{
+	if (file[0] == '\0')
+	{
+		perror("minishell: syntax error near unexpected token `newline'");
+		return (g_signal = 2, 2);
+	}
+	return (0);
+}
+
+int	cmd_exec_handle_redirect(t_cmdblock *block, int *pipefd, int *fd_output)
 {
 	t_redirect	*redir;
 
@@ -24,6 +34,8 @@ void	cmd_exec_handle_redirect(t_cmdblock *block, int *pipefd, int *fd_output)
 		redir = block->redirects;
 		while (redir)
 		{
+			if (cmd_exec_check_file(redir->file))
+				return (g_signal = 2, 2);
 			if (redir->op_type == OP_REDIR_OUT)
 				*fd_output = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC,
 						0644);
@@ -35,6 +47,7 @@ void	cmd_exec_handle_redirect(t_cmdblock *block, int *pipefd, int *fd_output)
 	}
 	else if (block->next)
 		*fd_output = pipefd[1];
+	return (0);
 }
 
 static int	setup_input_redirect(t_redirect *current, int *fd)
