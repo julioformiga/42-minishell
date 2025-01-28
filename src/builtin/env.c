@@ -12,31 +12,29 @@
 
 #include "minishell.h"
 
-char	**env_to_array(t_env *env)
+int	env_update(t_env *env, char *key, char *value, int plus)
 {
-	char	**env_array;
-	t_env	*current;
-	char	*tmp;
-	int		i;
+	char	*old_value;
 
-	i = -1;
-	current = env;
-	while (i++, current)
-		current = current->next;
-	env_array = malloc(sizeof(char *) * (i + 1));
-	if (!env_array)
-		return (NULL);
-	current = env;
-	i = -1;
-	while (i++, current)
+	while (env != NULL)
 	{
-		tmp = ft_strjoin(current->key, "=");
-		env_array[i] = ft_strjoin(tmp, current->value);
-		free(tmp);
-		current = current->next;
+		if (ft_strcmp(env->key, key) == 0)
+		{
+			old_value = NULL;
+			if (plus && env->value)
+				old_value = ft_strdup(env->value);
+			if (value)
+				free(env->value);
+			if (value && plus && old_value)
+				env->value = ft_strjoin(old_value, value);
+			else if (value)
+				env->value = ft_strdup(value);
+			free(old_value);
+			return (0);
+		}
+		env = env->next;
 	}
-	env_array[i] = NULL;
-	return (env_array);
+	return (1);
 }
 
 t_env	*env_init(char **envp)
