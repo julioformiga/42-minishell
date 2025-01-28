@@ -261,6 +261,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		free(cmd_parts[i]);
 		cmd_parts[i] = expanded;
+		// printf("cmd_parts[%d]: %s\n", i, cmd_parts[i]);
 		//if (is_operator_start(cmd_parts[i][0]))
 		if (get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
 		{
@@ -277,11 +278,11 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			}
 			else if (i + 1 < count_tokens(rl))
 			{
-				i++;
-				if (!cmd_parts[i])//protegge da echo >
-					break ;
-				file = parser_expansion(cmd_parts[i], env);
-				if (!file || !add_redirect(current, op_type, file))
+				if (cmd_parts[i + 1])
+					file = parser_expansion(cmd_parts[++i], env);
+				else
+					file = ft_strdup("");
+				if (!add_redirect(current, op_type, file))
 				{
 					free(file);
 					break ;
