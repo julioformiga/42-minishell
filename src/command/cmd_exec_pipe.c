@@ -28,27 +28,30 @@ static void	setup_pipe_fds(int input_fd, int output_fd)
 
 void	cmd_exec_pipe_cmd(t_cmd *cmd, t_env *env, int infd, int outfd)
 {
-	char			*full_path;
-	char			**args;
-	char			**env_array;
+	char	*full_path;
+	char	**args;
+	char	**env_array;
+	char	*msg_error;
 
+	msg_error = NULL;
 	if (cmd_setup(cmd, env, &args, &full_path) != 0)
 		exit(g_signal);
-	if (cmd->cmd->redirects
-		&& cmd_exec_setup_redirect(cmd->cmd->redirects) == -1)
+	if (cmd->cmd->redirects && cmd_exec_setup_redir(cmd->cmd->redirects) == -1)
+		msg_error = ft_strdup("redirect error");
+	if (!msg_error)
 	{
-		perror("redirect error");
-		exit(1);
+		setup_pipe_fds(infd, outfd);
+		env_array = env_to_array(env);
+		execve(full_path, args, env_array);
+		free_array(env_array);
+		msg_error = ft_strdup("execve error");
 	}
-	setup_pipe_fds(infd, outfd);
-	env_array = env_to_array(env);
-	execve(full_path, args, env_array);
-	free_array(env_array);
 	free_array(args);
 	free_cmd(cmd);
 	env_free(env);
 	free(full_path);
-	perror("execve error");
+	perror(msg_error);
+	free(msg_error);
 	exit(1);
 }
 

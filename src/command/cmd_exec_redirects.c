@@ -23,7 +23,7 @@ static	int	cmd_exec_check_file(char *file)
 	return (0);
 }
 
-int	cmd_exec_handle_redirect(t_cmdblock *block, int *pipefd, int *fd_output)
+int	cmd_exec_handle_redir(t_cmdblock *block, int *pipefd, int *fd_output)
 {
 	t_redirect	*redir;
 
@@ -77,7 +77,7 @@ static int	setup_output_redirect(t_redirect *current, int *fd)
 	return (0);
 }
 
-int	cmd_exec_setup_redirect(t_redirect *redirects)
+int	cmd_exec_setup_redir(t_redirect *redirects)
 {
 	t_redirect	*current;
 	int			fd;

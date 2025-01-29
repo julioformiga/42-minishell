@@ -151,6 +151,20 @@ TEST_F(MinishellTest, MLeaksExport) {
 	ASSERT_EQ(result, 0) << "Memory leak detected";
 }
 
+TEST_F(MinishellTest, MLeaksRedirectOutFileNotExists) {
+    string command = "echo '< filenotexists.txt cat'"
+		" | valgrind --leak-check=full --show-leak-kinds=all "
+		"--suppressions=external.supp --error-exitcode=1 "
+		+ shell_path;
+    CommandOutput result = exec_command(command);
+
+	ASSERT_EQ(result.exit_code, 1)
+		<< "Invalid command should set exit status to 1";
+    ASSERT_TRUE(result.stderr_output.find("No such file") != string::npos &&
+                result.stderr_output.find("error") != string::npos)
+        << "Error message should indicate command not found";
+}
+
 TEST_F(MinishellTest, MultipleCommands) {
     string command = "echo 'ls\npwd\nexit' | " + shell_path;
     CommandOutput result = exec_command(command);
@@ -163,8 +177,8 @@ TEST_F(MinishellTest, InvalidCommand) {
 
     ASSERT_FALSE(result.stderr_output.empty())
         << "Invalid command should produce error output";
-    ASSERT_TRUE(result.stderr_output.find("not found") != string::npos ||
-                result.stderr_output.find("error") != string::npos)
+    ASSERT_TRUE(result.stderr_output.find("not found") != string::npos &&
+                result.stderr_output.find("invalidcommand") != string::npos)
         << "Error message should indicate command not found";
 	ASSERT_EQ(result.exit_code, 127)
 		<< "Invalid command should set exit status to 127";

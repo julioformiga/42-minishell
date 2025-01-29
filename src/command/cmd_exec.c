@@ -19,7 +19,7 @@ static int	handle_builtin_cmd(t_cmd *cmdtmp, t_env *env,
 	int	result;
 
 	fd_output = STDOUT_FILENO;
-	result = cmd_exec_handle_redirect(cmdtmp->cmd, pipefd, &fd_output);
+	result = cmd_exec_handle_redir(cmdtmp->cmd, pipefd, &fd_output);
 	if (result)
 		return (result);
 	result = execute_builtin(cmdtmp, env, *prev_pipe, fd_output);
