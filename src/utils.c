@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/16 16:17:32 by julio.formiga     #+#    #+#             */
-/*   Updated: 2024/09/16 16:17:32 by julio.formiga    ###   ########.fr       */
+/*   Created: 2024/09/16 16:17:32 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/29 14:03:23 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,10 @@ void	free_array(char **array)
 		return ;
 	i = -1;
 	while (array[++i])
-		free(array[i]);
+	{
+		if (array[i] != NULL)//forse ridondante
+			free(array[i]);
+	}
 	free(array);
 	array = NULL;
 }

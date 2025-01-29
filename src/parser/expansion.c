@@ -6,13 +6,13 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 18:25:44 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/24 19:16:13 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/29 12:07:57 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static char	*get_var_name(const char *str)
+char	*get_var_name(const char *str)
 {
 	int		i;
 	char	*var_name;
