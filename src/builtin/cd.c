@@ -21,10 +21,9 @@ static int	cd_home(t_env *env)
 	{
 		printf("dir_home: %s\n", dir_home);
 		ft_putstr_fd("cd: HOME not set\n", 2);
-		free(dir_home);
-		return (1);
+		return (free(dir_home), 1);
 	}
-	return (0);
+	return (free(dir_home), 0);
 }
 
 static int	cd_previous(t_env *env)
@@ -35,9 +34,9 @@ static int	cd_previous(t_env *env)
 	if (chdir(dir_old) == -1)
 	{
 		ft_putstr_fd("cd: OLDPWD not set\n", 2);
-		return (1);
+		return (free(dir_old), 1);
 	}
-	return (0);
+	return (free(dir_old), 0);
 }
 
 static int	cd_directory(char *path)
@@ -54,9 +53,12 @@ static int	cd_directory(char *path)
 
 int	builtin_cd(t_cmd *cmd, t_env *env)
 {
-	char	*dir;
+	char	*pwd;
+	char	*pwd2;
 	int		result;
 
+	pwd = NULL;
+	pwd2 = NULL;
 	result = 0;
 	if (!cmd->cmd->args)
 		result = cd_home(env);
@@ -66,9 +68,12 @@ int	builtin_cd(t_cmd *cmd, t_env *env)
 		result = cd_directory(cmd->cmd->args[0]);
 	if (result == 0)
 	{
-		dir = env_get(env, "PWD");
-		env_set(env, "OLDPWD", dir, 0);
-		env_set(env, "PWD", getcwd(NULL, 0), 0);
+		pwd = env_get(env, "PWD");
+		env_set(env, "OLDPWD", pwd, 0);
+		free(pwd);
+		pwd2 = getcwd(NULL, 0);
+		env_set(env, "PWD", pwd2, 0);
+		free(pwd2);
 	}
 	return (result);
 }

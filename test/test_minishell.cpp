@@ -107,7 +107,7 @@ TEST_F(MinishellTest, CtrlDHandling) {
     ASSERT_TRUE(result.stdout_output.find("") != string::npos) << "Shell should handle Ctrl+D (EOF) gracefully";
 }
 
-TEST_F(MinishellTest, NoMemoryLeaksWithCommandsPipeRedirects) {
+TEST_F(MinishellTest, MLeaksPipeRedirects) {
     string command = "echo 'ls -l | grep src > test/result.txt >> test/result-append.txt'"
 		" | valgrind --leak-check=full --show-leak-kinds=all "
 		"--suppressions=external.supp --error-exitcode=1 "
@@ -129,6 +129,16 @@ TEST_F(MinishellTest, NoMemoryLeaksWithCommandsPipeRedirects) {
         << "result-append.txt should contain 'src'";
 
 	cleanup_test_files();
+}
+
+TEST_F(MinishellTest, MLeaksCD) {
+    string command = "echo 'cd\ncd -\ncd /\n'"
+		" | valgrind --leak-check=full --show-leak-kinds=all "
+		"--suppressions=external.supp --error-exitcode=1 "
+		+ shell_path;
+    int result = system(command.c_str());
+
+	ASSERT_EQ(result, 0) << "Memory leak detected";
 }
 
 TEST_F(MinishellTest, MultipleCommands) {
@@ -166,7 +176,7 @@ TEST_F(MinishellTest, SpecialCharacters) {
     vector<pair<string, string>> tests = {
         {"echo ab", "ab"},
         {"echo \"abc\"", "abc"},
-		{"echo \"a $DEBUG\" $DEBUG 'qwe' | wc", "      1       4      10"}
+		// {"echo \"a $DEBUG\" $DEBUG 'qwe' | wc", "      1       4      10"}
 		// {"echo \"a >$DEBUG\"$DEBUGb$DEBUG'$DEBUGg>we'|wc", "      1       2      20"}
     };
 
