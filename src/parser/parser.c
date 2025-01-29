@@ -49,9 +49,28 @@ static int	count_tokens(char *rl)
 	return (count);
 }
 
+static char	*add_double_quotes(char *str)
+{
+	char	*quoted_str;
+	int		len;
+
+	if (!str)
+		return (NULL);
+	len = ft_strlen(str);
+	quoted_str = malloc(sizeof(char) * (len + 3));
+	if (!quoted_str)
+		return (NULL);
+	quoted_str[0] = '"';
+	ft_strlcpy(quoted_str + 1, str, len + 1);
+	quoted_str[len + 1] = '"';
+	quoted_str[len + 2] = '\0';
+	return (quoted_str);
+}
+
 static char	*extract_quoted_token(char **rl)
 {
 	char	quote;
+	char	*quoted_token;
 	char	*start;
 	char	*token;
 	int		len;
@@ -59,7 +78,7 @@ static char	*extract_quoted_token(char **rl)
 	quote = **rl;
 	start = *rl;
 	(*rl)++;
-	while (**rl && **rl != quote)//espansione in questo ciclo
+	while (**rl && **rl != quote)
 		(*rl)++;
 	if (**rl)
 	{
@@ -69,7 +88,11 @@ static char	*extract_quoted_token(char **rl)
 	else
 		len = *rl - start - 1;
 	token = ft_substr(start, 1, len);
-	return (token);
+	if (!token)
+		return (NULL);
+	quoted_token = add_double_quotes(token);
+	free(token);
+	return (quoted_token);
 }
 
 static char	*extract_word(char **rl)
@@ -168,7 +191,7 @@ char	**cmd_parser_readline(char *rl)
 		if (tokens[i])
 				free(tokens[i]);
 		tokens[i] = tmp;
-		if (!tokens[i])//se tokens[i] == "" che succede?
+		if (!tokens[i])
 		{
 			free_array(tokens);
 			free(token);
@@ -178,7 +201,7 @@ char	**cmd_parser_readline(char *rl)
 			tokens[++i] = ft_strdup("");
 		free(token);
 	}
-	if (ft_isspace(*(rl - 1)))//in caso il comando finisca con spazi vuoti
+	if (ft_isspace(*(rl - 1)))
 	{
 		free(tokens[i]);
 		tokens[i] = NULL;
@@ -250,17 +273,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
-		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
-			expanded = ft_strdup("$");
-		else
-			expanded = parser_expansion(cmd_parts[i], env);
-		if (!expanded)
-		{
-			free_array(cmd_parts);
-			return ;
-		}
-		free(cmd_parts[i]);
-		cmd_parts[i] = expanded;
+		printf("cmd_parts[%d]: %s\n", i, cmd_parts[i]);
 		// printf("cmd_parts[%d]: %s\n", i, cmd_parts[i]);
 		//if (is_operator_start(cmd_parts[i][0]))
 		if (get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
@@ -292,12 +305,34 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		}
 		else if (!current->exec)
 		{
+			if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
+				expanded = ft_strdup("$");
+			else
+				expanded = parser_expansion(cmd_parts[i], env);
+			if (!expanded)
+			{
+				free_array(cmd_parts);
+				return ;
+			}
+			free(cmd_parts[i]);
+			cmd_parts[i] = expanded;
 			current->exec = ft_strdup(cmd_parts[i]);
 			if (!current->exec)
 				break ;
 		}
 		else if(cmd_parts[i] && ft_strlen(cmd_parts[i]) > 0)
 		{
+			if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
+				expanded = ft_strdup("$");
+			else
+				expanded = parser_expansion(cmd_parts[i], env);
+			if (!expanded)
+			{
+				free_array(cmd_parts);
+				return ;
+			}
+			free(cmd_parts[i]);
+			cmd_parts[i] = expanded;
 			if (arg_count == 0)
 			{
 				current->args = malloc(sizeof(char *) * 2);
