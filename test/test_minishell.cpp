@@ -211,6 +211,15 @@ TEST_F(MinishellTest, SpecialCharacters) {
     }
 }
 
+//'echo $ ciao$ ciao$"" ciao$""gino'
+// TEST_F(MinishellTest, ExpandOperatorEdgeCases) {
+//     string command = shell_path + "-c 'echo $ ciao$ ciao$"" ciao$""gino'";
+//     CommandOutput result = exec_command(command);
+//     ASSERT_EQ(result.stdout_output, "$ ciao$ ciao ciaogino") << "Shell should print";
+// }
+
+//echo "$ $USER '$USER' pa$ciccio" 
+
 // TEST_F(MinishellTest, QuotesBeforeString) {
 //     string command = shell_path + "-c 'echo \"a\"b'";
 //     CommandOutput result = exec_command(command);

@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/29 13:58:51 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/29 17:52:02 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,29 +49,6 @@ static int	count_tokens(char *rl)
 	return (count);
 }
 
-static char	*extract_quoted_token(char **rl)
-{
-	char	quote;
-	char	*start;
-	char	*token;
-	int		len;
-
-	quote = **rl;
-	start = *rl;
-	(*rl)++;
-	while (**rl && **rl != quote)//espansione in questo ciclo
-		(*rl)++;
-	if (**rl)
-	{
-		(*rl)++;
-		len = *rl - start - 2;
-	}
-	else
-		len = *rl - start - 1;
-	token = ft_substr(start, 1, len);
-	return (token);
-}
-
 static char	*expand_var(char **rl, t_env *env)
 {
 	char	*var_name;
@@ -88,19 +65,71 @@ static char	*expand_var(char **rl, t_env *env)
 	}
 	var_name = get_var_name(*rl);
 	if (!var_name)
-		return (NULL);//che succede se la variabile non esiste?
+		return (NULL);
 	value = env_get(env, var_name);
 	*rl += ft_strlen(var_name);
 	free(var_name);
 	return (value);
 }
 
+static char *expansion(char **rl, t_env *env, char *token, int dq)
+{
+	char	*expanded;
+	char	*tmp;
+	
+	if (ft_isspace((*rl)[1]) || (*rl)[1] == '\0' || (dq && (*rl)[1] == '"'))
+		expanded = ft_chartostr(*((*rl)++));
+	else
+		expanded = expand_var(rl, env);
+	if (!expanded)
+		return (free(token), NULL);
+	tmp = ft_strjoin(token, expanded);
+	free(token);
+	token = tmp;
+	if (expanded && ft_strcmp(expanded, "") != 0)
+		free(expanded);
+	return (token);
+}
+
+static char *no_expansion(char **rl, char *token)
+{
+	char	*tmp;
+	char	*str;
+
+	str = ft_chartostr(**rl);
+	tmp = ft_strjoin(token, str);
+	free(token);
+	token = tmp;
+	free(str);
+	(*rl)++;
+	return (token);
+}
+
+static char	*extract_quoted_token(char **rl, t_env *env)
+{
+	char	quote;
+	char	*token;
+
+	token = ft_strdup("");
+	if (!token)
+		return (NULL);
+	quote = **rl;
+	(*rl)++;
+	while (**rl && **rl != quote)
+	{
+		if (**rl == '$' && quote == '"')
+			token = expansion(rl, env, token, 1);
+		else
+			token = no_expansion(rl, token);
+	}
+	if (**rl == quote)
+		(*rl)++;
+	return (token);
+}
+
 static char	*extract_word(char **rl, t_env *env)
 {
 	char	*token;
-	char	*tmp;
-	char	*str;
-	char	*expanded;
 
 	token = ft_strdup("");
 	if (!token)
@@ -109,25 +138,9 @@ static char	*extract_word(char **rl, t_env *env)
 		&& !(**rl == '\'' || **rl == '"'))
 	{
 		if (**rl == '$')
-		{
-			expanded = expand_var(rl, env);
-			if (!expanded)
-				return (free(token), NULL);
-			tmp = ft_strjoin(token, expanded);
-			free(token);
-			token = tmp;
-			if (expanded)
-				free(expanded);
-		}
+			token = expansion(rl, env, token, 0);
 		else
-		{
-			str = ft_chartostr(**rl);
-			tmp = ft_strjoin(token, str);
-			free(token);
-			token = tmp;
-			free(str);
-			(*rl)++;
-		}
+			token = no_expansion(rl, token);
 	}
 	return (token);
 }
@@ -152,10 +165,8 @@ char	**cmd_parser_readline(char *rl, t_env *env)
 			rl++;
 		if (!*rl)
 			break ;
-		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))//togliere dopo aver spostato espansione in questa funzione
-			rl++;
 		if (*rl == '\'' || *rl == '"')
-			token = extract_quoted_token(&rl);
+			token = extract_quoted_token(&rl, env);
 		else if (is_operator_start(*rl))
 		{
 			token = extract_operator(&rl);
@@ -175,11 +186,7 @@ char	**cmd_parser_readline(char *rl, t_env *env)
 				free(tokens[i]);
 		tokens[i] = tmp;
 		if (!tokens[i])//se tokens[i] == "" che succede?
-		{
-			free_array(tokens);
-			free(token);
-			return (NULL);
-		}
+			return (free_array(tokens), free(token), NULL);
 		if (*rl && (ft_isspace(*rl) || is_operator_start(*rl)))
 			tokens[++i] = ft_strdup("");
 		free(token);
@@ -256,23 +263,18 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
-		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)//forse togliere dopo spostamento espansione in cmd_parser_readline
-			expanded = ft_strdup("$");
-		else
-			//expanded = parser_expansion(cmd_parts[i], env);
-			expanded = ft_strdup(cmd_parts[i]);//expansion bypass, cancel after moving expansion to cmd_parser_readline
+		//expanded = parser_expansion(cmd_parts[i], env);
+		expanded = ft_strdup(cmd_parts[i]);//expansion bypass, cancel after moving expansion to cmd_parser_readline
 		if (!expanded)
 		{
 			free_array(cmd_parts);
 			return ;
 		}
 		free(cmd_parts[i]);
-		//cmd_parts[i] = NULL;
 		cmd_parts[i] = ft_strdup(expanded);//il problema e' qui. Rimuovere dopo spostamento expansion
 		free(expanded);//Rimuovere dopo spostamento expansion
-		// printf("cmd_parts[%d]: %s\n", i, cmd_parts[i]);
 		//if (is_operator_start(cmd_parts[i][0]))//vecchia condizione per controllo redirect problematico
-		if (get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
+		if (/* str[i] != 0 && */get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
 		{
 			op_type = get_operator_type(cmd_parts[i]);
 			if (op_type == OP_PIPE)
@@ -288,7 +290,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			else if (i + 1 < count_tokens(rl))
 			{
 				if (cmd_parts[i + 1])
-					file = parser_expansion(cmd_parts[++i], env);//change after moving expansion to cmd_parser_readline
+					//file = parser_expansion(cmd_parts[++i], env);//change after moving expansion to cmd_parser_readline
+					file = ft_strdup(cmd_parts[++i]);//nuova versione, dopo aver spostato espansione in cmd_parser_readline
 				else
 					file = ft_strdup("");
 				if (!add_redirect(current, op_type, file))
