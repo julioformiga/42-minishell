@@ -141,6 +141,16 @@ TEST_F(MinishellTest, MLeaksCD) {
 	ASSERT_EQ(result, 0) << "Memory leak detected";
 }
 
+TEST_F(MinishellTest, MLeaksExport) {
+    string command = "echo 'export emptyvar\nexport\nexport a=123'"
+		" | valgrind --leak-check=full --show-leak-kinds=all "
+		"--suppressions=external.supp --error-exitcode=1 "
+		+ shell_path;
+    int result = system(command.c_str());
+
+	ASSERT_EQ(result, 0) << "Memory leak detected";
+}
+
 TEST_F(MinishellTest, MultipleCommands) {
     string command = "echo 'ls\npwd\nexit' | " + shell_path;
     CommandOutput result = exec_command(command);

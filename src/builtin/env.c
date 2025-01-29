@@ -102,6 +102,7 @@ int	env_set(t_env *env, char *key, char *value, int plus)
 	if (!new)
 		return (1);
 	new->key = ft_strdup(key);
+	new->value = NULL;
 	if (value)
 		new->value = ft_strdup(value);
 	new->next = NULL;
