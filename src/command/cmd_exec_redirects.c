@@ -16,8 +16,9 @@ static	int	cmd_exec_check_file(char *file)
 {
 	if (file[0] == '\0')
 	{
-		perror("minishell: syntax error near unexpected token `newline'");
-		return (2);
+		ft_putstr_fd("minishell: syntax error near unexpected token\
+ `newline'\n", STDERR_FILENO);
+		return (1);
 	}
 	return (0);
 }
