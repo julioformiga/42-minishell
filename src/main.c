@@ -24,8 +24,6 @@ char	*prompt(t_env *env)
 
 	dir = env_get(env, "PWD");
 	dir_home = env_get(env, "HOME");
-	if (ft_strcmp(dir, dir_home) == 0)
-		dir = ft_strjoin("~", dir + ft_strlen(dir_home));
 	prompt_ini = ft_strjoin("[minishell@42] ", dir);
 	prompt = ft_strjoin(prompt_ini, " $> ");
 	free(prompt_ini);
