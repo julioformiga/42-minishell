@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/27 21:04:04 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/29 13:58:51 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,61 +72,67 @@ static char	*extract_quoted_token(char **rl)
 	return (token);
 }
 
-static char	*extract_word(char **rl)
+static char	*expand_var(char **rl, t_env *env)
 {
-	char	*start;
-	char	*token;
-	int		len;
-	/* char	*clean;
-	int		i;
-	int		j; */
+	char	*var_name;
+	char	*value;
+	char	*sig;
 
-	start = *rl;
-	while (**rl && !ft_isspace(**rl) && !is_operator_start(**rl)
-		&& !(**rl == '\'' || **rl == '"'))
+	sig = NULL;
+	(*rl)++;
+	if (**rl == '?')
+	{
 		(*rl)++;
-	len = *rl - start;
-	token = ft_substr(start, 0, len);
+		sig = ft_itoa(g_signal);
+		return (sig);
+	}
+	var_name = get_var_name(*rl);
+	if (!var_name)
+		return (NULL);//che succede se la variabile non esiste?
+	value = env_get(env, var_name);
+	*rl += ft_strlen(var_name);
+	free(var_name);
+	return (value);
+}
+
+static char	*extract_word(char **rl, t_env *env)
+{
+	char	*token;
+	char	*tmp;
+	char	*str;
+	char	*expanded;
+
+	token = ft_strdup("");
 	if (!token)
 		return (NULL);
-	/* clean = malloc(sizeof(char) * (len + 1)); //vecchoi codice per estrarre stringhe
-	if (!clean)
+	while (**rl && !ft_isspace(**rl) && !is_operator_start(**rl)
+		&& !(**rl == '\'' || **rl == '"'))
 	{
-		free(token);
-		return (NULL);
+		if (**rl == '$')
+		{
+			expanded = expand_var(rl, env);
+			if (!expanded)
+				return (free(token), NULL);
+			tmp = ft_strjoin(token, expanded);
+			free(token);
+			token = tmp;
+			if (expanded)
+				free(expanded);
+		}
+		else
+		{
+			str = ft_chartostr(**rl);
+			tmp = ft_strjoin(token, str);
+			free(token);
+			token = tmp;
+			free(str);
+			(*rl)++;
+		}
 	}
-	i = 0;
-	j = 0;
-	while (token[i])
-	{
-		if (token[i] != '"' && token[i] != '\'')
-			clean[j++] = token[i];
-		i++;
-	}
-	clean[j] = '\0';
-	free(token); */
 	return (token);
 }
 
-//echo $' ciao   3spazi   $USER  $HOME  a'b c  d
-//stampa uno spazio dopo a' che non deve
-/* static char	*do_not_expand(char **rl)
-{
-	char	*str_to_check;
-	char	*start;
-	int 	len;
-
-	start = *rl;
-	(*rl)++;
-	while (**rl && **rl != '\'')
-		(*rl)++;
-	(*rl)++;
-	len = *rl - start;
-	str_to_check = ft_substr(start, 0, len);
-	return (str_to_check);
-} */
-
-char	**cmd_parser_readline(char *rl)
+char	**cmd_parser_readline(char *rl, t_env *env)
 {
 	char	**tokens;
 	char	*token;
@@ -146,7 +152,7 @@ char	**cmd_parser_readline(char *rl)
 			rl++;
 		if (!*rl)
 			break ;
-		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))//togliere dopo
+		if (*rl == '$' && (*(rl + 1) == '"' || *(rl + 1) == '\''))//togliere dopo aver spostato espansione in questa funzione
 			rl++;
 		if (*rl == '\'' || *rl == '"')
 			token = extract_quoted_token(&rl);
@@ -163,7 +169,7 @@ char	**cmd_parser_readline(char *rl)
 			token = ft_strdup("");
 		}
 		else
-			token = extract_word(&rl);
+			token = extract_word(&rl, env);
 		tmp = ft_strjoin(tokens[i], token);
 		if (tokens[i])
 				free(tokens[i]);
@@ -233,7 +239,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	int			i;
 	int			j;
 
-	cmd_parts = cmd_parser_readline(rl);
+	cmd_parts = cmd_parser_readline(rl, env);
 	if (!cmd_parts)
 	{
 		free(cmd->cmd_line);
@@ -250,19 +256,22 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
-		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)
+		if (ft_strncmp(cmd_parts[i], "$", 2) == 0)//forse togliere dopo spostamento espansione in cmd_parser_readline
 			expanded = ft_strdup("$");
 		else
-			expanded = parser_expansion(cmd_parts[i], env);
+			//expanded = parser_expansion(cmd_parts[i], env);
+			expanded = ft_strdup(cmd_parts[i]);//expansion bypass, cancel after moving expansion to cmd_parser_readline
 		if (!expanded)
 		{
 			free_array(cmd_parts);
 			return ;
 		}
 		free(cmd_parts[i]);
-		cmd_parts[i] = expanded;
+		//cmd_parts[i] = NULL;
+		cmd_parts[i] = ft_strdup(expanded);//il problema e' qui. Rimuovere dopo spostamento expansion
+		free(expanded);//Rimuovere dopo spostamento expansion
 		// printf("cmd_parts[%d]: %s\n", i, cmd_parts[i]);
-		//if (is_operator_start(cmd_parts[i][0]))
+		//if (is_operator_start(cmd_parts[i][0]))//vecchia condizione per controllo redirect problematico
 		if (get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
 		{
 			op_type = get_operator_type(cmd_parts[i]);
@@ -279,7 +288,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			else if (i + 1 < count_tokens(rl))
 			{
 				if (cmd_parts[i + 1])
-					file = parser_expansion(cmd_parts[++i], env);
+					file = parser_expansion(cmd_parts[++i], env);//change after moving expansion to cmd_parser_readline
 				else
 					file = ft_strdup("");
 				if (!add_redirect(current, op_type, file))
