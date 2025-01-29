@@ -112,9 +112,9 @@ TEST_F(MinishellTest, MLeaksPipeRedirects) {
 		" | valgrind --leak-check=full --show-leak-kinds=all "
 		"--suppressions=external.supp --error-exitcode=1 "
 		+ shell_path;
-    int result = system(command.c_str());
+    CommandOutput result = exec_command(command);
 
-	ASSERT_EQ(result, 0) << "Memory leak detected";
+	ASSERT_EQ(result.exit_code, 0) << "Memory leak detected";
     ASSERT_TRUE(access("test/result.txt", F_OK) == 0)
         << "result.txt should have been created";
     ASSERT_TRUE(access("test/result-append.txt", F_OK) == 0)
@@ -136,25 +136,38 @@ TEST_F(MinishellTest, MLeaksCD) {
 		" | valgrind --leak-check=full --show-leak-kinds=all "
 		"--suppressions=external.supp --error-exitcode=1 "
 		+ shell_path;
-    int result = system(command.c_str());
+    CommandOutput result = exec_command(command);
 
-	ASSERT_EQ(result, 0) << "Memory leak detected";
+	ASSERT_EQ(result.exit_code, 0)
+		<< "Invalid command should set exit status to 0";
 }
 
-TEST_F(MinishellTest, MLeaksExport) {
+TEST_F(MinishellTest, MLeaksExportValid) {
     string command = "echo 'export emptyvar\nexport\nexport a=123'"
 		" | valgrind --leak-check=full --show-leak-kinds=all "
 		"--suppressions=external.supp --error-exitcode=1 "
 		+ shell_path;
-    int result = system(command.c_str());
+    CommandOutput result = exec_command(command);
 
-	ASSERT_EQ(result, 0) << "Memory leak detected";
+	ASSERT_EQ(result.exit_code, 0)
+		<< "Invalid command should set exit status to 0";
+}
+
+TEST_F(MinishellTest, MLeaksExportInvalid) {
+    string command = "echo 'export 123'"
+		" | valgrind --leak-check=full --show-leak-kinds=all "
+		"--suppressions=external.supp --error-exitcode=2 "
+		+ shell_path;
+    CommandOutput result = exec_command(command);
+
+	ASSERT_EQ(result.exit_code, 1)
+		<< "Invalid command should set exit status to 1";
 }
 
 TEST_F(MinishellTest, MLeaksRedirectOutFileNotExists) {
     string command = "echo '< filenotexists.txt cat'"
 		" | valgrind --leak-check=full --show-leak-kinds=all "
-		"--suppressions=external.supp --error-exitcode=1 "
+		"--suppressions=external.supp --error-exitcode=2 "
 		+ shell_path;
     CommandOutput result = exec_command(command);
 
@@ -210,15 +223,6 @@ TEST_F(MinishellTest, SpecialCharacters) {
             << "Failed on command: " << test.first;
     }
 }
-
-//'echo $ ciao$ ciao$"" ciao$""gino'
-// TEST_F(MinishellTest, ExpandOperatorEdgeCases) {
-//     string command = shell_path + "-c 'echo $ ciao$ ciao$"" ciao$""gino'";
-//     CommandOutput result = exec_command(command);
-//     ASSERT_EQ(result.stdout_output, "$ ciao$ ciao ciaogino") << "Shell should print";
-// }
-
-//echo "$ $USER '$USER' pa$ciccio" 
 
 // TEST_F(MinishellTest, QuotesBeforeString) {
 //     string command = shell_path + "-c 'echo \"a\"b'";
