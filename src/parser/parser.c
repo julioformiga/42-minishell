@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/29 17:52:02 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/29 19:49:40 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,16 +145,18 @@ static char	*extract_word(char **rl, t_env *env)
 	return (token);
 }
 
-char	**cmd_parser_readline(char *rl, t_env *env)
+char	**cmd_parser_readline(char *rl, t_env *env, int **values, int token_count)
 {
 	char	**tokens;
 	char	*token;
 	char	*tmp;
-	int		token_count;
+	//int		token_count;
 	int		i;
 
-	token_count = count_tokens(rl);
+	//token_count = count_tokens(rl);
 	tokens = malloc(sizeof(char *) * (token_count + 1));
+	//values = malloc(sizeof(int) * (token_count + 1));
+	//ft_bzero(values, token_count);
 	if (!tokens)
 		return (NULL);
 	i = 0;
@@ -174,6 +176,7 @@ char	**cmd_parser_readline(char *rl, t_env *env)
 			if (tokens[i])
 				free(tokens[i]);
 			tokens[i] = tmp;
+			*values[i] = 1;
 			if (*rl && !ft_isspace(*rl))
 				tokens[++i] = ft_strdup("");
 			free(token);
@@ -245,8 +248,13 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	int			arg_count;
 	int			i;
 	int			j;
+	int			*values;
+	int			n_tokens;
 
-	cmd_parts = cmd_parser_readline(rl, env);
+	n_tokens = count_tokens(rl);
+	values = malloc(sizeof(int) * (n_tokens + 1));
+	ft_bzero(values, n_tokens);
+	cmd_parts = cmd_parser_readline(rl, env, &values, n_tokens);
 	if (!cmd_parts)
 	{
 		free(cmd->cmd_line);
@@ -263,8 +271,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	i = 0;
 	while (cmd_parts[i])
 	{
-		//expanded = parser_expansion(cmd_parts[i], env);
-		expanded = ft_strdup(cmd_parts[i]);//expansion bypass, cancel after moving expansion to cmd_parser_readline
+		expanded = ft_strdup(cmd_parts[i]);
 		if (!expanded)
 		{
 			free_array(cmd_parts);
@@ -274,7 +281,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		cmd_parts[i] = ft_strdup(expanded);//il problema e' qui. Rimuovere dopo spostamento expansion
 		free(expanded);//Rimuovere dopo spostamento expansion
 		//if (is_operator_start(cmd_parts[i][0]))//vecchia condizione per controllo redirect problematico
-		if (/* str[i] != 0 && */get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
+		if ((values[i] == 1) && get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
 		{
 			op_type = get_operator_type(cmd_parts[i]);
 			if (op_type == OP_PIPE)
