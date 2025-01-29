@@ -202,18 +202,6 @@ TEST_F(MinishellTest, EmptyRedirect) {
 		<< "Invalid command should set exit status to 2";
 }
 
-// TEST_F(MinishellTest, emptyRedirect) {
-//     string command = "echo >" + shell_path;
-//     CommandOutput result = exec_command(command);
-//     ASSERT_EQ(result.stdout_output, "") << "Shell should return empty line and no leaks";
-// }
-
-// TEST_F(MinishellTest, emptyRedirectAndSpace) {
-//     string command = "echo > " + shell_path;
-//     CommandOutput result = exec_command(command);
-//     ASSERT_EQ(result.stdout_output, "") << "Shell should return empty line and no leaks";
-// }
-
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
