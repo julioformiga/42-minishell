@@ -188,13 +188,31 @@ TEST_F(MinishellTest, InvalidCommand) {
     string command = shell_path + " -c 'invalidcommand'";
     CommandOutput result = exec_command(command);
 
-    ASSERT_FALSE(result.stderr_output.empty())
-        << "Invalid command should produce error output";
     ASSERT_TRUE(result.stderr_output.find("not found") != string::npos &&
                 result.stderr_output.find("invalidcommand") != string::npos)
         << "Error message should indicate command not found";
 	ASSERT_EQ(result.exit_code, 127)
 		<< "Invalid command should set exit status to 127";
+}
+
+TEST_F(MinishellTest, OpPreviousOpsRedir) {
+    string command = shell_path + " -c 'echo arg > >'";
+    CommandOutput result = exec_command(command);
+
+    ASSERT_TRUE(result.stderr_output.find("unexpected token `>") != string::npos)
+        << "Error message should indicate syntax error";
+	ASSERT_EQ(result.exit_code, 2)
+		<< "Invalid command should set exit status to 2";
+}
+
+TEST_F(MinishellTest, OpPreviousOpsRedirAppend) {
+    string command = shell_path + " -c 'echo arg > >>'";
+    CommandOutput result = exec_command(command);
+
+    ASSERT_TRUE(result.stderr_output.find("unexpected token `>>") != string::npos)
+        << "Error message should indicate syntax error";
+	ASSERT_EQ(result.exit_code, 2)
+		<< "Invalid command should set exit status to 2";
 }
 
 TEST_F(MinishellTest, EnvironmentVariables) {
