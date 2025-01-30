@@ -59,7 +59,7 @@ A minimal shell implementation inspired by Bash.
 - [x] Non-existent environment variables
 - [x] Invalid file descriptors
 - [x] unset PATH ; ls
-- [ ] /bin/ls ; ./bin
+- [x] /bin/ls ; ./bin
 - [ ] > ">"
 - [ ] << eof ; expasion $HOME
 - [ ] cat | cat | ls ; echo $? == 0
