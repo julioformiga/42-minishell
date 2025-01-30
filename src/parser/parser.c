@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/29 19:49:40 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/30 14:01:55 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,12 @@ static int	count_tokens(char *rl)
 			else if (*rl == '>' && *(rl + 1) == '>')
 				rl++;
 			rl++;
-			count++;
+			//se non ho gia' contato questo carattere
+			//count++;
+			continue;
 		}
-		/* else */
-			while (*rl && !ft_isspace(*rl) && !is_operator_start(*rl))
-				rl++;
+		while (*rl && !ft_isspace(*rl) && !is_operator_start(*rl))
+			rl++;
 	}
 	return (count);
 }
@@ -145,7 +146,7 @@ static char	*extract_word(char **rl, t_env *env)
 	return (token);
 }
 
-char	**cmd_parser_readline(char *rl, t_env *env, int **values, int token_count)
+char	**cmd_parser_readline(char *rl, t_env *env, int *values, int token_count)
 {
 	char	**tokens;
 	char	*token;
@@ -155,8 +156,6 @@ char	**cmd_parser_readline(char *rl, t_env *env, int **values, int token_count)
 
 	//token_count = count_tokens(rl);
 	tokens = malloc(sizeof(char *) * (token_count + 1));
-	//values = malloc(sizeof(int) * (token_count + 1));
-	//ft_bzero(values, token_count);
 	if (!tokens)
 		return (NULL);
 	i = 0;
@@ -176,7 +175,7 @@ char	**cmd_parser_readline(char *rl, t_env *env, int **values, int token_count)
 			if (tokens[i])
 				free(tokens[i]);
 			tokens[i] = tmp;
-			*values[i] = 1;
+			values[i] = 1;
 			if (*rl && !ft_isspace(*rl))
 				tokens[++i] = ft_strdup("");
 			free(token);
@@ -252,9 +251,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	int			n_tokens;
 
 	n_tokens = count_tokens(rl);
-	values = malloc(sizeof(int) * (n_tokens + 1));
-	ft_bzero(values, n_tokens);
-	cmd_parts = cmd_parser_readline(rl, env, &values, n_tokens);
+	values = ft_calloc(n_tokens, sizeof(int));
+	cmd_parts = cmd_parser_readline(rl, env, values, n_tokens);
 	if (!cmd_parts)
 	{
 		free(cmd->cmd_line);
@@ -349,5 +347,6 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 		i++;
 	}
 	cmd->cmd = get_first_block(current);
+	free(values);
 	free_array(cmd_parts);
 }
