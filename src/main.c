@@ -50,6 +50,7 @@ static void	exec_process(t_cmd *cmd, t_env *env)
 		{
 			free(input);
 			add_history(cmd->cmd_line);
+			save_history(cmd->cmd_line, env);
 			cmd_exec(cmd, env);
 			free_cmd(cmd);
 		}
@@ -67,54 +68,39 @@ static int	ft_check_only_spaces(char *str)
 	return (0);
 }
 
+static void	main_init(int argc, char **argv, t_env *env)
+{
+	t_cmd	*cmd;
+
+	setup_signals();
+	cmd = malloc(sizeof(t_cmd));
+	env_set(env, "DEBUG", "0", 0);
+	env_set(env, "a", "123", 0);
+	env_set(env, "c", "cho", 0);
+	load_history(env);
+	cmd_exec_inline(argc, argv, env, cmd);
+	free(cmd);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_env	*env;
 	t_cmd	*cmd;
 	char	*rl;
 
-	setup_signals();
 	env = env_init(envp);
-	rl = NULL;
-	cmd = malloc(sizeof(t_cmd));
-	env_set(env, "DEBUG", "0", 0);
-	env_set(env, "a", "123", 0);
-	env_set(env, "c", "cho", 0);
-	add_history("export DEBUG=1");
-	add_history("ls | grep Makefile > result.txt");
-	add_history("e$c \"arg01>     > $a |'nb'$a   \" a$USER 'arg02> > $a$a' | cat >$USER result.txt");
-	add_history("cat << EOF | tr a-z A-Z > uppercase.txt");
-	add_history("echo $$USER");
-	add_history("echo $\"USER\"");
-	add_history("> output.txt ls");
-	add_history("> output.txt echo asd");
-	add_history("< output.txt cat");
-	add_history("echo $e $c");
-	add_history("echo \"asd\" 'qwe' asd");
-	add_history("bat result.txt result-append.txt");
-	add_history("ls -l | grep obj > result.txt >> result-append.txt");
-	add_history("echo \"a >$DISPLAY\"$DISPLAYb$DISPLAY'$DISPLAYq>we'|wc");
-	add_history("echo >");
-	add_history("export 123");
-	add_history("echo $?");
-	cmd_exec_inline(argc, argv, env, cmd);
-	free(cmd);
+	main_init(argc, argv, env);
 	while (1)
 	{
-		cmd = malloc(sizeof(t_cmd));
 		rl = prompt(env);
 		if (!rl)
 		{
 			printf("exit\n");
-			free(cmd);
 			break ;
 		}
 		if (!ft_check_only_spaces(rl))
-		{
-			free(cmd);
-			free(rl);
 			continue ;
-		}
+		cmd = malloc(sizeof(t_cmd));
 		cmd_init(rl, cmd, env);
 		free(rl);
 		exec_process(cmd, env);

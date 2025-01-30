@@ -46,7 +46,7 @@ void	free_array(char **array)
 	i = -1;
 	while (array[++i])
 	{
-		if (array[i] != NULL)//forse ridondante
+		if (array[i] != NULL)
 			free(array[i]);
 	}
 	free(array);

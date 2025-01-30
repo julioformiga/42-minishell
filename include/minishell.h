@@ -87,6 +87,9 @@ void			setup_signals(void);
 int				ft_strcmp(const char *s1, const char *s2);
 char			*ft_strndup(const char *s1, size_t n);
 
+void			load_history(t_env *env);
+void			save_history(char *cmd_line, t_env *env);
+
 char			**env_to_array(t_env *env);
 int				ft_array_len(char **array);
 void			free_array(char **array);
