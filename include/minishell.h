@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 14:35:35 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/29 12:08:39 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/30 11:41:02 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ char			*ft_strndup(const char *s1, size_t n);
 char			**env_to_array(t_env *env);
 int				ft_array_len(char **array);
 void			free_array(char **array);
+void			free_int_array(int **array);
 
 t_builtin_fn	get_builtin(char *cmd_name);
 int				execute_builtin(t_cmd *cmd, t_env *env,
@@ -105,7 +106,7 @@ int				env_unset(t_env **env, char *key);
 void			env_free(t_env *env);
 
 char			*get_var_name(const char *str);
-char			**cmd_parser_readline(char *rl, t_env *env);
+char			**cmd_parser_readline(char *rl, t_env *env, int *values, int token_count);
 char			*parser_expansion(const char *str, t_env *env);
 char			*cmd_check(t_cmd *cmd, t_env *env);
 void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
