@@ -184,12 +184,34 @@ TEST_F(MinishellTest, MultipleCommands) {
     ASSERT_FALSE(result.stdout_output.empty()) << "Shell should handle multiple commands";
 }
 
-TEST_F(MinishellTest, InvalidCommand) {
+TEST_F(MinishellTest, CommadNotFound) {
     string command = shell_path + " -c 'invalidcommand'";
     CommandOutput result = exec_command(command);
 
     ASSERT_TRUE(result.stderr_output.find("not found") != string::npos &&
                 result.stderr_output.find("invalidcommand") != string::npos)
+        << "Error message should indicate command not found";
+	ASSERT_EQ(result.exit_code, 127)
+		<< "Invalid command should set exit status to 127";
+}
+
+TEST_F(MinishellTest, CommadNotFoundFullpath) {
+    string command = shell_path + " -c '/bin/lsls'";
+    CommandOutput result = exec_command(command);
+
+    ASSERT_TRUE(result.stderr_output.find("not found") != string::npos &&
+                result.stderr_output.find("/bin/lsls") != string::npos)
+        << "Error message should indicate command not found";
+	ASSERT_EQ(result.exit_code, 127)
+		<< "Invalid command should set exit status to 127";
+}
+
+TEST_F(MinishellTest, CommadNotFoundOutPATH) {
+    string command = "echo 'unset PATH\nls' | " + shell_path;
+    CommandOutput result = exec_command(command);
+
+    ASSERT_TRUE(result.stderr_output.find("not found") != string::npos &&
+                result.stderr_output.find("ls") != string::npos)
         << "Error message should indicate command not found";
 	ASSERT_EQ(result.exit_code, 127)
 		<< "Invalid command should set exit status to 127";
