@@ -242,6 +242,30 @@ TEST_F(MinishellTest, SpecialCharacters) {
     }
 }
 
+TEST_F(MinishellTest, Expansion) {
+    vector<pair<string, string>> tests = {
+        {"echo $", "$"},
+		{"echo ciao $", "ciao $"},
+        {"echo 1$", "1$"},
+		{"echo $1", ""},
+		{"echo ciao$1", "ciao"},
+		{"echo $\"1\"", "1"},
+		{"echo \"$1\"", ""},
+		{"echo \"$1\"$", "$"},
+		{"echo $\"$1\"ciccio$", "ciccio$"},
+		//{"echo '$1'", "$1"}, 
+		{"echo $DISPLAY$DISPLAY", ":0:0"},
+		// {"echo \"a $DEBUG\" $DEBUG 'qwe' | wc", "      1       4      10"}
+		// {"echo \"a >$DEBUG\"$DEBUGb$DEBUG'$DEBUGg>we'|wc", "      1       2      20"}
+    };
+
+    for (const auto& test : tests) {
+        CommandOutput result = exec_command(make_test_command(test.first));
+        ASSERT_EQ(result.stdout_output, test.second + "\n")
+            << "Failed on command: " << test.first;
+    }
+}
+
 // TEST_F(MinishellTest, QuotesBeforeString) {
 //     string command = shell_path + "-c 'echo \"a\"b'";
 //     CommandOutput result = exec_command(command);
