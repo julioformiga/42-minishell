@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/30 14:24:18 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/30 14:43:15 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,6 @@ static int	count_tokens(char *rl)
 			else if (*rl == '>' && *(rl + 1) == '>')
 				rl++;
 			rl++;
-			//se non ho gia' contato questo carattere
-			//count++;
 			continue;
 		}
 		while (*rl && !ft_isspace(*rl) && !is_operator_start(*rl))
@@ -292,7 +290,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				current = current->next;
 				arg_count = 0;
 			}
-			else if (i + 1 < count_tokens(rl))
+			else if (i + 1 < (count_tokens(rl) + 1))
 			{
 				if (cmd_parts[i + 1])
 					//file = parser_expansion(cmd_parts[++i], env);//change after moving expansion to cmd_parser_readline
