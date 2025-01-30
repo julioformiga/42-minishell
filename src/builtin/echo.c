@@ -12,6 +12,16 @@
 
 #include "minishell.h"
 
+static int	check_arg_param(char *arg, int *i)
+{
+	if (arg[0] == '-' && arg[1] == 'n')
+	{
+		*i = *i + 1;
+		return (1);
+	}
+	return (0);
+}
+
 int	builtin_echo(t_cmd *cmd, t_env *env)
 {
 	int	i;
@@ -22,13 +32,12 @@ int	builtin_echo(t_cmd *cmd, t_env *env)
 	no_newline = 0;
 	if (cmd->cmd->args)
 	{
-		if (cmd->cmd->args[i] && ft_strncmp(cmd->cmd->args[i], "-n", 2) == 0)
-		{
+		if (cmd->cmd->args[i] && check_arg_param(cmd->cmd->args[i], &i))
 			no_newline = 1;
-			i++;
-		}
 		while (cmd->cmd->args[i])
 		{
+			if (no_newline && check_arg_param(cmd->cmd->args[i], &i))
+				continue ;
 			ft_putstr_fd(cmd->cmd->args[i], STDOUT_FILENO);
 			if (cmd->cmd->args[++i])
 				ft_putchar_fd(' ', STDOUT_FILENO);
