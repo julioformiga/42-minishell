@@ -58,7 +58,7 @@ A minimal shell implementation inspired by Bash.
 - [x] Environment variables in different contexts
 - [x] Non-existent environment variables
 - [x] Invalid file descriptors
-- [ ] unset PATH ; ls
+- [x] unset PATH ; ls
 - [ ] /bin/ls ; ./bin
 - [ ] > ">"
 - [ ] << eof ; expasion $HOME
