@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 14:35:35 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/30 11:41:02 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/30 14:22:26 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ int				env_unset(t_env **env, char *key);
 void			env_free(t_env *env);
 
 char			*get_var_name(const char *str);
-char			**cmd_parser_readline(char *rl, t_env *env, int *values, int token_count);
+char			**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count);
 char			*parser_expansion(const char *str, t_env *env);
 char			*cmd_check(t_cmd *cmd, t_env *env);
 void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
