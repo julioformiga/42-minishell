@@ -36,7 +36,12 @@ char	*extract_operator(char **rl)
 {
 	char	*token;
 
-	if (**rl == '|')
+	if (**rl == '|' && *(*rl + 1) == '|')
+	{
+		token = ft_strdup("||");
+		(*rl)++;
+	}
+	else if (**rl == '|')
 		token = ft_strdup("|");
 	else if (**rl == '<' && *(*rl + 1) == '<')
 	{

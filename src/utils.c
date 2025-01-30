@@ -44,11 +44,7 @@ void	free_array(char **array)
 	if (!array)
 		return ;
 	i = -1;
-	while (array[++i])
-	{
-		if (array[i] != NULL)
-			free(array[i]);
-	}
+	while (i++, array[i])
+		free(array[i]);
 	free(array);
-	array = NULL;
 }

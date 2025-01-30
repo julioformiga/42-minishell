@@ -75,7 +75,7 @@ static char *expansion(char **rl, t_env *env, char *token, int dq)
 {
 	char	*expanded;
 	char	*tmp;
-	
+
 	if (ft_isspace((*rl)[1]) || (*rl)[1] == '\0' || (dq && (*rl)[1] == '"'))
 		expanded = ft_chartostr(*((*rl)++));
 	else
@@ -144,6 +144,28 @@ static char	*extract_word(char **rl, t_env *env)
 	return (token);
 }
 
+static int	check_previuos_op(char *op, char **tokens, int i)
+{
+	if (i > 0)
+	{
+		// printf("tokens[%d]: %s\n", i - 1, tokens[i - 1]);
+		// printf("tokens[%d]: %s\n", i, tokens[i]);
+		if (is_operator_start(tokens[i - 1][0]) && is_operator_start(op[0]))
+		{
+			ft_putstr_fd("minishell: syntax error near unexpected token `",
+			STDERR_FILENO);
+			ft_putstr_fd(op, STDERR_FILENO);
+			ft_putstr_fd("'\n", STDERR_FILENO);
+			free(op);
+			tokens[i] = NULL;
+			free_array(tokens);
+			g_signal = 2;
+			return (1);
+		}
+	}
+	return (0);
+}
+
 char	**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count)
 {
 	char	**tokens;
@@ -173,6 +195,8 @@ char	**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count)
 			if (tokens[i])
 				free(tokens[i]);
 			tokens[i] = tmp;
+			if (check_previuos_op(token, tokens, i))
+				return (free(tmp), NULL);
 			val[i] = 1;
 			if (*rl && !ft_isspace(*rl))
 				tokens[++i] = ft_strdup("");
@@ -253,8 +277,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	cmd_parts = cmd_parser_rl(rl, env, values, n_tokens);
 	if (!cmd_parts)
 	{
-		free(cmd->cmd_line);
-		cmd->cmd_line = NULL;
+		free(values);
 		return ;
 	}
 	current = create_new_block();
