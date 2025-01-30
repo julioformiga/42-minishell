@@ -28,7 +28,6 @@ static char	**get_paths(t_env *env)
 	}
 	if (!paths)
 	{
-		ft_putstr_fd("minishell: WARNING! PATH not set!\n", STDERR_FILENO);
 		g_signal = 127;
 		return (NULL);
 	}
@@ -58,7 +57,6 @@ static char	*find_command_path(char **paths, char *cmd_name)
 	result = check_absolute_path(cmd_name);
 	if (paths == NULL)
 		return (result);
-	result = NULL;
 	i = -1;
 	while (paths[++i] && !result)
 	{
