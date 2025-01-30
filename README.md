@@ -23,7 +23,7 @@ A minimal shell implementation inspired by Bash.
 - [x] Basic command execution with PATH search
 - [x] Arguments handling
 - [x] Environment variables expansion (`$VAR` && `$"$VAR"`)
-- [ ] Environment variables DO NOT expansion (`$"VAR"` && `$'VAR'` && `$'$VAR'`)
+- [x] Environment variables DO NOT expansion (`$"VAR"` && `$'VAR'` && `$'$VAR'`)
 - [x] Check expansion (`$$` => `$`)
 - [x] Segfault when the $VAR in ENV is not set
 - [x] Exit status variable expansion (`$?`)
@@ -46,7 +46,7 @@ A minimal shell implementation inspired by Bash.
 - [x] Permission denied
   - [x] Memory leaks
 - [x] File not found
-- [ ] Syntax errors
+- [x] Syntax errors
 - [x] Memory leaks prevention (valid commands)
 
 ### Edge Cases
@@ -58,6 +58,11 @@ A minimal shell implementation inspired by Bash.
 - [x] Environment variables in different contexts
 - [x] Non-existent environment variables
 - [x] Invalid file descriptors
+- [ ] unset PATH ; ls
+- [ ] /bin/ls ; ./bin
+- [ ] > ">"
+- [ ] << eof ; expasion $HOME
+- [ ] cat | cat | ls ; echo $? == 0
 
 ## 🛠️ Building
 
