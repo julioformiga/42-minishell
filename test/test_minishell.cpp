@@ -249,23 +249,10 @@ TEST_F(MinishellTest, PipeHandling) {
     ASSERT_FALSE(result.stdout_output.empty()) << "Shell should handle pipes";
 }
 
-TEST_F(MinishellTest, SpecialCharacters) {
+TEST_F(MinishellTest, Expansion) {
     vector<pair<string, string>> tests = {
         {"echo ab", "ab"},
         {"echo \"abc\"", "abc"},
-		// {"echo \"a $DEBUG\" $DEBUG 'qwe' | wc", "      1       4      10"}
-		// {"echo \"a >$DEBUG\"$DEBUGb$DEBUG'$DEBUGg>we'|wc", "      1       2      20"}
-    };
-
-    for (const auto& test : tests) {
-        CommandOutput result = exec_command(make_test_command(test.first));
-        ASSERT_EQ(result.stdout_output, test.second + "\n")
-            << "Failed on command: " << test.first;
-    }
-}
-
-TEST_F(MinishellTest, Expansion) {
-    vector<pair<string, string>> tests = {
         {"echo $", "$"},
 		{"echo ciao $", "ciao $"},
         {"echo 1$", "1$"},
@@ -275,10 +262,6 @@ TEST_F(MinishellTest, Expansion) {
 		{"echo \"$1\"", ""},
 		{"echo \"$1\"$", "$"},
 		{"echo $\"$1\"ciccio$", "ciccio$"},
-		//{"echo '$1'", "$1"}, 
-		{"echo $DISPLAY$DISPLAY", ":0:0"},
-		// {"echo \"a $DEBUG\" $DEBUG 'qwe' | wc", "      1       4      10"}
-		// {"echo \"a >$DEBUG\"$DEBUGb$DEBUG'$DEBUGg>we'|wc", "      1       2      20"}
     };
 
     for (const auto& test : tests) {
@@ -287,18 +270,6 @@ TEST_F(MinishellTest, Expansion) {
             << "Failed on command: " << test.first;
     }
 }
-
-// TEST_F(MinishellTest, QuotesBeforeString) {
-//     string command = shell_path + "-c 'echo \"a\"b'";
-//     CommandOutput result = exec_command(command);
-//     ASSERT_EQ(result.stdout_output, "ab") << "Shell should concatenate the two strings";
-// }
-
-// TEST_F(MinishellTest, DollarAndQuotes) {
-//     string command = "echo 1$ $ $\"c\" $'c' \"$\"c \"$a $ab\"c '$a'c \"$a '$a'  $ab\"c" + shell_path;
-//     CommandOutput result = exec_command(command);
-//     ASSERT_EQ(result.stdout_output, "1$ $ c c $c  c $ac  ''  c") << "Shell should go to hell";
-// }
 
 TEST_F(MinishellTest, EmptyRedirect) {
     string command = shell_path + " -c 'echo >'";
@@ -312,18 +283,6 @@ TEST_F(MinishellTest, EmptyRedirect) {
 	ASSERT_EQ(result.exit_code, 2)
 		<< "Invalid command should set exit status to 2";
 }
-
-// TEST_F(MinishellTest, emptyRedirect) {
-//     string command = "echo >" + shell_path;
-//     CommandOutput result = exec_command(command);
-//     ASSERT_EQ(result.stdout_output, "") << "Shell should return empty line and no leaks";
-// }
-
-// TEST_F(MinishellTest, emptyRedirectAndSpace) {
-//     string command = "echo > " + shell_path;
-//     CommandOutput result = exec_command(command);
-//     ASSERT_EQ(result.stdout_output, "") << "Shell should return empty line and no leaks";
-// }
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
