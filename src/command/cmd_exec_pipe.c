@@ -57,12 +57,26 @@ void	cmd_exec_pipe_cmd(t_cmd *cmd, t_env *env, int infd, int outfd)
 
 void	cmd_exec_pipe_wait_children(int *result)
 {
-	while (wait(result) > 0)
+	pid_t	pid;
+	int		last_running_pid;
+
+	last_running_pid = 0;
+	pid = wait(result);
+	while (pid > 0)
 	{
-		if (WIFEXITED(*result))
+		pid = wait(result);
+		if (WIFSIGNALED(*result) && WTERMSIG(*result) == SIGINT)
+		{
+			if (last_running_pid == 0 || pid == last_running_pid)
+				g_signal = 130;
+			else
+				g_signal = 0;
+		}
+		else if (WIFEXITED(*result))
 			g_signal = WEXITSTATUS(*result);
 		else if (WIFSIGNALED(*result))
 			g_signal = WTERMSIG(*result) + 128;
+		last_running_pid = pid;
 	}
 }
 
