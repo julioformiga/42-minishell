@@ -22,7 +22,6 @@ RED    		= \033[0;31m
 RESET  		= \033[0m
 
 all:		$(BIN)
-			printf "☑️ $(GREEN)Compiled in$(RESET): $(BIN)\n"
 
 $(OBJ)/%.o:	$(SRC)/%.c
 			@mkdir -p $(OBJ)
@@ -35,6 +34,7 @@ $(BIN):		$(OBJS)
 			make all -C $(LIBFT_DIR)
 			printf "⚙️  $(BLUE)Building MINISHELL$(RESET)\n"
 			$(CC) $(CFLAGS) -o $@ $^ $(LIBFT) -lreadline
+			printf "☑️ $(GREEN)Compiled in$(RESET): $(BIN)\n"
 
 clean:
 			$(RM) $(OBJ)
