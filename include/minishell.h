@@ -122,6 +122,7 @@ int				cmd_setup(t_cmd *cmd, t_env *env, char ***args,
 					char **full_path);
 void			cmd_init(char *rl, t_cmd *cmd, t_env *env);
 void			cmd_exec_inline(int argc, char **argv, t_env *env, t_cmd *cmd);
+int				cmd_exec_update_position_cmd(t_cmd **cmdtmp);
 void			cmd_exec_setup_pipe(t_cmdblock *block, int *fd, int *prev_pipe);
 int				cmd_exec_handle_redir(t_cmdblock *block,
 					int *pipefd, int *fd_output);

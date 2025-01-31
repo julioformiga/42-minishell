@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static int	handle_builtin_cmd(t_cmd *cmdtmp, t_env *env,
+static int	handle_cmd_builtin(t_cmd *cmdtmp, t_env *env,
 							int *pipefd, int *prev_pipe)
 {
 	int	fd_output;
@@ -28,7 +28,7 @@ static int	handle_builtin_cmd(t_cmd *cmdtmp, t_env *env,
 	return (result);
 }
 
-static int	handle_external_cmd(t_cmd *cmdtmp, t_env *env,
+static int	handle_cmd_external(t_cmd *cmdtmp, t_env *env,
 							int *pipefd, int prev_pipe)
 {
 	pid_t	pid;
@@ -52,30 +52,48 @@ static int	handle_external_cmd(t_cmd *cmdtmp, t_env *env,
 	return (0);
 }
 
+static int	handle_cmd_null(t_cmd *cmdtmp, int *pipefd, int *prev_pipe)
+{
+	int		fd_output;
+	int		result;
+	int		heredoc_fd;
+
+	fd_output = STDOUT_FILENO;
+	result = cmd_exec_handle_redir(cmdtmp->cmd, pipefd, &fd_output);
+	if (result)
+		return (result);
+	if (cmdtmp->cmd->redirects && fd_output == STDOUT_FILENO)
+	{
+		if (cmd_exec_setup_heredoc(cmdtmp->cmd->redirects, &heredoc_fd))
+			return (1);
+	}
+	else
+	{
+		if (fd_output != STDOUT_FILENO && fd_output != pipefd[1])
+			close(fd_output);
+		if (cmdtmp->cmd->next)
+		{
+			close(pipefd[1]);
+			*prev_pipe = pipefd[0];
+		}
+	}
+	return (0);
+}
+
 static int	execute_command(t_cmd *cmdtmp, t_env *env,
 							int *pipefd, int *prev_pipe)
 {
 	int	result;
 
 	result = 0;
-	if (get_builtin(cmdtmp->cmd->exec))
-		result = handle_builtin_cmd(cmdtmp, env, pipefd, prev_pipe);
-	else if (handle_external_cmd(cmdtmp, env, pipefd, *prev_pipe))
+	if (!cmdtmp->cmd->exec)
+		result = handle_cmd_null(cmdtmp, pipefd, prev_pipe);
+	else if (get_builtin(cmdtmp->cmd->exec))
+		result = handle_cmd_builtin(cmdtmp, env, pipefd, prev_pipe);
+	else if (handle_cmd_external(cmdtmp, env, pipefd, *prev_pipe))
 		return (1);
 	cmd_exec_setup_pipe(cmdtmp->cmd, pipefd, prev_pipe);
 	return (result);
-}
-
-static int	update_command_position(t_cmd **cmdtmp)
-{
-	if (!(*cmdtmp)->cmd->next)
-	{
-		if ((*cmdtmp)->cmd->prev)
-			(*cmdtmp)->cmd = (*cmdtmp)->cmd->prev;
-		return (1);
-	}
-	(*cmdtmp)->cmd = (*cmdtmp)->cmd->next;
-	return (0);
 }
 
 int	cmd_exec(t_cmd *cmd, t_env *env)
@@ -97,7 +115,7 @@ int	cmd_exec(t_cmd *cmd, t_env *env)
 		result = execute_command(cmdtmp, env, pipefd, &prev_pipe);
 		if (result == 1)
 			return (g_signal = 1, 1);
-		if (update_command_position(&cmdtmp))
+		if (cmd_exec_update_position_cmd(&cmdtmp))
 			break ;
 	}
 	cmd_exec_pipe_wait_children(&result);

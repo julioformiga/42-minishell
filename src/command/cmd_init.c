@@ -56,6 +56,18 @@ static int	setup_args_copy(char ***args, char **cmd_args, char *full_path)
 	return (0);
 }
 
+int	cmd_exec_update_position_cmd(t_cmd **cmdtmp)
+{
+	if (!(*cmdtmp)->cmd->next)
+	{
+		if ((*cmdtmp)->cmd->prev)
+			(*cmdtmp)->cmd = (*cmdtmp)->cmd->prev;
+		return (1);
+	}
+	(*cmdtmp)->cmd = (*cmdtmp)->cmd->next;
+	return (0);
+}
+
 int	cmd_setup(t_cmd *cmd, t_env *env, char ***args, char **full_path)
 {
 	*full_path = cmd_check(cmd, env);
