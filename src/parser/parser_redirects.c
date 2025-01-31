@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_redirects.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/17 13:08:43 by julio.formiga     #+#    #+#             */
-/*   Updated: 2025/01/17 13:08:43 by julio.formiga    ###   ########.fr       */
+/*   Created: 2025/01/17 13:08:43 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/01/30 19:08:19 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,23 @@
 int	is_operator_start(char c)
 {
 	return (c == '|' || c == '<' || c == '>');
+}
+
+t_operator	get_operator_type(const char *op)
+{
+	if (!op)
+		return (OP_NONE);
+	if (ft_strcmp(op, "|") == 0)
+		return (OP_PIPE);
+	if (ft_strcmp(op, "<") == 0)
+		return (OP_REDIR_IN);
+	if (ft_strcmp(op, ">") == 0)
+		return (OP_REDIR_OUT);
+	if (ft_strcmp(op, ">>") == 0)
+		return (OP_REDIR_APPEND);
+	if (ft_strcmp(op, "<<") == 0)
+		return (OP_HEREDOC);
+	return (OP_NONE);
 }
 
 static t_redirect	*create_redirect(t_operator type, char *file)
@@ -30,35 +47,6 @@ static t_redirect	*create_redirect(t_operator type, char *file)
 		redir->file = ft_strdup(file);
 	redir->next = NULL;
 	return (redir);
-}
-
-char	*extract_operator(char **rl)
-{
-	char	*token;
-
-	if (**rl == '|' && *(*rl + 1) == '|')
-	{
-		token = ft_strdup("||");
-		(*rl)++;
-	}
-	else if (**rl == '|')
-		token = ft_strdup("|");
-	else if (**rl == '<' && *(*rl + 1) == '<')
-	{
-		token = ft_strdup("<<");
-		(*rl)++;
-	}
-	else if (**rl == '>' && *(*rl + 1) == '>')
-	{
-		token = ft_strdup(">>");
-		(*rl)++;
-	}
-	else if (**rl == '<')
-		token = ft_strdup("<");
-	else
-		token = ft_strdup(">");
-	(*rl)++;
-	return (token);
 }
 
 int	add_redirect(t_cmdblock *block, t_operator type, char *file)

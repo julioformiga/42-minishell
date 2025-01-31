@@ -5,369 +5,96 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/01/30 14:43:15 by scarlucc         ###   ########.fr       */
+/*   Created: 2025/01/31 17:23:25 by scarlucc          #+#    #+#             */
+/*   Updated: 2025/01/31 17:23:54 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	count_tokens(char *rl)
-{
-	int		count;
-	char	quote;
-
-	count = 0;
-	while (*rl)
-	{
-		while (*rl && ft_isspace(*rl))
-			rl++;
-		if (!*rl)
-			break ;
-		count++;
-		if (*rl == '\'' || *rl == '"')
-		{
-			quote = *rl++;
-			while (*rl && *rl != quote)
-				rl++;
-			if (*rl)
-				rl++;
-		}
-		else if (is_operator_start(*rl))
-		{
-			if (*rl == '<' && *(rl + 1) == '<')
-				rl++;
-			else if (*rl == '>' && *(rl + 1) == '>')
-				rl++;
-			rl++;
-			continue;
-		}
-		while (*rl && !ft_isspace(*rl) && !is_operator_start(*rl))
-			rl++;
-	}
-	return (count);
-}
-
-static char	*expand_var(char **rl, t_env *env)
-{
-	char	*var_name;
-	char	*value;
-	char	*sig;
-
-	sig = NULL;
-	(*rl)++;
-	if (**rl == '?')
-	{
-		(*rl)++;
-		sig = ft_itoa(g_signal);
-		return (sig);
-	}
-	var_name = get_var_name(*rl);
-	if (!var_name)
-		return (NULL);
-	value = env_get(env, var_name);
-	*rl += ft_strlen(var_name);
-	free(var_name);
-	return (value);
-}
-
-static char *expansion(char **rl, t_env *env, char *token, int dq)
-{
-	char	*expanded;
-	char	*tmp;
-
-	if (ft_isspace((*rl)[1]) || (*rl)[1] == '\0' || (dq && (*rl)[1] == '"'))
-		expanded = ft_chartostr(*((*rl)++));
-	else
-		expanded = expand_var(rl, env);
-	if (!expanded)
-		return (free(token), NULL);
-	tmp = ft_strjoin(token, expanded);
-	free(token);
-	token = tmp;
-	if (expanded && ft_strcmp(expanded, "") != 0)
-		free(expanded);
-	return (token);
-}
-
-static char *no_expansion(char **rl, char *token)
-{
-	char	*tmp;
-	char	*str;
-
-	str = ft_chartostr(**rl);
-	tmp = ft_strjoin(token, str);
-	free(token);
-	token = tmp;
-	free(str);
-	(*rl)++;
-	return (token);
-}
-
-static char	*extract_quoted_token(char **rl, t_env *env)
-{
-	char	quote;
-	char	*token;
-
-	token = ft_strdup("");
-	if (!token)
-		return (NULL);
-	quote = **rl;
-	(*rl)++;
-	while (**rl && **rl != quote)
-	{
-		if (**rl == '$' && quote == '"')
-			token = expansion(rl, env, token, 1);
-		else
-			token = no_expansion(rl, token);
-	}
-	if (**rl == quote)
-		(*rl)++;
-	return (token);
-}
-
-static char	*extract_word(char **rl, t_env *env)
-{
-	char	*token;
-
-	token = ft_strdup("");
-	if (!token)
-		return (NULL);
-	while (**rl && !ft_isspace(**rl) && !is_operator_start(**rl)
-		&& !(**rl == '\'' || **rl == '"'))
-	{
-		if (**rl == '$')
-			token = expansion(rl, env, token, 0);
-		else
-			token = no_expansion(rl, token);
-	}
-	return (token);
-}
-
-static int	check_previuos_op(char *op, char **tokens, int i)
-{
-	if (i > 0)
-	{
-		// printf("tokens[%d]: %s\n", i - 1, tokens[i - 1]);
-		// printf("tokens[%d]: %s\n", i, tokens[i]);
-		if (is_operator_start(tokens[i - 1][0]) && is_operator_start(op[0]))
-		{
-			ft_putstr_fd("minishell: syntax error near unexpected token `",
-			STDERR_FILENO);
-			ft_putstr_fd(op, STDERR_FILENO);
-			ft_putstr_fd("'\n", STDERR_FILENO);
-			free(op);
-			tokens[i] = NULL;
-			free_array(tokens);
-			g_signal = 2;
-			return (1);
-		}
-	}
-	return (0);
-}
-
-char	**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count)
+char	**init_matrix_tokens(int tok_count)
 {
 	char	**tokens;
-	char	*token;
-	char	*tmp;
-	//int		token_count;
-	int		i;
 
-	//token_count = count_tokens(rl);
 	tokens = malloc(sizeof(char *) * (tok_count + 1));
 	if (!tokens)
 		return (NULL);
+	tokens[0] = ft_strdup("");
+	return (tokens);
+}
+
+char	*handle_token(char **rl, t_env *env)
+{
+	if (**rl == '\'' || **rl == '"')
+		return (extract_quoted_token(rl, env));
+	if (is_operator_start(**rl))
+		return (extract_operator(rl));
+	return (extract_word(rl, env));
+}
+
+int	handle_operator(char *token, char **tokens, int *i, int *val)
+{
+	char	*tmp;
+
+	tmp = ft_strjoin(tokens[*i], token);
+	free(tokens[*i]);
+	tokens[*i] = ft_strdup(tmp);
+	if (check_previuos_op(token, tokens, *i))
+		return (free(tmp), 1);
+	val[*i] = 1;
+	free(tmp);
+	free(token);
+	return (0);
+}
+
+void	update_tokens(char **tokens, int *i, char *token, char *rl)
+{
+	char	*tmp;
+
+	tmp = ft_strjoin(tokens[*i], token);
+	free(tokens[*i]);
+	tokens[*i] = ft_strdup(tmp);
+	if (*rl && (ft_isspace(*rl) || is_operator_start(*rl)))//e se inizia con spazio?
+		tokens[++(*i)] = ft_strdup("");
+	free(tmp);//liberare tmp?
+	free(token);
+}
+
+void	close_matrix_tokens(char **tokens, int *i, int max_args)
+{
+	if (*i == max_args)
+	{
+		free(tokens[*i]);
+		tokens[*i] = NULL;
+	}
+	else
+		tokens[++(*i)] = NULL;
+}
+
+char	**cmd_parser_rl2(char *rl, t_env *env, int *val, int tok_count)
+{
+	char	**tokens;
+	char	*token;
+	int		i;
+
+	tokens = init_matrix_tokens(tok_count);
+	if (!tokens)
+		return (NULL);
 	i = 0;
-	tokens[i] = ft_strdup("");
 	while (*rl)
 	{
 		while (*rl && ft_isspace(*rl))
 			rl++;
 		if (!*rl)
-			break ;
-		if (*rl == '\'' || *rl == '"')
-			token = extract_quoted_token(&rl, env);
-		else if (is_operator_start(*rl))
-		{
-			token = extract_operator(&rl);
-			tmp = ft_strjoin(tokens[i], token);
-			if (tokens[i])
-				free(tokens[i]);
-			tokens[i] = tmp;
-			if (check_previuos_op(token, tokens, i))
-				return (free(tmp), NULL);
-			val[i] = 1;
-			if (*rl && !ft_isspace(*rl))
-				tokens[++i] = ft_strdup("");
-			free(token);
-			token = ft_strdup("");
-		}
-		else
-			token = extract_word(&rl, env);
-		tmp = ft_strjoin(tokens[i], token);
-		if (tokens[i])
-				free(tokens[i]);
-		tokens[i] = tmp;
-		if (!tokens[i])//se tokens[i] == "" che succede?
-			return (free_array(tokens), free(token), NULL);
-		if (*rl && (ft_isspace(*rl) || is_operator_start(*rl)))
+			break ;//fin qui, tutto ok
+		token = handle_token(&rl, env);
+		if (is_operator_start(*token) && handle_operator(token, tokens, &i, val))
+			return (NULL);
+		if (is_operator_start(*tokens[i]))
 			tokens[++i] = ft_strdup("");
-		free(token);
+		else
+			update_tokens(tokens, &i, token, rl);
 	}
-	if (ft_isspace(*(rl - 1)))//in caso il comando finisca con spazi vuoti
-	{
-		free(tokens[i]);
-		tokens[i] = NULL;
-	}
-	else
-		tokens[++i] = NULL;
+	close_matrix_tokens(tokens, &i, tok_count);
 	return (tokens);
-}
-
-static t_cmdblock	*create_new_block(void)
-{
-	t_cmdblock	*block;
-
-	block = malloc(sizeof(t_cmdblock) * 1);
-	if (!block)
-		return (NULL);
-	block->exec = NULL;
-	block->args = NULL;
-	block->op_type = OP_NONE;
-	block->redirects = NULL;
-	block->next = NULL;
-	block->prev = NULL;
-	return (block);
-}
-
-static t_operator	get_operator_type(const char *op)
-{
-	if (!op)
-		return (OP_NONE);
-	if (ft_strcmp(op, "|") == 0)
-		return (OP_PIPE);
-	if (ft_strcmp(op, "<") == 0)
-		return (OP_REDIR_IN);
-	if (ft_strcmp(op, ">") == 0)
-		return (OP_REDIR_OUT);
-	if (ft_strcmp(op, ">>") == 0)
-		return (OP_REDIR_APPEND);
-	if (ft_strcmp(op, "<<") == 0)
-		return (OP_HEREDOC);
-	return (OP_NONE);
-}
-
-void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
-{
-	t_cmdblock	*current;
-	t_operator	op_type;
-	char		*file;
-	char		*expanded;
-	char		**temp;
-	char		**cmd_parts;
-	int			arg_count;
-	int			i;
-	int			j;
-	int			*values;
-	int			n_tokens;
-
-	n_tokens = count_tokens(rl);
-	values = ft_calloc(n_tokens, sizeof(int));
-	cmd_parts = cmd_parser_rl(rl, env, values, n_tokens);
-	if (!cmd_parts)
-	{
-		free(values);
-		return ;
-	}
-	current = create_new_block();
-	if (!current)
-	{
-		free_array(cmd_parts);
-		return ;
-	}
-	arg_count = 0;
-	i = 0;
-	while (cmd_parts[i])
-	{
-		expanded = ft_strdup(cmd_parts[i]);
-		if (!expanded)
-		{
-			free_array(cmd_parts);
-			return ;
-		}
-		free(cmd_parts[i]);
-		cmd_parts[i] = ft_strdup(expanded);//il problema e' qui. Rimuovere dopo spostamento expansion
-		free(expanded);//Rimuovere dopo spostamento expansion
-		//if (is_operator_start(cmd_parts[i][0]))//vecchia condizione per controllo redirect problematico
-		if ((values[i] == 1) && get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
-		{
-			op_type = get_operator_type(cmd_parts[i]);
-			if (op_type == OP_PIPE)
-			{
-				current->op_type = OP_PIPE;
-				current->next = create_new_block();
-				if (!current->next)
-					break ;
-				current->next->prev = current;
-				current = current->next;
-				arg_count = 0;
-			}
-			else if (i + 1 < (count_tokens(rl) + 1))
-			{
-				if (cmd_parts[i + 1])
-					//file = parser_expansion(cmd_parts[++i], env);//change after moving expansion to cmd_parser_readline
-					file = ft_strdup(cmd_parts[++i]);//nuova versione, dopo aver spostato espansione in cmd_parser_readline
-				else
-					file = ft_strdup("");
-				if (!add_redirect(current, op_type, file))
-				{
-					free(file);
-					break ;
-				}
-				free(file);
-			}
-		}
-		else if (!current->exec)
-		{
-			current->exec = ft_strdup(cmd_parts[i]);
-			if (!current->exec)
-				break ;
-		}
-		else if(cmd_parts[i] && ft_strlen(cmd_parts[i]) > 0)
-		{
-			if (arg_count == 0)
-			{
-				current->args = malloc(sizeof(char *) * 2);
-				if (!current->args)
-					break ;
-				current->args[0] = ft_strdup(cmd_parts[i]);
-				if (!current->args[0])
-				{
-					free(current->args);
-					current->args = NULL;
-					break ;
-				}
-				current->args[1] = NULL;
-			}
-			else
-			{
-				temp = malloc(sizeof(char *) * (arg_count + 2));
-				if (!temp)
-					break ;
-				j = -1;
-				while (j++, j < arg_count)
-					temp[j] = current->args[j];
-				temp[arg_count] = ft_strdup(cmd_parts[i]);
-				temp[arg_count + 1] = NULL;
-				free(current->args);
-				current->args = temp;
-			}
-			arg_count++;
-		}
-		i++;
-	}
-	cmd->cmd = get_first_block(current);
-	free(values);
-	free_array(cmd_parts);
 }
