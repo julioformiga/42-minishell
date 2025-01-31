@@ -61,6 +61,8 @@ void	cmd_exec_pipe_wait_children(int *result)
 	{
 		if (WIFEXITED(*result))
 			g_signal = WEXITSTATUS(*result);
+		else if (WIFSIGNALED(*result) && WTERMSIG(*result) == SIGINT)
+			g_signal = 0;
 		else if (WIFSIGNALED(*result))
 			g_signal = WTERMSIG(*result) + 128;
 	}
