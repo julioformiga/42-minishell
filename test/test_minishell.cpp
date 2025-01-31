@@ -262,6 +262,14 @@ TEST_F(MinishellTest, Expansion) {
 		{"echo \"$1\"", ""},
 		{"echo \"$1\"$", "$"},
 		{"echo $\"$1\"ciccio$", "ciccio$"},
+		{"echo \">\" ciao", "> ciao"},
+		{"echo \">>\" ciao", ">> ciao"},
+		{"echo \"<\" ciao", "< ciao"},
+		{"echo \"<<\" ciao", "<< ciao"},
+		{"echo \"|\" ciao", "| ciao"},
+		{"echo \"||\" ciao", "|| ciao"},
+		//{"echo ciao ||| grep ||", "ciao ||"},//leak
+		{"echo \">   file\" ciao", ">   file ciao"},
     };
 
     for (const auto& test : tests) {

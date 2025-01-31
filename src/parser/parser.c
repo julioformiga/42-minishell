@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:23:25 by scarlucc          #+#    #+#             */
-/*   Updated: 2025/01/31 17:23:54 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/31 20:28:18 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,20 @@ char	**init_matrix_tokens(int tok_count)
 	return (tokens);
 }
 
-char	*handle_token(char **rl, t_env *env)
+char	*handle_token(char **rl, t_env *env, int *val, int *i)
 {
 	if (**rl == '\'' || **rl == '"')
 		return (extract_quoted_token(rl, env));
 	if (is_operator_start(**rl))
+	{
+		//if ()
+			val[*i] = 1;
 		return (extract_operator(rl));
+	}
 	return (extract_word(rl, env));
 }
 
-int	handle_operator(char *token, char **tokens, int *i, int *val)
+int	handle_operator(char *token, char **tokens, int *i)
 {
 	char	*tmp;
 
@@ -41,7 +45,6 @@ int	handle_operator(char *token, char **tokens, int *i, int *val)
 	tokens[*i] = ft_strdup(tmp);
 	if (check_previuos_op(token, tokens, *i))
 		return (free(tmp), 1);
-	val[*i] = 1;
 	free(tmp);
 	free(token);
 	return (0);
@@ -87,10 +90,10 @@ char	**cmd_parser_rl2(char *rl, t_env *env, int *val, int tok_count)
 			rl++;
 		if (!*rl)
 			break ;//fin qui, tutto ok
-		token = handle_token(&rl, env);
-		if (is_operator_start(*token) && handle_operator(token, tokens, &i, val))
+		token = handle_token(&rl, env, val, &i);
+		if (is_operator_start(*token) && handle_operator(token, tokens, &i))
 			return (NULL);
-		if (is_operator_start(*tokens[i]))
+		if (is_operator_start(*tokens[i]))//che succede se echo ">" ciao
 			tokens[++i] = ft_strdup("");
 		else
 			update_tokens(tokens, &i, token, rl);
