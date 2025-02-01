@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 17:23:25 by scarlucc          #+#    #+#             */
-/*   Updated: 2025/02/01 11:24:52 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/01 17:33:29 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	close_matrix_tokens(char **tokens, int *i, int max_args)
 		tokens[++(*i)] = NULL;
 }
 
-char	**cmd_parser_rl2(char *rl, t_env *env, int *val, int tok_count)
+char	**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count)
 {
 	char	**tokens;
 	char	*token;

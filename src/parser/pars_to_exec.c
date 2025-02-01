@@ -6,13 +6,13 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 12:33:42 by scarlucc          #+#    #+#             */
-/*   Updated: 2025/01/31 19:57:52 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:34:54 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static t_cmdblock	*create_new_block(void)
+t_cmdblock	*create_new_block(void)
 {
 	t_cmdblock	*block;
 
@@ -30,20 +30,23 @@ static t_cmdblock	*create_new_block(void)
 
 void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 {
-	t_cmdblock	*current;
-	t_operator	op_type;
-	char		*file;
-	char		**temp;
+	//tenere
 	char		**cmd_parts;
+	int			i;//prendere come argomento?
 	int			arg_count;
-	int			i;
+	t_cmdblock	*current;
+	//spostare
+	/* t_operator	op_type;
+	char		*file; */
+	//boh
+	char		**temp;
 	int			j;
 	int			*values;
 	int			n_tokens;
 
 	n_tokens = count_tokens(rl, 0);
 	values = ft_calloc(n_tokens, sizeof(int));
-	cmd_parts = cmd_parser_rl2(rl, env, values, n_tokens);
+	cmd_parts = cmd_parser_rl(rl, env, values, n_tokens);
 	if (!cmd_parts)
 	{
 		free(values);
@@ -53,14 +56,19 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 	if (!current)
 	{
 		free_array(cmd_parts);
+		free(values);
 		return ;
 	}
 	arg_count = 0;
 	i = 0;
 	while (cmd_parts[i])
 	{
-		if ((values[i] == 1) && get_operator_type(cmd_parts[i]) != OP_NONE)//controllo redirect problematico
+		if ((values[i] == 1) && get_operator_type(cmd_parts[i]) != OP_NONE)
 		{
+			if (cmd_parser_op(cmd_parts, &i, &current, &arg_count))
+				break ;
+		}
+		/* {
 			op_type = get_operator_type(cmd_parts[i]);
 			if (op_type == OP_PIPE)
 			{
@@ -87,7 +95,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				}
 				free(file);
 			}
-		}
+		} */
 		else if (!current->exec)
 		{
 			current->exec = ft_strdup(cmd_parts[i]);
