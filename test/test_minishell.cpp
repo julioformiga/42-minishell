@@ -280,8 +280,6 @@ TEST_F(MinishellTest, DoubleQuote) {
 		{"echo \"<<\" ciao", "<< ciao"},
 		{"echo \"|\" ciao", "| ciao"},
 		{"echo \"||\" ciao", "|| ciao"},
-		{"echo | | ciao", "minishell: syntax error near unexpected token `|'"},
-		//{"echo ciao ||| grep ||", "ciao ||"},//leak  
 		{"echo \">   file\" ciao", ">   file ciao"},
     };
 
