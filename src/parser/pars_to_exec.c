@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 12:33:42 by scarlucc          #+#    #+#             */
-/*   Updated: 2025/02/01 18:34:54 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/01 21:22:57 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,10 @@ t_cmdblock	*create_new_block(void)
 
 void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 {
-	//tenere
+	int			i;
 	char		**cmd_parts;
-	int			i;//prendere come argomento?
 	int			arg_count;
 	t_cmdblock	*current;
-	//spostare
-	/* t_operator	op_type;
-	char		*file; */
-	//boh
-	char		**temp;
-	int			j;
 	int			*values;
 	int			n_tokens;
 
@@ -68,34 +61,6 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			if (cmd_parser_op(cmd_parts, &i, &current, &arg_count))
 				break ;
 		}
-		/* {
-			op_type = get_operator_type(cmd_parts[i]);
-			if (op_type == OP_PIPE)
-			{
-				current->op_type = OP_PIPE;
-				current->next = create_new_block();
-				if (!current->next)
-					break ;
-				current->next->prev = current;
-				current = current->next;
-				arg_count = 0;
-			}
-			//else if (i + 1 < (count_tokens(rl) + 1))
-			else if ((i + 1) < (n_tokens + 1))
-			{
-				if (cmd_parts[i + 1])
-					//file = parser_expansion(cmd_parts[++i], env);//change after moving expansion to cmd_parser_readline
-					file = ft_strdup(cmd_parts[++i]);//in caso di redirect vuoto, file e' ""
-				else
-					file = ft_strdup("");
-				if (!add_redirect(current, op_type, file))
-				{
-					free(file);
-					break ;
-				}
-				free(file);
-			}
-		} */
 		else if (!current->exec)
 		{
 			current->exec = ft_strdup(cmd_parts[i]);
@@ -103,36 +68,8 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 				break ;
 		}
 		else if(cmd_parts[i] && ft_strlen(cmd_parts[i]) > 0)
-		{
-			if (arg_count == 0)
-			{
-				current->args = malloc(sizeof(char *) * 2);
-				if (!current->args)
-					break ;
-				current->args[0] = ft_strdup(cmd_parts[i]);
-				if (!current->args[0])
-				{
-					free(current->args);
-					current->args = NULL;
-					break ;
-				}
-				current->args[1] = NULL;
-			}
-			else
-			{
-				temp = malloc(sizeof(char *) * (arg_count + 2));
-				if (!temp)
-					break ;
-				j = -1;
-				while (j++, j < arg_count)
-					temp[j] = current->args[j];
-				temp[arg_count] = ft_strdup(cmd_parts[i]);
-				temp[arg_count + 1] = NULL;
-				free(current->args);
-				current->args = temp;
-			}
-			arg_count++;
-		}
+			if (set_args(cmd_parts, &i, &arg_count, &current))
+				break ;
 		i++;
 	}
 	cmd->cmd = get_first_block(current);
