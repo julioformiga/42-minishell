@@ -18,10 +18,12 @@ void	signal_handler(int signum)
 	{
 		g_signal = 0;
 		ft_putchar_fd('\n', STDOUT_FILENO);
-		if (rl_end == 0)
+		if (rl_readline_state & RL_STATE_READCMD)
+		{
 			rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
+			rl_replace_line("", 0);
+			rl_redisplay();
+		}
 	}
 }
 
