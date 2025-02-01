@@ -82,6 +82,12 @@ void	cmd_exec_pipe_wait_children(int *result)
 
 int	cmd_exec_pipe_check(t_cmd *cmdtmp, int *pipefd)
 {
+	if (!cmdtmp->cmd->exec && !cmdtmp->cmd->redirects)
+	{
+		ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2);
+		g_signal = 2;
+		return (2);
+	}
 	if (cmdtmp->cmd->next && pipe(pipefd) == -1)
 	{
 		perror("pipe");
