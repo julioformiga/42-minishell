@@ -16,17 +16,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      - name: Cache dependencies
-        id: cache-deps
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-deps-
+#      - name: Cache dependencies
+#        id: cache-deps
+#        uses: actions/cache@v3
+#        with:
+#          path: ~/.cache
+#          key: ${{ runner.os }}-deps-${{ hashFiles('**/CMakeLists.txt') }}
+#          restore-keys: |
+#            ${{ runner.os }}-deps-
       
       - name: Install dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
+#        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake g++ build-essential libreadline-dev valgrind
