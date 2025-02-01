@@ -283,6 +283,20 @@ TEST_F(MinishellTest, Expansion) {
     }
 }
 
+//documentarsi sul funzionamento di gtest, in particolare con gli apici singoli (')
+/* TEST_F(MinishellTest, ExpansionSingleQuote) {
+    vector<pair<string, string>> tests = {
+		{"export ciccio=123", ""},
+		{"echo '$ciccio'", "ciccio\n"},
+    };
+
+    for (const auto& test : tests) {
+        CommandOutput result = exec_command(make_test_command(test.first));
+        ASSERT_EQ(result.stdout_output, test.second)
+            << "Failed on command: " << test.first;
+    }
+} */
+
 TEST_F(MinishellTest, DoubleQuote) {
     vector<pair<string, string>> tests = {
 		{"echo \">\" ciao", "> ciao"},

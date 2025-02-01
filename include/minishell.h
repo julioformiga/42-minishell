@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 14:35:35 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/31 14:57:19 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:39:25 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,8 @@ char			*expand_var(char **rl, t_env *env);
 char			*get_var_name(const char *str);
 
 //parser.c
+char			**old_cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count);
 char			**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count);
-char			**cmd_parser_rl2(char *rl, t_env *env, int *val, int tok_count);
 void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
 
 //parser_extract.c
@@ -132,6 +132,10 @@ char			*skip_quotes(char *rl);
 //parser_redirects.c
 int				is_operator_start(char c);
 t_operator		get_operator_type(const char *op);
+
+//cmd_parser_op.c
+t_cmdblock		*create_new_block(void);
+int				cmd_parser_op(char **cmd_parts, int *i, t_cmdblock	**current, int	*arg_count);
 
 char			*cmd_check(t_cmd *cmd, t_env *env);
 int				add_redirect(t_cmdblock *block, t_operator type, char *file);

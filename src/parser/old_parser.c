@@ -1,7 +1,7 @@
 
 #include "minishell.h"
 
-char	**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count)
+char	**old_cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count)
 {
 	char	**tokens;
 	char	*token;
@@ -58,7 +58,7 @@ char	**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count)
 	return (tokens);
 }
 
-static t_cmdblock	*create_new_block(void)
+/* static t_cmdblock	*create_new_block(void)
 {
 	t_cmdblock	*block;
 
@@ -72,7 +72,7 @@ static t_cmdblock	*create_new_block(void)
 	block->next = NULL;
 	block->prev = NULL;
 	return (block);
-}
+} */
 
 void	old_cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 {
@@ -89,7 +89,7 @@ void	old_cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 
 	n_tokens = count_tokens(rl, 0);
 	values = ft_calloc(n_tokens, sizeof(int));
-	cmd_parts = cmd_parser_rl2(rl, env, values, n_tokens);
+	cmd_parts = cmd_parser_rl(rl, env, values, n_tokens);
 	if (!cmd_parts)
 	{
 		free(values);
