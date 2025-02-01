@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 12:33:42 by scarlucc          #+#    #+#             */
-/*   Updated: 2025/01/31 14:57:37 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/01/31 19:57:52 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	cmd_parser(char *rl, t_cmd *cmd, t_env *env)
 			{
 				if (cmd_parts[i + 1])
 					//file = parser_expansion(cmd_parts[++i], env);//change after moving expansion to cmd_parser_readline
-					file = ft_strdup(cmd_parts[++i]);//nuova versione, dopo aver spostato espansione in cmd_parser_readline
+					file = ft_strdup(cmd_parts[++i]);//in caso di redirect vuoto, file e' ""
 				else
 					file = ft_strdup("");
 				if (!add_redirect(current, op_type, file))

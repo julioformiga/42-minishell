@@ -258,6 +258,7 @@ TEST_F(MinishellTest, Expansion) {
         {"echo 1$", "1$"},
 		{"echo $1", ""},
 		{"echo ciao$1", "ciao"},
+		{"echo ciccio$\"\"", "ciccio"},
 		{"echo $\"1\"", "1"},
 		{"echo \"$1\"", ""},
 		{"echo \"$1\"$", "$"},
@@ -270,6 +271,40 @@ TEST_F(MinishellTest, Expansion) {
             << "Failed on command: " << test.first;
     }
 }
+
+TEST_F(MinishellTest, DoubleQuote) {
+    vector<pair<string, string>> tests = {
+		{"echo \">\" ciao", "> ciao"},
+		{"echo \">>\" ciao", ">> ciao"},
+		{"echo \"<\" ciao", "< ciao"},
+		{"echo \"<<\" ciao", "<< ciao"},
+		{"echo \"|\" ciao", "| ciao"},
+		{"echo \"||\" ciao", "|| ciao"},
+		{"echo \">   file\" ciao", ">   file ciao"},
+    };
+
+    for (const auto& test : tests) {
+        CommandOutput result = exec_command(make_test_command(test.first));
+        ASSERT_EQ(result.stdout_output, test.second + "\n")
+            << "Failed on command: " << test.first;
+    }
+}
+
+//controllare anche se ci sono leak con ConsecutiveOperator
+/* TEST_F(MinishellTest, ConsecutiveOperator) {
+    vector<pair<string, string>> tests = {
+		{"echo | | ciao", "minishell: syntax error near unexpected token `|'"},
+		{"echo || ciao", "minishell: syntax error near unexpected token `|'"},
+		{"echo ciao ||| grep ||", "ciao ||"},  
+		{"echo \">   file\" ciao", ">   file ciao"},
+    };
+
+    for (const auto& test : tests) {
+        CommandOutput result = exec_command(make_test_command(test.first));
+        ASSERT_EQ(result.stdout_output, test.second + "\n")
+            << "Failed on command: " << test.first;
+    }
+} */
 
 TEST_F(MinishellTest, EmptyRedirect) {
     string command = shell_path + " -c 'echo >'";

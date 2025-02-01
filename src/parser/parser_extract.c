@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 19:03:16 by scarlucc          #+#    #+#             */
-/*   Updated: 2025/01/30 19:07:43 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/01 12:13:18 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,12 +56,13 @@ char	*extract_operator(char **rl)
 {
 	char	*token;
 
-	if (**rl == '|' && *(*rl + 1) == '|')
+	/* if (**rl == '|' && *(*rl + 1) == '|')//commentato per far interpretare al parsing || come se fosse | |
 	{
 		token = ft_strdup("||");
 		(*rl)++;
 	}
-	else if (**rl == '|')
+	else if (**rl == '|') */
+	if (**rl == '|')
 		token = ft_strdup("|");
 	else if (**rl == '<' && *(*rl + 1) == '<')
 	{

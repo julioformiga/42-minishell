@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 18:49:13 by scarlucc          #+#    #+#             */
-/*   Updated: 2025/01/30 19:44:37 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/01 11:21:50 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ int	check_previuos_op(char *op, char **tokens, int i)
 			ft_putstr_fd(op, STDERR_FILENO);
 			ft_putstr_fd("'\n", STDERR_FILENO);
 			free(op);
+			free(tokens[i]);//serve a prevenire leak in caso di operatori consecutivi, come "echo | | ciao"
 			tokens[i] = NULL;
 			free_array(tokens);
 			g_signal = 2;
