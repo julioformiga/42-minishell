@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 14:35:35 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/02/01 21:25:53 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/02 13:08:51 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,12 @@ typedef struct s_builtin
 	t_builtin_fn	fn;
 }	t_builtin;
 
+typedef struct s_cmds_values
+{
+	char		**cmd_parts;
+	int			*values;
+}	t_cmds_values;
+
 /* =============================== FUNCTIONS =================================*/
 void			signal_handler(int signum);
 void			setup_signals(void);
@@ -142,6 +148,10 @@ int				cmd_parser_op(char **cmd_parts, int *i, t_cmdblock	**current,
 //cmd_parser_args.c
 int				set_args(char **cmd_parts, int *i, int	*arg_count,
 					t_cmdblock	**current);
+
+//pars_to_exec.c
+t_cmdblock		*process_tokens(t_cmds_values *cmd_val,
+					t_cmdblock	*current, int i);
 
 char			*cmd_check(t_cmd *cmd, t_env *env);
 int				add_redirect(t_cmdblock *block, t_operator type, char *file);
