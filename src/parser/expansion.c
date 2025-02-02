@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 18:25:44 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/30 19:45:39 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/02 16:56:49 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ char	*expansion(char **rl, t_env *env, char *token, int dq)
 	tmp = ft_strjoin(token, expanded);
 	free(token);
 	token = tmp;
-	if (expanded && ft_strcmp(expanded, "") != 0)
+	if (expanded)//tolto controllo se stringa nulla per liberare return di env_get(), controllare con stringhe nulle
 		free(expanded);
 	return (token);
 }
