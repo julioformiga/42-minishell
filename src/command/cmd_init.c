@@ -72,15 +72,6 @@ int	cmd_setup(t_cmd *cmd, t_env *env, char ***args, char **full_path)
 {
 	if (!cmd || !env)
 		return (1);
-	if (ft_strcmp(cmd->cmd->exec, ".") == 0
-		|| ft_strcmp(cmd->cmd->exec, "..") == 0
-		|| ft_strcmp(cmd->cmd->exec, "./") == 0
-		|| ft_strcmp(cmd->cmd->exec, "/") == 0)
-	{
-		free_cmd(cmd);
-		env_free(env);
-		return (1);
-	}
 	*full_path = cmd_check(cmd, env);
 	if (!*full_path)
 		return (g_signal);

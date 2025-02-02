@@ -23,6 +23,8 @@
 # include <termios.h>
 # include <curses.h>
 # include <dirent.h>
+# include <fcntl.h>
+# include <sys/stat.h>
 
 # define DEBUG 1
 

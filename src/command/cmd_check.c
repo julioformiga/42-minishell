@@ -34,16 +34,39 @@ static char	**get_paths(t_env *env)
 	return (paths);
 }
 
+static int	check_special_path(char *cmd_name)
+{
+	if (cmd_name == NULL || !(cmd_name[0] == '/' || cmd_name[0] == '.'))
+		return (1);
+	if (ft_strcmp(cmd_name, ".") == 0 || ft_strcmp(cmd_name, "..") == 0
+		|| ft_strcmp(cmd_name, "./") == 0 || ft_strcmp(cmd_name, "../") == 0
+		|| ft_strcmp(cmd_name, "/") == 0)
+	{
+		g_signal = 126;
+		return (1);
+	}
+	return (0);
+}
+
 static char	*check_absolute_path(char *cmd_name)
 {
-	if (cmd_name == NULL)
+	struct stat	path_stat;
+
+	if (check_special_path(cmd_name))
 		return (NULL);
-	if (cmd_name[0] == '/' || cmd_name[0] == '.')
+	if (stat(cmd_name, &path_stat) == 0)
 	{
+		if (S_ISDIR(path_stat.st_mode))
+		{
+			g_signal = 126;
+			return (NULL);
+		}
 		if (access(cmd_name, X_OK) == 0)
 			return (cmd_name);
+		g_signal = 126;
 		return (NULL);
 	}
+	g_signal = 127;
 	return (NULL);
 }
 
@@ -55,7 +78,7 @@ static char	*find_command_path(char **paths, char *cmd_name)
 	int		i;
 
 	result = check_absolute_path(cmd_name);
-	if (paths == NULL)
+	if (paths == NULL || !result)
 		return (result);
 	i = -1;
 	while (paths[++i] && !result)
