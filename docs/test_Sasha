@@ -1,0 +1,180 @@
+ciao
+echo ciao
+echo
+echo -n
+echo -nn
+echo -nn ciao
+echo -nn -n
+echo -nn -n ciao
+echo -nn -n -neciao
+echo -nn -n -ne ciao
+echo -nne -n -ne ciao
+echo -tnne -n -ne ciao
+pwd
+echo $PWD
+unset PWD
+$PWD
+echo $PWD
+echo $PWD
+pwd
+pwd 
+echo $PWD
+pwd 
+unset PWD
+unset HOME
+echo
+echo $PWD
+unset $PWD
+echo $PWD
+pwd
+$pwd
+unset $PWD
+unset $HOME
+unset $PWD
+pwd
+unset PWD
+unset PWD
+echo ciao
+echo $PWD
+unset PWD
+unset PWd
+unset PWD
+unset PWD
+unset PWD
+unset PWD
+echo $?
+unset 13csecce
+unset
+unset ""
+unset ''
+unset 'c'
+unset ""
+unset ''
+unset 1212c3
+unset
+unset   "  " 
+export
+clear
+export ciao mamma
+export
+env
+export
+export ciao+=$mamma
+export
+export ciao+=
+export
+export ciao+=ciao
+export
+export ciao+=$mamam
+export ciao+=$mamam$ciao
+export
+export ciao=ciao
+export
+unset ciao
+export ciao=$ciao
+export
+export 1c2a
+export 1c2a bbb
+export
+export 1c2a bbb
+echo $?
+export ----
+unset --
+unset $$
+unset $$$$
+clear
+echo $$
+$$$
+clear
+exit 11 3 4234
+exit 1c4 4c 24
+exit 1 3
+exit 200000
+exit r23v2
+env
+cd ../../../../../../../../
+cd
+unset HOME
+cd
+echo $?
+cd dfsvdf
+echo $?
+cd ~
+clear
+vsvgfdgsdfg
+unset PWD
+ls
+cdascdasc
+bsgbf
+unset HOME
+unset MAMMA PWD HOME
+clear
+sdcascd
+echo $PWD
+$$
+$$
+ciao
+asd
+unset PWD
+dcasdcs
+$$$$
+/bin/ls -l 
+clear
+clear
+ls
+ls -l | grep 40
+ls -l | grep 40 | awk '{print $1 " " $2}'
+ls -l | grep 40 | awk '{print $3 " " $5}'
+ls -l | grep 40 | awk '{print $7 " " $5}'
+ls -l | grep 40 | awk '{print $8 " " $5}'
+ls -l | grep 40 | awk '{print $10 " " $5}'
+ls -l | grep 40 | awk '{print $9 " " $5}'
+cat | cat | ls
+echo ciao > out
+echo ciao >> out | cat < out
+echo ciao >> out | cat
+echo ciao | cat < out
+export DEBUG=1
+echo ciao >> out | cat < out
+cat < Makefile < out
+echo ciao >> out | cat < out
+echo ciao >> out | cat < out
+echo ciao >> out | cat < outdasdas
+echo ciao >> out | cat < ousdcasdc < out
+bash
+cat | cat | ls
+<<|echo ciao
+<<e|echo ciao
+<<e cat|cat ciao
+<<e cat|cat
+<<e cat|cat cat
+<<e cat|cat cat
+<<e cat|cat cat
+<<e cat|cat ciao
+ <<e cat|cat ciao
+ <<e cat|cat ciao
+ <<e cat|cat ciao
+cat
+cat
+cat
+clea
+clear
+<< e cat
+<< e cat | cat
+echo ""
+'ech'o
+'e'"ch"o
+'e'"ch"o""
+'e'"ch"o"" '>' out
+'e'"ch"o"" ">" out
+'e'"ch"o"" '>' out
+echo '>' out
+echo '|' cat Makefile 
+echo '$USER'
+echo $
+unset PATH
+ls
+export PATH="$PWD"
+ls
+nano ls
+ls

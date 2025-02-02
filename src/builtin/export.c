@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 14:28:29 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/01/20 13:13:14 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/02 17:38:55 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,24 +92,26 @@ int	builtin_export(t_cmd *cmd, t_env *env)
 	char	**args;
 	int		i;
 	int		has_plus;
+	int		sig_ret;
 
 	args = cmd->cmd->args;
 	if (!args)
 		return (export_print(env), 0);
+	sig_ret = 0;
 	i = -1;
 	while (args[++i])
 	{
 		if (ft_strchr(args[i], '=') == NULL || args[i][0] == '=')
 		{
 			if (handle_no_value_export(env, args[i]))
-				return (1);
+				sig_ret = 1;
 		}
 		else
 		{
 			has_plus = !ft_strncmp(ft_strchr(args[i], '=') - 1, "+", 1);
 			if (handle_value_export(env, args[i], has_plus))
-				return (1);
+				sig_ret = 1;
 		}
 	}
-	return (0);
+	return (sig_ret);
 }
