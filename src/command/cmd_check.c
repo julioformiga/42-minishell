@@ -78,7 +78,7 @@ static char	*find_command_path(char **paths, char *cmd_name)
 	int		i;
 
 	result = check_absolute_path(cmd_name);
-	if (paths == NULL || !result)
+	if (paths == NULL)
 		return (result);
 	i = -1;
 	while (paths[++i] && !result)
