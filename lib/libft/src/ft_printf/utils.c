@@ -31,7 +31,8 @@ int	print_char(char c)
 	ssize_t	bytes_written;
 
 	bytes_written = write(1, &c, 1);
-	if (bytes_written == -1) {
+	if (bytes_written == -1)
+	{
 		perror("write failed");
 		exit(EXIT_FAILURE);
 	}
@@ -47,7 +48,8 @@ int	print_string(char *str)
 		str = "(null)";
 	i = ft_strlen(str);
 	bytes_written = write(1, str, i);
-	if (bytes_written == -1) {
+	if (bytes_written == -1)
+	{
 		perror("write failed");
 		exit(EXIT_FAILURE);
 	}

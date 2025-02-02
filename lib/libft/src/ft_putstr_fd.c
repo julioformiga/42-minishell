@@ -21,7 +21,8 @@ void	ft_putstr_fd(char *s, int fd)
 	while (*s)
 	{
 		bytes_written = write(fd, s++, 1);
-		if (bytes_written == -1) {
+		if (bytes_written == -1)
+		{
 			perror("write failed");
 			exit(EXIT_FAILURE);
 		}

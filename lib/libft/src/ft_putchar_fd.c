@@ -17,7 +17,8 @@ void	ft_putchar_fd(char c, int fd)
 	ssize_t	bytes_written;
 
 	bytes_written = write(fd, &c, 1);
-	if (bytes_written == -1) {
+	if (bytes_written == -1)
+	{
 		perror("write failed");
 		exit(EXIT_FAILURE);
 	}
