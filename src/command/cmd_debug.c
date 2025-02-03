@@ -51,6 +51,8 @@ void	cmd_debug(t_cmd *cmd)
 	{
 		n = -1;
 		printf("|\tCommand #%d: %s\n", i, block->exec);
+		if (block->fd_in != -1 || block->fd_out != -1)
+			printf("|\t\tFD0[%d] - FD1[%d]\n", block->fd_in, block->fd_out);
 		if (block->args)
 			while (block->args[++n])
 				printf("|\t\tArg #%d: %s\n", n + 1, block->args[n]);

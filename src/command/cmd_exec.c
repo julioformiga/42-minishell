@@ -43,11 +43,20 @@ static int	handle_cmd_external(t_cmd *cmdtmp, t_env *env,
 	{
 		if (cmdtmp->cmd->next)
 		{
+			signal(SIGPIPE, SIG_DFL);
+			if (prev_pipe != STDIN_FILENO)
+				close(prev_pipe);
+			prev_pipe = pipefd[0];
 			cmd_exec_pipe_cmd(cmdtmp, env, prev_pipe, pipefd[1]);
 			close(pipefd[0]);
 		}
 		else
 			cmd_exec_pipe_cmd(cmdtmp, env, prev_pipe, STDOUT_FILENO);
+	}
+	else
+	{
+		if (prev_pipe != STDIN_FILENO)
+			close(prev_pipe);
 	}
 	return (0);
 }

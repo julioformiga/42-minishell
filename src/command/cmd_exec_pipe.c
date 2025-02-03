@@ -64,7 +64,6 @@ void	cmd_exec_pipe_wait_children(int *result)
 	pid = wait(result);
 	while (pid > 0)
 	{
-		pid = wait(result);
 		if (WIFSIGNALED(*result) && WTERMSIG(*result) == SIGINT)
 		{
 			if (last_running_pid == 0 || pid == last_running_pid)
@@ -77,6 +76,7 @@ void	cmd_exec_pipe_wait_children(int *result)
 		else if (WIFSIGNALED(*result))
 			g_signal = WTERMSIG(*result) + 128;
 		last_running_pid = pid;
+		pid = wait(result);
 	}
 }
 

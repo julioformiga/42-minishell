@@ -20,6 +20,8 @@ t_cmdblock	*create_new_block(void)
 	if (!block)
 		return (NULL);
 	block->exec = NULL;
+	block->fd_in = -1;
+	block->fd_out = -1;
 	block->args = NULL;
 	block->op_type = OP_NONE;
 	block->redirects = NULL;

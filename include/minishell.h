@@ -61,6 +61,8 @@ typedef struct s_redirect
 typedef struct s_cmdblock
 {
 	char				*exec;
+	int					fd_in;
+	int					fd_out;
 	char				**args;
 	t_operator			op_type;
 	t_redirect			*redirects;
