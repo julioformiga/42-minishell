@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/28 21:19:48 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/02/02 17:29:42 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/03 09:25:18 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ int	env_set(t_env *env, char *key, char *value, int plus)
 	t_env	*new;
 	t_env	*last;
 
-	if (env_key_check(key, value, plus, -1))//messaggio errore potrebbe essere chiamato anche da funzioni diverse da export
+	if (env_key_check(key, value, plus, -1))
 		return (1);
 	if (!env_update(env, key, value, plus))
 		return (0);

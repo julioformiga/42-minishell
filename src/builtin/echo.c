@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 14:50:06 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/02/02 20:23:54 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/02 22:19:21 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	builtin_echo(t_cmd *cmd, t_env *env)
 	no_newline = 0;
 	if (cmd->cmd->args)
 	{
-		if (cmd->cmd->args[i] && check_arg_param(cmd->cmd->args[i], &i))//che vuol dire virgola &i ?
+		if (cmd->cmd->args[i] && check_arg_param(cmd->cmd->args[i], &i))
 			no_newline = 1;
 		while (cmd->cmd->args[i])
 		{

@@ -6,7 +6,7 @@
 /*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/30 14:35:35 by julio.formi       #+#    #+#             */
-/*   Updated: 2025/02/02 13:08:51 by scarlucc         ###   ########.fr       */
+/*   Updated: 2025/02/03 09:39:04 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,10 +123,7 @@ char			*expand_var(char **rl, t_env *env);
 char			*get_var_name(const char *str);
 
 //parser.c
-char			**old_cmd_parser_rl(char *rl, t_env *env, int *val,
-					int tok_count);
 char			**cmd_parser_rl(char *rl, t_env *env, int *val, int tok_count);
-void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
 
 //parser_extract.c
 char			*extract_quoted_token(char **rl, t_env *env);
@@ -134,6 +131,7 @@ char			*extract_word(char **rl, t_env *env);
 char			*extract_operator(char **rl);
 
 //parser_utils.c
+char			**init_matrix_tokens(int tok_count);
 int				check_previuos_op(char *op, char **tokens, int i);
 int				count_tokens(char *rl, int count);
 char			*skip_quotes(char *rl);
@@ -152,6 +150,7 @@ int				set_args(char **cmd_parts, int *i, int	*arg_count,
 					t_cmdblock	**current);
 
 //pars_to_exec.c
+void			cmd_parser(char *rl, t_cmd *cmd, t_env *env);
 t_cmdblock		*process_tokens(t_cmds_values *cmd_val,
 					t_cmdblock	*current, int i);
 
