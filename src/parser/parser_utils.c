@@ -27,7 +27,11 @@ int	check_previuos_op(char *op, char **tokens, int i)
 {
 	if (i > 0)
 	{
-		if (is_operator_start(tokens[i - 1][0]) && is_operator_start(op[0]))
+		if ((tokens[i - 1][0] == '|' && op[0] == '|')
+			|| (tokens[i - 1][0] == '<' && op[0] == '>')
+			|| (tokens[i - 1][0] == '>' && op[0] == '>')
+			|| (tokens[i - 1][0] == '>' && op[0] == '<')
+			|| (tokens[i - 1][0] == '<' && op[0] == '<'))
 		{
 			ft_putstr_fd("minishell: syntax error near unexpected token `",
 				STDERR_FILENO);

@@ -65,7 +65,7 @@ gensupp:	all
 
 norm:
 			printf "$(RED)"
-			norminette $(SRCS) lib include | grep "Error"
+			norminette $(SRCS) lib include | grep "Error" || true
 			printf "$(RESET)"
 
 run:		all debug checkleaks

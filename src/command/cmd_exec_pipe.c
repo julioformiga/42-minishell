@@ -12,18 +12,28 @@
 
 #include "minishell.h"
 
-static void	setup_pipe_fds(int input_fd, int output_fd)
+static void	setup_pipe_fds(t_cmdblock *cmd, int input_fd, int output_fd)
 {
 	signal(SIGQUIT, SIG_DFL);
-	if (input_fd != STDIN_FILENO)
+	if (!cmd->redirects)
 	{
-		dup2(input_fd, STDIN_FILENO);
-		close(input_fd);
+		if (input_fd != STDIN_FILENO)
+		{
+			dup2(input_fd, STDIN_FILENO);
+			close(input_fd);
+		}
+		if (output_fd != STDOUT_FILENO)
+		{
+			dup2(output_fd, STDOUT_FILENO);
+			close(output_fd);
+		}
 	}
-	if (output_fd != STDOUT_FILENO)
+	else
 	{
-		dup2(output_fd, STDOUT_FILENO);
-		close(output_fd);
+		if (input_fd != STDIN_FILENO)
+			close(input_fd);
+		if (output_fd != STDOUT_FILENO)
+			close(output_fd);
 	}
 }
 
@@ -41,7 +51,7 @@ void	cmd_exec_pipe_cmd(t_cmd *cmd, t_env *env, int infd, int outfd)
 		msg_error = ft_strdup("redirect error");
 	if (!msg_error)
 	{
-		setup_pipe_fds(infd, outfd);
+		setup_pipe_fds(cmd->cmd, infd, outfd);
 		env_array = env_to_array(env);
 		execve(full_path, args, env_array);
 		free_array(env_array);
