@@ -39,7 +39,7 @@ jobs:
 
       - name: Run Norminette
         run: |
-          norminette src/command src/builtin include/
+          norminette lib include src
 
       - name: Configure and build
         run: |
