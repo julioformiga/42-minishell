@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_exec_pipe.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: julio.formiga <julio.formiga@gmail.com>    +#+  +:+       +#+        */
+/*   By: scarlucc <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/24 17:28:02 by julio.formiga     #+#    #+#             */
-/*   Updated: 2025/01/24 17:28:02 by julio.formiga    ###   ########.fr       */
+/*   Created: 2025/01/24 17:28:02 by julio.formi       #+#    #+#             */
+/*   Updated: 2025/02/03 12:14:32 by scarlucc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 static void	setup_pipe_fds(int input_fd, int output_fd)
 {
+	signal(SIGQUIT, SIG_DFL);
 	if (input_fd != STDIN_FILENO)
 	{
 		dup2(input_fd, STDIN_FILENO);
