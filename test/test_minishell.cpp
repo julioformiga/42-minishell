@@ -164,6 +164,19 @@ TEST_F(MinishellTest, MLeaksExportInvalid) {
 		<< "Invalid command should set exit status to 1";
 }
 
+TEST_F(MinishellTest, MultiplePipesWithCat) {
+    string command = "echo -e 'cat | cat | ls\n\n\n'"
+		" | valgrind --leak-check=full --show-leak-kinds=all "
+		"--suppressions=external.supp --error-exitcode=1 "
+		+ shell_path;
+    CommandOutput result = exec_command(command);
+
+	ASSERT_EQ(result.exit_code, 0)
+		<< "Multiple pipes with cat should not leak memory";
+    ASSERT_FALSE(result.stdout_output.empty())
+        << "Command should produce output from ls";
+}
+
 TEST_F(MinishellTest, MLeaksRedirectOutFileNotExists) {
     string command = "echo '< filenotexists.txt cat'"
 		" | valgrind --leak-check=full --show-leak-kinds=all "

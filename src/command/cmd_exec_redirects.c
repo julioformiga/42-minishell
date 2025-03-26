@@ -12,51 +12,21 @@
 
 #include "minishell.h"
 
-static	int	cmd_exec_check_file(char *file)
-{
-	if (file[0] == '\0')
-	{
-		ft_putstr_fd("minishell: syntax error near unexpected token\
- `newline'\n", STDERR_FILENO);
-		return (1);
-	}
-	return (0);
-}
-
-int	cmd_exec_handle_redir(t_cmdblock *block, int *pipefd, int *fd_output)
-{
-	t_redirect	*redir;
-
-	*fd_output = STDOUT_FILENO;
-	if (block->redirects)
-	{
-		if (block->next)
-			close(pipefd[1]);
-		redir = block->redirects;
-		while (redir)
-		{
-			if (cmd_exec_check_file(redir->file))
-				return (g_signal = 2, 2);
-			if (redir->op_type == OP_REDIR_OUT)
-				*fd_output = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC,
-						0644);
-			else if (redir->op_type == OP_REDIR_APPEND)
-				*fd_output = open(redir->file, O_WRONLY | O_CREAT | O_APPEND,
-						0644);
-			redir = redir->next;
-		}
-	}
-	else if (block->next)
-		*fd_output = pipefd[1];
-	return (0);
-}
-
 static int	setup_input_redirect(t_redirect *current, int *fd)
 {
 	*fd = open(current->file, O_RDONLY);
 	if (*fd == -1)
+	{
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(current->file, STDERR_FILENO);
+		ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
 		return (-1);
-	dup2(*fd, STDIN_FILENO);
+	}
+	if (dup2(*fd, STDIN_FILENO) == -1)
+	{
+		close(*fd);
+		return (-1);
+	}
 	close(*fd);
 	return (0);
 }

@@ -12,82 +12,37 @@
 
 #include "minishell.h"
 
-static void	setup_pipe_fds(t_cmdblock *cmd, int input_fd, int output_fd)
+void	cmd_exec_pipe_close_fds(void)
 {
-	signal(SIGQUIT, SIG_DFL);
-	if (!cmd->redirects)
-	{
-		if (input_fd != STDIN_FILENO)
-		{
-			dup2(input_fd, STDIN_FILENO);
-			close(input_fd);
-		}
-		if (output_fd != STDOUT_FILENO)
-		{
-			dup2(output_fd, STDOUT_FILENO);
-			close(output_fd);
-		}
-	}
-	else
-	{
-		if (input_fd != STDIN_FILENO)
-			close(input_fd);
-		if (output_fd != STDOUT_FILENO)
-			close(output_fd);
-	}
-}
+	int	fd;
 
-void	cmd_exec_pipe_cmd(t_cmd *cmd, t_env *env, int infd, int outfd)
-{
-	char	*full_path;
-	char	**args;
-	char	**env_array;
-	char	*msg_error;
-
-	msg_error = NULL;
-	if (cmd_setup(cmd, env, &args, &full_path) != 0)
-		exit(g_signal);
-	if (cmd->cmd->redirects && cmd_exec_setup_redir(cmd->cmd->redirects) == -1)
-		msg_error = ft_strdup("redirect error");
-	if (!msg_error)
-	{
-		setup_pipe_fds(cmd->cmd, infd, outfd);
-		env_array = env_to_array(env);
-		execve(full_path, args, env_array);
-		free_array(env_array);
-		msg_error = ft_strdup("execve error");
-	}
-	free_array(args);
-	free_cmd(cmd);
-	env_free(env);
-	free(full_path);
-	perror(msg_error);
-	free(msg_error);
-	exit(1);
+	fd = 2;
+	while (fd++, fd < 256)
+		if (fcntl(fd, F_GETFD) != -1)
+			close(fd);
 }
 
 void	cmd_exec_pipe_wait_children(int *result)
 {
 	pid_t	pid;
-	int		last_running_pid;
+	int		status;
 
-	last_running_pid = 0;
-	pid = wait(result);
+	pid = waitpid(-1, &status, 0);
 	while (pid > 0)
 	{
-		pid = wait(result);
-		if (WIFSIGNALED(*result) && WTERMSIG(*result) == SIGINT)
+		if (WIFSIGNALED(status))
 		{
-			if (last_running_pid == 0 || pid == last_running_pid)
+			if (WTERMSIG(status) == SIGINT)
 				g_signal = 130;
-			else
+			else if (WTERMSIG(status) == SIGPIPE)
 				g_signal = 0;
+			else
+				g_signal = WTERMSIG(status) + 128;
 		}
-		else if (WIFEXITED(*result))
-			g_signal = WEXITSTATUS(*result);
-		else if (WIFSIGNALED(*result))
-			g_signal = WTERMSIG(*result) + 128;
-		last_running_pid = pid;
+		else if (WIFEXITED(status))
+			g_signal = WEXITSTATUS(status);
+		*result = status;
+		pid = waitpid(-1, result, 0);
 	}
 }
 
@@ -110,10 +65,18 @@ int	cmd_exec_pipe_check(t_cmd *cmdtmp, int *pipefd)
 void	cmd_exec_setup_pipe(t_cmdblock *block, int *fd, int *prev_pipe)
 {
 	if (*prev_pipe != STDIN_FILENO)
+	{
 		close(*prev_pipe);
+		*prev_pipe = STDIN_FILENO;
+	}
 	if (block->next)
 	{
 		close(fd[1]);
 		*prev_pipe = fd[0];
+	}
+	else
+	{
+		close(fd[0]);
+		close(fd[1]);
 	}
 }

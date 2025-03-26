@@ -171,7 +171,10 @@ int				cmd_exec_setup_heredoc(t_redirect *redirects, int *heredoc_fd);
 void			cmd_exec_pipe_cmd(t_cmd *cmd, t_env *env, int infd, int outfd);
 void			cmd_exec_pipe_wait_children(int *result);
 int				cmd_exec_pipe_check(t_cmd *cmdtmp, int *pipefd);
+void			cmd_exec_pipe_close_fds(void);
 int				cmd_exec(t_cmd *cmd, t_env *env);
+void			cmd_exec_with_path(t_cmd *cmd, t_env *env, char **args,
+					char *full_path);
 void			cmd_debug(t_cmd *cmd);
 void			free_cmd(t_cmd *cmd);
 

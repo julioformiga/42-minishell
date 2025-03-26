@@ -41,6 +41,8 @@ static int	handle_cmd_external(t_cmd *cmdtmp, t_env *env,
 	}
 	if (pid == 0)
 	{
+		if (prev_pipe != STDIN_FILENO)
+			dup2(prev_pipe, STDIN_FILENO);
 		if (cmdtmp->cmd->next)
 		{
 			cmd_exec_pipe_cmd(cmdtmp, env, prev_pipe, pipefd[1]);
@@ -48,6 +50,8 @@ static int	handle_cmd_external(t_cmd *cmdtmp, t_env *env,
 		}
 		else
 			cmd_exec_pipe_cmd(cmdtmp, env, prev_pipe, STDOUT_FILENO);
+		if (prev_pipe != STDIN_FILENO)
+			close(prev_pipe);
 	}
 	return (0);
 }
