@@ -1,4 +1,4 @@
-# 🚧  Minishell (WIP) 🚧
+# 🚧  Minishell 🚧
 
 A minimal shell implementation inspired by Bash.
 
@@ -60,9 +60,7 @@ A minimal shell implementation inspired by Bash.
 - [x] Invalid file descriptors
 - [x] unset PATH ; ls
 - [x] /bin/ls ; ./bin
-- [ ] > ">"
-- [ ] << eof ; expasion $HOME
-- [ ] cat | cat | ls ; echo $? == 0
+- [x] cat | cat | ls ; echo $? == 0
 
 ## 🛠️ Building
 
